@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { Icon } from "@/components/primitives/Icon"
 import { useAuth } from "@/auth/AuthContext"
+import camShareLogo from "@/assets/camshare-logo.png"
 
 export const TopBar = () => {
   const { user, logout } = useAuth()
@@ -14,8 +15,8 @@ export const TopBar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 bg-surface-glass border-b border-white/10 backdrop-blur-md shadow-sm">
       <Link to="/dashboard" className="flex items-center gap-2">
-        <Icon name="auto_awesome" className="text-primary text-2xl" />
-        <span className="font-headline-md text-headline-md font-bold text-primary">Aeterna</span>
+        <img src={camShareLogo} alt="CamShare" className="h-9 w-9 object-contain rounded-xl" />
+        <span className="font-headline-md text-headline-md font-bold text-primary">CamShare</span>
       </Link>
       <div className="flex items-center gap-3 md:gap-6">
         <div className="hidden md:flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/30">
