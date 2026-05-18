@@ -7,6 +7,7 @@ import {
   PlayfairDisplay_500Medium,
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_700Bold,
+  PlayfairDisplay_700Bold_Italic,
 } from '@expo-google-fonts/playfair-display';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -122,6 +123,7 @@ function RootNavigator() {
 export default function App() {
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_700Bold,
+    PlayfairDisplay_700Bold_Italic,
     PlayfairDisplay_600SemiBold,
     PlayfairDisplay_500Medium,
     DMSans_400Regular,

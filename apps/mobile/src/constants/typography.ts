@@ -2,6 +2,7 @@ import { TextStyle } from 'react-native';
 
 export const FontFamily = {
   playfair: 'PlayfairDisplay_700Bold',
+  playfairItalic: 'PlayfairDisplay_700Bold_Italic',
   playfairSemiBold: 'PlayfairDisplay_600SemiBold',
   playfairMedium: 'PlayfairDisplay_500Medium',
   dmSans: 'DMSans_400Regular',
@@ -12,6 +13,14 @@ export const FontFamily = {
 export const TextStyles = {
   headlineXl: {
     fontFamily: FontFamily.playfair,
+    fontSize: 42,
+    fontWeight: '700' as TextStyle['fontWeight'],
+    lineHeight: 46,
+    letterSpacing: -0.84,
+  } satisfies TextStyle,
+
+  headlineXlItalic: {
+    fontFamily: FontFamily.playfairItalic,
     fontSize: 42,
     fontWeight: '700' as TextStyle['fontWeight'],
     lineHeight: 46,

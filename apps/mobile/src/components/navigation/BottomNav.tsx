@@ -1,25 +1,26 @@
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
-import { TextStyles } from '../../constants/typography';
 
 export type NavTab = 'Home' | 'Gallery' | 'Scanner' | 'Favorites' | 'Profile';
 
 type NavItem = {
   key: NavTab;
-  icon: string;
-  label: string;
+  iconActive: keyof typeof Ionicons.glyphMap;
+  iconInactive: keyof typeof Ionicons.glyphMap;
   isCenter?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'Home', icon: '⌂', label: 'Home' },
-  { key: 'Gallery', icon: '◫', label: 'Gallery' },
-  { key: 'Scanner', icon: '⊡', label: 'Scan', isCenter: true },
-  { key: 'Favorites', icon: '♡', label: 'Saved' },
-  { key: 'Profile', icon: '◯', label: 'Profile' },
+  { key: 'Home', iconActive: 'sparkles', iconInactive: 'sparkles-outline' },
+  { key: 'Gallery', iconActive: 'calendar', iconInactive: 'calendar-outline' },
+  { key: 'Scanner', iconActive: 'qr-code', iconInactive: 'qr-code-outline', isCenter: true },
+  { key: 'Favorites', iconActive: 'heart', iconInactive: 'heart-outline' },
+  { key: 'Profile', iconActive: 'person', iconInactive: 'person-outline' },
 ];
 
 type Props = {
@@ -30,9 +31,11 @@ type Props = {
 export function BottomNav({ active, onPress }: Props) {
   const insets = useSafeAreaInsets();
   const bottomOffset = Math.max(insets.bottom, Spacing.navBottom);
+  const isScannerActive = active === 'Scanner';
 
   return (
     <View style={[styles.wrapper, { bottom: bottomOffset }]}>
+      {/* Pill — overflow:hidden clips only itself */}
       <BlurView
         intensity={40}
         tint="dark"
@@ -44,18 +47,8 @@ export function BottomNav({ active, onPress }: Props) {
             const isActive = active === item.key;
 
             if (item.isCenter) {
-              return (
-                <TouchableOpacity
-                  key={item.key}
-                  onPress={() => onPress(item.key)}
-                  activeOpacity={0.85}
-                  style={styles.centerBtnWrap}
-                >
-                  <View style={styles.centerBtn}>
-                    <Text style={styles.centerIcon}>{item.icon}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
+              // Placeholder that reserves space in the row
+              return <View key={item.key} style={styles.centerPlaceholder} />;
             }
 
             return (
@@ -65,14 +58,36 @@ export function BottomNav({ active, onPress }: Props) {
                 activeOpacity={0.8}
                 style={styles.tab}
               >
-                <Text style={[styles.icon, isActive && styles.iconActive]}>{item.icon}</Text>
-                <Text style={[styles.label, isActive && styles.labelActive]}>{item.label}</Text>
-                {isActive && <View style={styles.dot} />}
+                <Ionicons
+                  name={isActive ? item.iconActive : item.iconInactive}
+                  size={22}
+                  color={isActive ? Colors.primary : Colors.onSurfaceVariant}
+                />
               </TouchableOpacity>
             );
           })}
         </View>
       </BlurView>
+
+      {/* Center button: sibling of BlurView, not clipped by its overflow:hidden */}
+      <TouchableOpacity
+        onPress={() => onPress('Scanner')}
+        activeOpacity={0.85}
+        style={styles.centerBtnWrap}
+      >
+        <LinearGradient
+          colors={['#fa94b6', '#f2ca50']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.centerBtn}
+        >
+          <Ionicons
+            name={isScannerActive ? 'qr-code' : 'qr-code-outline'}
+            size={28}
+            color={Colors.onPrimary}
+          />
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -102,54 +117,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 6,
-    gap: 2,
     minHeight: 48,
   },
-  icon: {
-    fontSize: 18,
-    color: Colors.onSurfaceVariant,
-  },
-  iconActive: {
-    color: Colors.primary,
-  },
-  label: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
-    fontSize: 9,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  labelActive: {
-    color: Colors.primary,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.primary,
-    marginTop: 2,
+  centerPlaceholder: {
+    flex: 1,
+    minHeight: 48,
   },
   centerBtnWrap: {
-    flex: 1,
-    alignItems: 'center',
-    marginTop: -20,
+    position: 'absolute',
+    alignSelf: 'center',
+    top: 0,
+    transform: [{ translateY: -15 }],
   },
   centerBtn: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  centerIcon: {
-    fontSize: 22,
-    color: Colors.onPrimary,
+    shadowColor: '#fa94b6',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 12,
   },
 });

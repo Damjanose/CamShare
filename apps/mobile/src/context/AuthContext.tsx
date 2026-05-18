@@ -1,49 +1,50 @@
-import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { loginApi, type User } from '../api/auth';
 
-const REFRESH_TOKEN_KEY = 'secure_store_refresh_token';
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  permissions: string[];
+};
 
 type AuthContextValue = {
   user: User | null;
   accessToken: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  googleLogin: () => Promise<void>;
-  appleLogin: () => Promise<void>;
+  logout: () => void;
+  googleLogin: () => void;
+  appleLogin: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+const MOCK_USER: User = {
+  id: '1',
+  name: 'Demo User',
+  email: 'demo@example.com',
+  permissions: [],
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  async function login(email: string, password: string) {
-    const { user, tokens } = await loginApi(email, password);
-    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, tokens.refreshToken);
-    setAccessToken(tokens.accessToken);
-    setUser(user);
+  function googleLogin() {
+    setUser(MOCK_USER);
+    setAccessToken('mock-access-token');
   }
 
-  async function logout() {
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    setAccessToken(null);
+  function appleLogin() {
+    setUser(MOCK_USER);
+    setAccessToken('mock-access-token');
+  }
+
+  function logout() {
     setUser(null);
-  }
-
-  async function googleLogin() {
-    // TODO: implement Google OAuth via expo-auth-session
-    console.warn('Google login not yet implemented');
-  }
-
-  async function appleLogin() {
-    // TODO: implement Apple OAuth via expo-auth-session
-    console.warn('Apple login not yet implemented');
+    setAccessToken(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, login, logout, googleLogin, appleLogin }}>
+    <AuthContext.Provider value={{ user, accessToken, logout, googleLogin, appleLogin }}>
       {children}
     </AuthContext.Provider>
   );
