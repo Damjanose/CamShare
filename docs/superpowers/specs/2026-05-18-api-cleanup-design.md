@@ -90,7 +90,11 @@ GET  /auth/me          (requireAuth)
 
 ## Package Naming
 
-All `@jewellery/*` references updated to `@app/*` throughout `package.json` files, source imports, and `pnpm-workspace.yaml` if present.
+All `@jewellery/*` references updated to `@app/*` throughout `package.json` files and source imports:
+- `packages/types/package.json`: `@jewellery/types` → `@app/types`
+- `apps/api/package.json`: `@jewellery/api` → `@app/api`, dependency `@jewellery/types` → `@app/types`
+- `db/package.json`: `@jewellery/db` → `@app/db`
+- Any source file importing from `@jewellery/types` → `@app/types`
 
 ## Out of Scope
 
