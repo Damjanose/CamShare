@@ -1,8 +1,6 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
-import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
 import { GlassCard } from '../components/primitives/GlassCard';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
@@ -39,8 +37,6 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
 
   return (
     <View style={styles.root}>
-      <AtmosphericBackground />
-
       <ScrollView
         contentContainerStyle={[
           styles.content,
@@ -50,17 +46,11 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
       >
         {/* Avatar + name */}
         <View style={styles.avatarSection}>
-          {/* Gradient ring */}
-          <LinearGradient
-            colors={[Colors.primary, Colors.secondary, Colors.tertiary]}
-            style={styles.avatarRing}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <View style={styles.avatarRing}>
             <View style={styles.avatarInner}>
               <Text style={styles.initials}>{initials}</Text>
             </View>
-          </LinearGradient>
+          </View>
 
           <Text style={styles.name}>{user?.fullName ?? 'Guest'}</Text>
           <Text style={styles.email}>{user?.email ?? ''}</Text>
@@ -135,6 +125,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    borderWidth: 2,
+    borderColor: Colors.primary,
   },
   avatarInner: {
     width: 88,
