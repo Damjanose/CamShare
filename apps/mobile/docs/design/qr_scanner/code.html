@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Memories - QR Scanner</title>
+<!-- Typography: Playfair Display & DM Sans -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#201f1f",
+                    "surface-container-highest": "#353534",
+                    "surface-dim": "#131313",
+                    "surface-variant": "#353534",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-bright": "#393939",
+                    "outline-variant": "#4d4635",
+                    "on-error": "#690005",
+                    "secondary-fixed": "#ebdcff",
+                    "on-secondary-fixed": "#230f45",
+                    "surface-container-low": "#1c1b1b",
+                    "on-primary-fixed": "#241a00",
+                    "secondary-fixed-dim": "#d3bcfc",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-container": "#523f76",
+                    "primary-fixed-dim": "#e9c349",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#5c1333",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#131313",
+                    "primary-fixed": "#ffe088",
+                    "tertiary-container": "#fa94b6",
+                    "on-tertiary-fixed": "#3e001e",
+                    "background": "#131313",
+                    "on-background": "#e5e2e1",
+                    "on-primary": "#3c2f00",
+                    "tertiary": "#ffbcd0",
+                    "primary-container": "#d4af37",
+                    "on-tertiary-container": "#772948",
+                    "secondary": "#d3bcfc",
+                    "surface-tint": "#e9c349",
+                    "on-secondary-fixed-variant": "#503d73",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary-container": "#554300",
+                    "on-tertiary-fixed-variant": "#792b4a",
+                    "primary": "#f2ca50",
+                    "inverse-on-surface": "#313030",
+                    "inverse-primary": "#735c00",
+                    "outline": "#99907c",
+                    "on-secondary-container": "#c4aeed",
+                    "on-secondary": "#38265b",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-fixed-dim": "#ffb0c9",
+                    "on-surface-variant": "#d0c5af",
+                    "on-primary-fixed-variant": "#574500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1rem",
+                    "margin-main": "1.5rem",
+                    "stack-lg": "2.5rem",
+                    "stack-sm": "0.75rem",
+                    "stack-md": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "label-sm": ["DM Sans"],
+                    "body-md": ["DM Sans"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["DM Sans"],
+                    "label-md": ["DM Sans"],
+                    "headline-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-xl": ["42px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        
+        @keyframes scan {
+            0%, 100% { top: 0%; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .scanning-line {
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, #f2ca50, transparent);
+            position: absolute;
+            animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 0 15px #f2ca50;
+        }
+
+        .camera-vignette {
+            background: radial-gradient(circle, transparent 40%, rgba(19, 19, 19, 0.85) 100%);
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(24px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .scanner-bracket {
+            width: 40px;
+            height: 40px;
+            border-color: #f2ca50;
+            position: absolute;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen overflow-hidden font-body-md flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-transparent text-primary font-headline-md text-headline-md-mobile docked full-width top-0 bg-background/20 backdrop-blur-xl flat no shadows flex justify-between items-center px-margin-main h-16 w-full z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined hover:opacity-80 transition-opacity cursor-pointer">menu</span>
+</div>
+<h1 class="font-headline-md text-headline-md-mobile text-primary tracking-tight">Memories</h1>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20 hover:opacity-80 transition-opacity cursor-pointer">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional and elegant headshot of a young woman with a serene expression, captured in soft, high-end editorial lighting. The background is a minimalist, softly blurred architectural space with warm champagne tones. Her style is sophisticated and modern, fitting the luxury immersive nostalgia brand identity of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9lIL1-PZfBbMuHNQU1tXr7yE8nRm0wA2_55fRISa-O-gnun6GyLJWWvjRuRYCAlXl1j0S8662C8cvlK1XhctOWptRNnziC1GGoS6i6TBV5gvEvMHXrkHDlCEm30GfhEyv1-pWTc-9BlWP1REaBye52OZhRnDlNtdRRx1gJmwmfwRKZo2VW87zNELS4zdayWHFduCk9NKwMhBLQWqiwIyaY2e6WZEo53wrQwFtiPgDexD2MlGiVJy9FuHcMBcGrp18oLyJciTiLIs"/>
+</div>
+</header>
+<!-- Scanner Canvas (Simulated Camera Preview) -->
+<main class="relative flex-grow flex flex-col items-center justify-center">
+<!-- Background "Camera Preview" -->
+<div class="absolute inset-0 z-0 overflow-hidden">
+<img alt="Event Preview" class="w-full h-full object-cover scale-110 blur-md opacity-60" data-alt="A blurred, cinematic view of a luxury gala event. Golden fairy lights twinkle in the background of a high-end ballroom. Elegant guests in evening attire are softly out of focus, creating a sense of warmth and exclusivity. The color palette is dominated by deep blacks, warm golds, and soft rose pinks, maintaining a dreamlike atmospheric quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdXW65l4htTEzk8kiLrBRslQLMWhKCcNwXYwgUUSlu_z1hmV9Knd0xnaZny5i7K_baXaApUStrVVWVq3mcUycKyWkhMxUqvjaoOQ57JzpiNYWQ2oiUW5L8halv4FZAhDAi2svP0Y-7cvk_tYfMldMK0S853e7qA5w8170_br_1IOUu278USs49NqDKYx2EgEn0QAow2yOk4gS65clDCozcTOtkZXS-2JeAD0cfbSGwJhQ7IKn783YROIY6wdnXttk7iFhrRVxZZGg"/>
+<div class="absolute inset-0 camera-vignette"></div>
+<!-- Atmospheric Gradients -->
+<div class="absolute top-1/4 -left-1/4 w-96 h-96 bg-tertiary/10 rounded-full blur-[100px] animate-pulse"></div>
+<div class="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px] animate-pulse" style="animation-delay: 2s;"></div>
+</div>
+<!-- Scanner Frame UI -->
+<div class="relative z-10 flex flex-col items-center">
+<!-- Frame -->
+<div class="relative w-64 h-64 md:w-80 md:h-80 mb-stack-lg">
+<!-- Brackets -->
+<div class="scanner-bracket top-0 left-0 border-t-4 border-l-4 rounded-tl-xl shadow-[0_0_15px_rgba(242,202,80,0.3)]"></div>
+<div class="scanner-bracket top-0 right-0 border-t-4 border-r-4 rounded-tr-xl shadow-[0_0_15px_rgba(242,202,80,0.3)]"></div>
+<div class="scanner-bracket bottom-0 left-0 border-b-4 border-l-4 rounded-bl-xl shadow-[0_0_15px_rgba(242,202,80,0.3)]"></div>
+<div class="scanner-bracket bottom-0 right-0 border-b-4 border-r-4 rounded-br-xl shadow-[0_0_15px_rgba(242,202,80,0.3)]"></div>
+<!-- Inner Glass Overlay -->
+<div class="absolute inset-4 rounded-lg bg-white/5 backdrop-blur-[2px] border border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-6xl">qr_code_2</span>
+</div>
+<!-- Animated Scan Line -->
+<div class="scanning-line"></div>
+</div>
+<!-- Instructions -->
+<div class="glass-panel px-6 py-4 rounded-full flex items-center gap-3 shadow-lg">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="text-on-surface font-label-md tracking-wider">Point at an event code to join</p>
+</div>
+</div>
+<!-- Flash Toggle Button -->
+<button class="absolute right-margin-main top-1/2 -translate-y-1/2 glass-panel p-4 rounded-full text-primary hover:bg-primary/20 transition-all active:scale-95 z-20">
+<span class="material-symbols-outlined">flashlight_on</span>
+</button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 mx-auto w-[92%] max-w-md z-50 flex justify-around items-center h-16 px-4 bg-white/10 backdrop-blur-2xl border-t border-l border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-full">
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+</a>
+<!-- Active Scanner Button -->
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:absolute after:-bottom-2 after:w-1 after:h-1 after:bg-primary after:rounded-full bg-gradient-to-br from-primary to-tertiary p-4 rounded-full -mt-8 shadow-lg" href="#">
+<span class="material-symbols-outlined text-on-primary">qr_code_scanner</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">favorite</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+<!-- Micro-interaction Scripts -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scannerFrame = document.querySelector('.scanner-bracket');
+            
+            // Subtle hover tilt effect on the scanner instruction panel
+            const infoPanel = document.querySelector('.glass-panel');
+            infoPanel.addEventListener('mousemove', (e) => {
+                const rect = infoPanel.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                infoPanel.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            infoPanel.addEventListener('mouseleave', () => {
+                infoPanel.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+
+            // Simulate a "successful scan" vibration/flash on click for demo purposes
+            const frame = document.querySelector('.w-64');
+            frame.addEventListener('click', () => {
+                frame.classList.add('scale-95');
+                setTimeout(() => {
+                    frame.classList.remove('scale-95');
+                    const flash = document.createElement('div');
+                    flash.className = 'fixed inset-0 bg-white z-[100] pointer-events-none opacity-0 transition-opacity duration-300';
+                    document.body.appendChild(flash);
+                    requestAnimationFrame(() => {
+                        flash.style.opacity = '0.5';
+                        setTimeout(() => {
+                            flash.style.opacity = '0';
+                            setTimeout(() => flash.remove(), 300);
+                        }, 50);
+                    });
+                }, 100);
+            });
+        });
+    </script>
+</body></html>

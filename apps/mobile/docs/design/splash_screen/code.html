@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Event Memories - Welcome</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#201f1f",
+                    "surface-container-highest": "#353534",
+                    "surface-dim": "#131313",
+                    "surface-variant": "#353534",
+                    "error": "#ffb4ab",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-bright": "#393939",
+                    "outline-variant": "#4d4635",
+                    "on-error": "#690005",
+                    "secondary-fixed": "#ebdcff",
+                    "on-secondary-fixed": "#230f45",
+                    "surface-container-low": "#1c1b1b",
+                    "on-primary-fixed": "#241a00",
+                    "secondary-fixed-dim": "#d3bcfc",
+                    "tertiary-fixed": "#ffd9e2",
+                    "secondary-container": "#523f76",
+                    "primary-fixed-dim": "#e9c349",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#5c1333",
+                    "on-error-container": "#ffdad6",
+                    "surface": "#131313",
+                    "primary-fixed": "#ffe088",
+                    "tertiary-container": "#fa94b6",
+                    "on-tertiary-fixed": "#3e001e",
+                    "background": "#131313",
+                    "on-background": "#e5e2e1",
+                    "on-primary": "#3c2f00",
+                    "tertiary": "#ffbcd0",
+                    "primary-container": "#d4af37",
+                    "on-tertiary-container": "#772948",
+                    "secondary": "#d3bcfc",
+                    "surface-tint": "#e9c349",
+                    "on-secondary-fixed-variant": "#503d73",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-primary-container": "#554300",
+                    "on-tertiary-fixed-variant": "#792b4a",
+                    "primary": "#f2ca50",
+                    "inverse-on-surface": "#313030",
+                    "inverse-primary": "#735c00",
+                    "outline": "#99907c",
+                    "on-secondary-container": "#c4aeed",
+                    "on-secondary": "#38265b",
+                    "on-surface": "#e5e2e1",
+                    "tertiary-fixed-dim": "#ffb0c9",
+                    "on-surface-variant": "#d0c5af",
+                    "on-primary-fixed-variant": "#574500"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "1rem",
+                    "margin-main": "1.5rem",
+                    "stack-lg": "2.5rem",
+                    "stack-sm": "0.75rem",
+                    "stack-md": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "label-sm": ["DM Sans"],
+                    "body-md": ["DM Sans"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "headline-xl": ["Playfair Display"],
+                    "body-lg": ["DM Sans"],
+                    "label-md": ["DM Sans"],
+                    "headline-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "headline-xl": ["42px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-45%, -55%) rotate(5deg) scale(1.1); }
+            100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+        }
+
+        .shimmer-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            animation: shimmer 15s infinite ease-in-out;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, #f2ca50 0%, #ffbcd0 100%);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-gradient:active {
+            transform: scale(0.96);
+        }
+
+        .fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .letter-reveal span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes reveal {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col overflow-hidden selection:bg-primary/30">
+<!-- Atmospheric Background -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden">
+<div class="shimmer-orb w-[600px] h-[600px] bg-primary/10 top-[-10%] left-[-10%]"></div>
+<div class="shimmer-orb w-[500px] h-[500px] bg-tertiary/10 bottom-[-5%] right-[-5%]" style="animation-delay: -5s;"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex-1 flex flex-col items-center justify-between py-stack-lg px-margin-main">
+<!-- Center Brand Cluster -->
+<div class="flex-1 flex flex-col items-center justify-center text-center">
+<div class="relative mb-stack-md">
+<div class="absolute inset-0 blur-2xl bg-primary/20 scale-150 rounded-full"></div>
+<div class="relative w-20 h-20 glass-panel rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'wght' 300;">auto_awesome</span>
+</div>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary tracking-tight letter-reveal">
+<span>E</span><span>v</span><span>e</span><span>n</span><span>t</span>
+<span class="mx-2"></span>
+<span>M</span><span>e</span><span>m</span><span>o</span><span>r</span><span>i</span><span>e</span><span>s</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant/80 max-w-[280px] mt-stack-sm fade-in" style="animation-delay: 0.6s;">
+                A private digital sanctuary for your most cherished life moments.
+            </p>
+</div>
+<!-- Authentication Options -->
+<div class="w-full max-w-sm flex flex-col gap-stack-sm fade-in" style="animation-delay: 0.9s;">
+<button class="w-full h-14 btn-gradient rounded-full flex items-center justify-center gap-3 shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">
+<svg class="w-5 h-5 fill-on-primary" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path>
+</svg>
+<span class="font-label-md text-label-md text-on-primary font-bold">Continue with Google</span>
+</button>
+<button class="w-full h-14 glass-panel rounded-full flex items-center justify-center gap-3 hover:bg-white/5 transition-all group">
+<svg class="w-5 h-5 fill-white group-hover:scale-110 transition-transform" viewbox="0 0 24 24">
+<path d="M17.05 20.28c-.96.95-2.12 2.36-3.8 2.36-1.63 0-2.1-.98-3.8-.98-1.7 0-2.25.98-3.8.98-1.68 0-2.84-1.41-3.8-2.36-2.14-2.14-3.5-5.38-3.5-8.58 0-4.9 3.05-7.55 5.95-7.55 1.5 0 2.58.75 3.5.75.92 0 2-.75 3.5-.75 1.43 0 2.95.53 4.05 1.5-3.5 1.8-2.9 6.85.7 8.35-.7 1.8-1.55 3.5-2.95 5.48zM12.05 5.03c-.15-2.45 2.1-4.7 4.45-4.85.2 2.75-2.25 4.95-4.45 4.85z"></path>
+</svg>
+<span class="font-label-md text-label-md text-white font-medium">Continue with Apple</span>
+</button>
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant/50 mt-4 px-6 leading-relaxed">
+                By continuing, you agree to our <a class="text-primary/70 hover:text-primary transition-colors underline decoration-primary/20" href="#">Terms of Service</a> and <a class="text-primary/70 hover:text-primary transition-colors underline decoration-primary/20" href="#">Privacy Policy</a>.
+            </p>
+</div>
+</main>
+<!-- Visual Accents: Media Mosaic (Floating Blur) -->
+<div class="fixed bottom-[-100px] left-0 right-0 h-64 pointer-events-none opacity-40">
+<div class="flex gap-4 justify-center items-end h-full px-4 transform rotate-3 scale-110">
+<div class="w-24 h-32 rounded-lg bg-surface-container-high overflow-hidden border border-white/10 shadow-2xl glass-panel">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="A high-end wedding reception scene with soft candlelight, blurred ivory floral arrangements, and golden accents on a dark wooden table. The aesthetic is extremely elegant and cinematic, using deep shadows and warm highlight glints to create an atmosphere of luxury nostalgia. Dark moody lighting with soft rose pink hues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD3jnFKEIQZJ7nEMd-rRK8N2STmuiIXTazinR55aSYWw6L4k09MBN2VdEsQ4xheq1HIejUwFg2XV-bOnRKmYIm9roGC-BZZaDQv5Kh2FJLglKpgY5d3JiZW57hc_-3gL-zLR3jzKvTHwNah69K2I072sUSR-k68Oj67dGji6nn43YMfuOlTZxcjbjr6_2PseQuZ2aC7Y5ytSah_yI28cNgNrLplPafdXD2FuXBKbi3TXvVkaWk-Bce1m_x4EpIN2ZlQsx2bYeKrLg"/>
+</div>
+<div class="w-32 h-44 rounded-lg bg-surface-container-high overflow-hidden border border-white/10 shadow-2xl glass-panel -mb-8">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="A sophisticated garden party at dusk featuring hanging fairy lights reflecting in crystal glassware. Elegant guests are partially visible in soft focus, wearing dark formal attire. The color palette is dominated by deep blacks, champagne golds, and subtle purples, evoking a feeling of exclusive celebrations and quiet reflection." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI0PagjqNd9Sa3EamQQyuGZRqGK4Fb1_7kZOckiAU0_bhFJtD_Wv2kMliTdtsXmB-uPP4ZogtmsAIwq1TkRLSr1XMByEgiTeLFlwlwNVKA7tUwaHR1s6o7CWJlRnq4rNR9TDB2PyRQBqh-awhiEuW7t8DREDf3mnyFD371GRdSEVy8mrew0nHqYRRLIA4KqWt9n8TvF-Q3ltZHpZZpUVNHG7CmB7j1Dume5ozIxLrSGcrFF77HZOOMtBlZxcjoWAb8p3d7GwMNTA8"/>
+</div>
+<div class="w-24 h-36 rounded-lg bg-surface-container-high overflow-hidden border border-white/10 shadow-2xl glass-panel">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="An intimate close-up of hands holding a vintage printed photograph over a textured dark velvet surface. Soft warm light spills from the side, catching the edges of the photo and the fine details of the fabric. The mood is nostalgic, private, and deeply emotional, emphasizing the tactile nature of preserving precious life memories." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaSf19I_BnBB0uc9ioi3PNK409zpD9fdSUVAMdyE33cmNnQLQNFDwLIJLL7VQtXZpxxb5BdMY7xw-NAZ3-Da8bRAMYQJe99jbQ1EnYe4UcYQPitAlaO6ZGNc36ThmfscLd-KM2sST6R2kY3Pk_GzUtPhIRdrLKea9bgEKw1U3A8QNIoz0UL97hec09uET0UJt5YQYDkxwPEPU4RbJMdFppcyliTJGRlA6VlSxrUyBupWDwvTg0inL3HMIXmNVATCT5b2I8C9fRhng"/>
+</div>
+</div>
+</div>
+<script>
+        // Letter reveal animation
+        document.querySelectorAll('.letter-reveal span').forEach((span, idx) => {
+            span.style.animationDelay = `${idx * 0.05}s`;
+        });
+
+        // Interactive subtle tilt on logo
+        const logo = document.querySelector('.relative.w-20.h-20');
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            logo.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        // Button interaction sounds/haptics simulation
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.opacity = '0.9';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.opacity = '1';
+            });
+        });
+    </script>
+</body></html>
