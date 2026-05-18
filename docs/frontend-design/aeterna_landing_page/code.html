@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aeterna | Preserve Every Chapter</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(212, 175, 55, 0.08);
+        }
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .masonry-item:nth-child(even) {
+            transform: translateY(24px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-canvas-white text-on-surface font-body-md overflow-x-hidden">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#d4af37",
+                    "soft-amethyst": "#8E7CC3",
+                    "champagne-gold": "#D4AF37",
+                    "on-secondary-fixed-variant": "#4c3c7e",
+                    "secondary": "#655497",
+                    "secondary-fixed-dim": "#cebdff",
+                    "on-tertiary-fixed-variant": "#663a3b",
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#64393a",
+                    "surface-container": "#f0eded",
+                    "surface-glass": "rgba(255, 255, 255, 0.7)",
+                    "surface-tint": "#735c00",
+                    "on-error": "#ffffff",
+                    "on-secondary-container": "#534284",
+                    "surface": "#fcf9f8",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-background": "#1b1c1c",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-primary": "#ffffff",
+                    "outline-variant": "#d0c5af",
+                    "surface-bright": "#fcf9f8",
+                    "surface-dim": "#dcd9d9",
+                    "on-secondary-fixed": "#200b50",
+                    "on-tertiary-fixed": "#331012",
+                    "surface-container-low": "#f6f3f2",
+                    "on-surface": "#1b1c1c",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#ffe088",
+                    "on-primary-fixed-variant": "#574500",
+                    "surface-container-high": "#eae7e7",
+                    "secondary-fixed": "#e8ddff",
+                    "inverse-primary": "#e9c349",
+                    "on-primary-fixed": "#241a00",
+                    "tertiary-container": "#dfa4a4",
+                    "tertiary-fixed-dim": "#f5b7b7",
+                    "surface-variant": "#e5e2e1",
+                    "on-tertiary": "#ffffff",
+                    "tertiary": "#815152",
+                    "canvas-white": "#FAF9F6",
+                    "faded-rose": "#E5A9A9",
+                    "on-primary-container": "#554300",
+                    "primary": "#735c00",
+                    "secondary-container": "#c7b3ff",
+                    "inverse-surface": "#303030",
+                    "tertiary-fixed": "#ffdad9",
+                    "background": "#fcf9f8",
+                    "on-surface-variant": "#4d4635",
+                    "surface-container-highest": "#e5e2e1",
+                    "outline": "#7f7663"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "margin-mobile": "16px",
+                    "container-max": "1440px",
+                    "gutter": "24px",
+                    "margin-desktop": "64px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Playfair Display"],
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Playfair Display"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Playfair Display"],
+                    "headline-lg": ["Playfair Display"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-surface-glass backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
+<nav class="flex items-center justify-between px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary tracking-tight">Aeterna</span>
+</div>
+<button class="bg-champagne-gold text-white px-6 py-2 rounded-full font-label-md text-label-md shadow-lg active:scale-95 transition-all">
+                Get Started
+            </button>
+</nav>
+</header>
+<main class="pt-24">
+<!-- Hero Section -->
+<section class="px-margin-mobile md:px-margin-desktop pb-16 flex flex-col items-center text-center">
+<div class="relative w-full max-w-4xl mx-auto">
+<h1 class="font-display-lg text-display-lg text-on-surface leading-tight mb-6">
+                    Collect memories from every event in one <span class="text-primary italic">shared album.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10">
+                    Create an event, share a QR code, and let guests upload photos and videos instantly. No apps to download, no accounts to create.
+                </p>
+<div class="flex flex-col gap-4 w-full sm:flex-row sm:justify-center mb-16">
+<button class="bg-champagne-gold text-white font-label-md text-label-md px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all">
+                        Create Event
+                    </button>
+<button class="bg-white/40 border border-primary/20 text-primary font-label-md text-label-md px-8 py-4 rounded-full backdrop-blur-sm hover:bg-white/60 transition-all">
+                        Join Event (Scan QR)
+                    </button>
+</div>
+<!-- Phone Mockup Visual -->
+<div class="relative mx-auto w-full max-w-[280px] h-[580px] rounded-[3rem] border-[8px] border-on-surface bg-surface-container overflow-hidden shadow-2xl">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, high-end wedding celebration scene with soft, golden hour lighting. Elegant guests are laughing and dancing in a beautifully decorated outdoor ballroom. The color palette is dominated by warm champagne golds and soft whites, maintaining a premium, luxurious aesthetic consistent with a memory curation platform." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBGPdRJpKGs8BuBI3DmZzvjrNMyDkwUuUaXono-So0Ys3KdGVzzLrzdTvJ4WpuSnrxa5kLag2SQIz2e4a5ABJwL8M879CXaxWFSJ87FujYlBvrd8pPHoyu0Gx6sBtOyEeqV7gKfQpnXeJd-ipUdsPp4q5N3aNgljpK4qa7fQlZG8FnXHSckVyqJY0eaIrg_j9X8xF9JZCCPC5eWDqSCDqwWBNllueIEk125eHTMwN7WF47oNR0vdYrz0yqx6bujlHKBTyRNxWD_b98')">
+<div class="absolute inset-0 bg-black/20 backdrop-blur-sm flex flex-col items-center justify-center p-8">
+<div class="bg-white p-4 rounded-2xl shadow-2xl animate-pulse">
+<img alt="Event QR Code" class="w-48 h-auto rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnndCEKjvaKIut2y946dPuqYxZ6C3beb43g-ijNpc5aw33bCl3Kcy80uwfVNC5fS5txhH0HiQIx_420eBVCJm42yuhBr1uxElRoEju_2-85z3thGwdNLpZ2adBuEWfazAl_hl5DP6rVxm15N7CnCQbBv9134g9c2Q4oVQspjh2kwHUTjq2rp4Ml0rS5JovKgaeeK4T3l4hVIEy-nIUF2tVvuBbxQlktfR8VyX_x2CJ_VYDu-u6S_T6oeL8nYjtAlBGAnKaBjLBz3Y"/>
+<p class="text-center font-caption text-caption mt-4 text-on-surface">Scan to join the Wedding Album</p>
+</div>
+</div>
+</div>
+<!-- Transition Layer Overlay (Simulated via JS/CSS Interaction) -->
+<div class="absolute inset-0 bg-surface-bright translate-y-full transition-transform duration-1000 ease-in-out p-4" id="phone-overlay">
+<div class="h-full flex flex-col">
+<div class="flex justify-between items-center mb-4">
+<span class="font-headline-md text-headline-md text-primary">Live Gallery</span>
+<span class="material-symbols-outlined text-primary" data-icon="photo_camera">photo_camera</span>
+</div>
+<div class="grid grid-cols-2 gap-2 overflow-y-auto hide-scrollbar">
+<div class="h-32 bg-surface-container rounded-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of an elegant wedding table setting with gold cutlery and soft amethyst floral arrangements under warm, soft lighting. Premium editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIj0OpVrlg_KzLu5OIqANBDGJPD7AmhbrocCULQuk-2Z1YJg3PCpqBd3k0_UVBgYAoZW74TwxuavmSniyXBHe7sWAxyHeG_9SJsRCkAr8KNDoPT8A2_U4I-Ktu72LS4jXH-9_KkzsG1WKmzckUF7eV_mlD5ozYQeMjQCKu2Y8NNx9o3qn9SKHz2SEk9pohtBchIv2XaTisS85n3dMKSP5PdV0Y3-DpL-s57f_iuNYj0D8GmxCJThrFDWTkLspw0xY8G33KPJlEXo0"/>
+</div>
+<div class="h-40 bg-surface-container rounded-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A candid moment of a couple laughing during their first dance, captured in a dreamy, soft-focus style with sparkling bokeh lights in the background. Champagne gold and warm tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8g9kFpFsl3g3ut2schgXPAqMFcDNc3eQ_DZjMhKOQ75BXDHlh28KTGCWk4mIg4EXN9ckwxOp09D2FQygY_9i7hAaEblJnuUvCRC3mYpSyCitgfOGdILRzm7f0Ko0q5Hp-Ha-eUkPOAeO7SunyeKlmKYWUEpJSlMS9QVyufVPhRsAh1nLK-PfH5jbScT3d1AueUeBQi3Dju__9Fj7YQDoSLTXoqyZ3bFz31dtIPqQDGHMYlj34qP-oaQT592fT2d0iZOzmHDmDJuE"/>
+</div>
+<div class="h-36 bg-surface-container rounded-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="An elegant evening garden party with string lights illuminating guests in sophisticated attire. The mood is intimate, celebratory, and premium. Minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGcHFh_RI783KWWBqB0YEOSEh19qMlIXwy2CCEzVYB9MCl4qSBeXcFOvf58mdoiF8zGnsP1RewPXuP2D1QrfLO5fR18aW2C6mkhNE4jw8aGyQv4qTvd7yyuidOBJfXJkPMayLqW_haRqT4TQj0NlriL3VrkHfyiXckJN1EfB-Cf_FnRWV4ZwtRIK_FfXGfCXbBoHxc4_OSawfoa72vgZBDqI58o2M7qnm2K2ahYU-N16GXuP6vm85KUIZW0lS3obaCZs8euBgbZW0"/>
+</div>
+<div class="h-32 bg-surface-container rounded-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Detail shot of a toast with crystal champagne glasses, reflecting warm glowing lights in a luxurious ballroom setting. Sophisticated and nostalgic mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCidfcgW9LkHCMh4XMfwJ5d1cGROf3afR7v0512u0TF4L-Rn0mg7r7Q6MXRzqv6ymv_x4ud8FLtSySWddMImUGUU2UKF5Ish5cew_XE1Wopl6IUz0fOk0_T7cIswUsJklCB9-5Lb0XutP4qeEsMhorTgRm-JP7UTi7bR0D4vfXBKhgzauy_YCJq5_hIAhRnePBbb7tW9nAQT-30PPpxOtcrwZDEFs1IfMgUgSEXTosgYb3ET8Muhd8PjlSALPlV7q264i2pVyoGKR8"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Use Cases Scrolling Section -->
+<section class="py-12 bg-surface-container-low overflow-hidden">
+<div class="flex items-center gap-6 animate-scroll hide-scrollbar overflow-x-auto px-margin-mobile whitespace-nowrap">
+<div class="flex items-center gap-2 glass-card px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="favorite">favorite</span>
+<span class="font-label-md text-label-md text-primary">Weddings</span>
+</div>
+<div class="flex items-center gap-2 glass-card px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="cake">cake</span>
+<span class="font-label-md text-label-md text-primary">Birthdays</span>
+</div>
+<div class="flex items-center gap-2 glass-card px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="business_center">business_center</span>
+<span class="font-label-md text-label-md text-primary">Corporate</span>
+</div>
+<div class="flex items-center gap-2 glass-card px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="school">school</span>
+<span class="font-label-md text-label-md text-primary">Graduations</span>
+</div>
+<div class="flex items-center gap-2 glass-card px-6 py-3 rounded-full">
+<span class="material-symbols-outlined text-primary" data-icon="celebration">celebration</span>
+<span class="font-label-md text-label-md text-primary">Parties</span>
+</div>
+</div>
+</section>
+<!-- How it Works -->
+<section class="py-24 px-margin-mobile bg-white relative">
+<div class="max-w-container-max mx-auto">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface text-center mb-16">Preserving memories is effortless</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="text-center group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+<span class="font-headline-md text-headline-md text-primary">1</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Create Event</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Set your event details, upload limits, and album privacy in seconds.</p>
+</div>
+<div class="text-center group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+<span class="font-headline-md text-headline-md text-primary">2</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Share QR Code</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Print it or show it on a screen. Guests scan to join instantly.</p>
+</div>
+<div class="text-center group">
+<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+<span class="font-headline-md text-headline-md text-primary">3</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Collect Memories</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Watch as photos and videos appear in your live shared album.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="py-24 px-margin-mobile bg-surface-container-low">
+<div class="max-w-container-max mx-auto">
+<div class="flex flex-col items-center mb-16">
+<span class="bg-primary-container/20 text-primary px-4 py-1 rounded-full text-label-md font-label-md mb-4 uppercase tracking-widest">Capabilities</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface text-center">Built for premium experiences</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="lock">lock</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Private Albums</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Your content is secure. Control exactly who can view and contribute.</p>
+</div>
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="qr_code_2">qr_code_2</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Zero Friction</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">No accounts required for guests. Scan, snap, and upload.</p>
+</div>
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="bolt">bolt</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Real-time Uploads</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">See memories appear as they happen with instant sync.</p>
+</div>
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="video_camera_back">video_camera_back</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">4K Video Support</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Preserve motion with support for high-fidelity video uploads.</p>
+</div>
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="admin_panel_settings">admin_panel_settings</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Admin Control</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Review and moderate content before it appears in the gallery.</p>
+</div>
+<div class="glass-card p-8 rounded-3xl">
+<span class="material-symbols-outlined text-primary text-3xl mb-4" data-icon="grid_view">grid_view</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-2">Editorial Gallery</h4>
+<p class="font-body-md text-body-md text-on-surface-variant">Beautiful masonry layouts that make your memories look professional.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Gallery Showcase / Demo -->
+<section class="py-24 overflow-hidden">
+<div class="max-w-container-max mx-auto px-margin-mobile">
+<div class="flex flex-col lg:flex-row items-center gap-16">
+<div class="lg:w-1/2">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-6">A shared gallery that feels like a masterpiece.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
+                            Every event gets a dedicated space. Guests can browse the growing collection in real-time while you maintain total curation control.
+                        </p>
+<div class="glass-card p-6 rounded-2xl flex items-center gap-6 mb-10">
+<div class="w-24 h-24 bg-white p-2 rounded-lg shadow-sm shrink-0">
+<img alt="Invite QR" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnndCEKjvaKIut2y946dPuqYxZ6C3beb43g-ijNpc5aw33bCl3Kcy80uwfVNC5fS5txhH0HiQIx_420eBVCJm42yuhBr1uxElRoEju_2-85z3thGwdNLpZ2adBuEWfazAl_hl5DP6rVxm15N7CnCQbBv9134g9c2Q4oVQspjh2kwHUTjq2rp4Ml0rS5JovKgaeeK4T3l4hVIEy-nIUF2tVvuBbxQlktfR8VyX_x2CJ_VYDu-u6S_T6oeL8nYjtAlBGAnKaBjLBz3Y"/>
+</div>
+<div>
+<h5 class="font-label-md text-label-md text-on-surface">The Wedding of Clara &amp; Julian</h5>
+<p class="font-caption text-caption text-on-surface-variant">Scan to contribute your memories</p>
+</div>
+</div>
+</div>
+<div class="lg:w-1/2 w-full">
+<div class="masonry-grid pb-24">
+<div class="masonry-item rounded-2xl overflow-hidden glass-card shadow-lg">
+<img class="w-full h-auto" data-alt="A cinematic photo of a bride's veil blowing in the wind during a sunset ceremony. The lighting is golden, soft, and ethereal. High-end editorial photography style for a memory album." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRYoqBcvdRlgN5s-qLFh0l7_zqhmBLjR1FKSu8-a-phsCdVSzm9H4G2knDGovDUJaSQAX8Wimek7e3uYRNXEquWvYT5FvJ2cm0eyknAW-i067xPaxjR39fMCwGPpaF87Lghwg1TK6m5cMm2UWlG1puYJ-WeaAj864rtgCEpltwzmX27IsXxlJbmGhOe-fPMaNeZt5vB9psy6Aok75YWdnEZ1cYCxShFjkQb3gXBreE3smWI6le0X4iV2nzzJSnOv1W-LkpCEO2o3Q"/>
+</div>
+<div class="masonry-item rounded-2xl overflow-hidden glass-card shadow-lg">
+<img class="w-full h-auto" data-alt="A festive, elegant birthday party scene with vibrant cocktails, soft candle lighting, and guests laughing in the blurred background. Warm, celebratory, and premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlDy6SLjLgt0S_zQinuG_KO80sBlccWDXnhI3TLDsLiX88iVPO2oMCLQeUBAhCPs3ZVe5mvXzYhCc26J8PEbyIHF1aB_oOb5zshjOjBlBBSL-joICct4xogBa43WN_YloaUjHMmNOsoH79laeWytiyNGVnt-91uUfQsCu_75sgq5juFDWartyGSsoec2B77j9gAfHAwbGZwFRw0gtEgule2H9UctsB0nLsQWG1LD2qd5yXYsthFrH97cDzeev8Sp_styRgzHex2pA"/>
+</div>
+<div class="masonry-item rounded-2xl overflow-hidden glass-card shadow-lg">
+<img class="w-full h-auto" data-alt="A grand ballroom decorated with cascading white flowers and shimmering champagne gold accents. The atmosphere is sophisticated and timeless. Professional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO-yNqC2Gk-pQ9xaddk0oiP9n-3m3MC2q6H4NnJkWdlnMSK83PCKTacDSzn5tRKGkkBtHJ8wbxcCmFH-O4FVvV0DbmdkYgE5pudIWno4ht9rXh5GvsFgcrwj0DGfH3eRViPwmq40YQwkAg8WXQPP4LgmyVdJ61U8Av2S41dp8wWfseV4WHMtRFsJokymkrheEqH0YUu7pMHzdJr7n9iinEnUz5zqS5odWDMoJL2_irK7FM4bQCTcO2ImRgIm8LLAg0aJhzC3lr-mg"/>
+</div>
+<div class="masonry-item rounded-2xl overflow-hidden glass-card shadow-lg">
+<img class="w-full h-auto" data-alt="Intimate capture of guests raising their glasses in a celebratory toast during an elegant outdoor reception. Glowing fairy lights and soft evening lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbzCwUB9SPoQbN0l8ysKNaBFp-iHxQV4doHfod-6vDSyeWJje8x2eRiJYQ4L-I1MbPhi9MZTVFnav9VI4aL9iRs6yLrFclPLLXXYWiJR0z4VXAKGmnzbiSkZorPHpkFXECNMAAN748hxDR46JMWw703PkK6C5Y0oufjNVLfCYOLXZ-dPnV5IfLemrfWyVefwQC4U0F0_ilHGlOOZrhA-HzR12rlaOIozn9D_GfecmkzGa25tK_wemZnZG8EKrX6FXY6CU8fKZVzKA"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="py-24 px-margin-mobile bg-primary/5">
+<div class="max-w-container-max mx-auto text-center glass-card p-12 rounded-[3rem]">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-6">Start your first event in minutes.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-xl mx-auto">
+                    Preserve the chapters that matter most. Create your first event for free and start collecting memories today.
+                </p>
+<div class="flex flex-col gap-4 sm:flex-row sm:justify-center">
+<button class="bg-champagne-gold text-white font-label-md text-label-md px-10 py-5 rounded-full shadow-xl active:scale-95 transition-all">
+                        Create Event Free
+                    </button>
+<button class="bg-white text-primary border border-primary/10 font-label-md text-label-md px-10 py-5 rounded-full shadow-sm hover:shadow-md transition-all">
+                        Scan QR to try demo event
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container w-full py-12 px-margin-mobile border-t border-outline-variant/30">
+<div class="flex flex-col md:flex-row justify-between items-center gap-gutter w-full max-w-container-max mx-auto">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-headline-md text-headline-md font-semibold text-primary">Aeterna</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs text-center md:text-left">
+                    Preserving life's most precious chapters through shared experiences.
+                </p>
+</div>
+<div class="flex gap-8">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Gallery</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Our Story</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Terms</a>
+</div>
+</div>
+<div class="mt-12 text-center">
+<p class="font-caption text-caption text-on-surface-variant opacity-60">© 2024 Aeterna. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        // Micro-interaction: Automatic phone mockup transition
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('phone-overlay');
+            
+            // Trigger transition after 2 seconds
+            setTimeout(() => {
+                overlay.style.transform = 'translateY(0)';
+            }, 2500);
+
+            // Subtle parallax for masonry items
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const items = document.querySelectorAll('.masonry-item');
+                items.forEach((item, index) => {
+                    const speed = (index % 2 === 0) ? 0.05 : -0.05;
+                    item.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+        });
+    </script>
+</body></html>

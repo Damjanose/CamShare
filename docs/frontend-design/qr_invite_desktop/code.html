@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Sinclair Gala - QR Invite</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .phone-mockup-inner {
+            scrollbar-width: none;
+        }
+        .phone-mockup-inner::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#fcf9f8",
+                        "surface-container-low": "#f6f3f2",
+                        "on-tertiary-fixed-variant": "#663a3b",
+                        "on-surface": "#1b1c1c",
+                        "outline-variant": "#d0c5af",
+                        "tertiary-container": "#dfa4a4",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#d4af37",
+                        "tertiary-fixed-dim": "#f5b7b7",
+                        "background": "#fcf9f8",
+                        "inverse-primary": "#e9c349",
+                        "primary": "#735c00",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#815152",
+                        "surface-glass": "rgba(255, 255, 255, 0.7)",
+                        "surface-container": "#f0eded",
+                        "on-secondary-container": "#534284",
+                        "on-primary-fixed": "#241a00",
+                        "primary-fixed-dim": "#e9c349",
+                        "on-secondary-fixed-variant": "#4c3c7e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "on-tertiary-container": "#64393a",
+                        "on-tertiary": "#ffffff",
+                        "canvas-white": "#FAF9F6",
+                        "on-primary-container": "#554300",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed-variant": "#574500",
+                        "tertiary-fixed": "#ffdad9",
+                        "secondary-fixed-dim": "#cebdff",
+                        "on-background": "#1b1c1c",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#735c00",
+                        "error-container": "#ffdad6",
+                        "soft-amethyst": "#8E7CC3",
+                        "on-secondary-fixed": "#200b50",
+                        "surface-container-high": "#eae7e7",
+                        "on-tertiary-fixed": "#331012",
+                        "primary-fixed": "#ffe088",
+                        "secondary-container": "#c7b3ff",
+                        "outline": "#7f7663",
+                        "surface-dim": "#dcd9d9",
+                        "on-surface-variant": "#4d4635",
+                        "inverse-surface": "#303030",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed": "#e8ddff",
+                        "surface-container-highest": "#e5e2e1",
+                        "faded-rose": "#E5A9A9",
+                        "champagne-gold": "#D4AF37",
+                        "secondary": "#655497"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "unit": "8px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Playfair Display"],
+                        "display-lg": ["Playfair Display"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-bright text-on-surface font-body-md min-h-screen">
+<!-- SideNavBar (from Shared Components JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col p-6 z-40 bg-surface-glass border-r border-white/10 backdrop-blur-xl shadow-2xl shadow-primary/5 w-72">
+<div class="font-headline-lg text-headline-lg text-primary mb-12">Aeterna</div>
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden">
+<img alt="Julianne V." class="w-full h-full object-cover" data-alt="A professional and elegant headshot of a woman in her 30s with a warm smile, set against a soft-focus studio background with gentle, warm lighting. The aesthetic is clean and premium, reflecting a high-end service member profile, with a color palette of soft creams and warm skin tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZeT50Sg5GDCLd_8OdAxMnfgRZmbk4qgHvjowrQVZJQa8_AnK5NGQISOSY9D71ynV1w1_RNV9v1S2qCXQ84uiV_J80bm1FRwdVSu6rOqeUzPsPdB4gR67ipOz4oPxOpYweQ7lRxqQlZq1VgRNz7xKyUbtOjUafymbRmFMrV_hJiWTTv98Qq7HKxrFd9nIarOFxafVWLLsd0O6ssAIqB3QmQTOS0sZtZDEvJYcvFJrTAoV0Oqc45XrRdUhEwY2kv6XkzoBxFOB5TGI"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Julianne V.</p>
+<p class="text-[12px] text-on-surface-variant">Premium Member</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 rounded-xl transition-all translate-x-0 hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-label-md text-label-md">Memories</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-primary bg-primary-container/20 rounded-xl font-bold translate-x-0 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="collections">collections</span>
+<span class="font-label-md text-label-md">Collections</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 rounded-xl transition-all translate-x-0 hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Shared</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 rounded-xl transition-all translate-x-0 hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50 rounded-xl transition-all translate-x-0 hover:translate-x-1 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Archive</span>
+</a>
+</nav>
+<button class="mt-auto w-full py-4 bg-primary text-on-primary rounded-xl font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span>Create Event</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 min-h-screen p-margin-desktop">
+<!-- Header -->
+<header class="mb-12 flex justify-between items-end">
+<div>
+<nav class="flex gap-2 text-on-surface-variant mb-4 font-label-md text-label-md">
+<span>Collections</span>
+<span>/</span>
+<span class="text-primary">The Sinclair Gala</span>
+</nav>
+<h1 class="font-headline-lg text-[40px] text-on-surface">The Sinclair Gala</h1>
+<p class="text-on-surface-variant mt-2 font-body-md italic opacity-80">December 14, 2024 • Metropolitan Ballroom</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2 rounded-full border border-outline-variant font-label-md text-label-md text-on-surface-variant hover:bg-surface-container transition-colors">Edit Event</button>
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">Publish Live</button>
+</div>
+</header>
+<!-- Sub Navigation / Tabs -->
+<div class="flex gap-10 border-b border-outline-variant/30 mb-12">
+<button class="pb-4 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Event Details</button>
+<button class="pb-4 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Gallery Design</button>
+<button class="pb-4 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Guest List</button>
+<button class="pb-4 font-label-md text-label-md text-primary border-b-2 border-primary font-bold">QR Invite</button>
+<button class="pb-4 font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors">Settings</button>
+</div>
+<!-- QR Layout Grid -->
+<div class="grid grid-cols-12 gap-12">
+<!-- QR Generation Section -->
+<div class="col-span-12 lg:col-span-7 flex flex-col items-center justify-center">
+<div class="glass-card p-12 rounded-[40px] shadow-2xl shadow-primary/5 flex flex-col items-center w-full max-w-lg mb-12">
+<div class="bg-white p-8 rounded-3xl shadow-inner border border-surface-variant">
+<!-- High Quality QR Code Placeholder -->
+<div class="w-64 h-64 bg-on-surface flex items-center justify-center rounded-xl p-4">
+<img alt="QR Code" class="w-full h-full object-contain" data-alt="A clean, high-resolution minimalist QR code displayed on a high-end digital screen. The QR code is perfectly centered and crisp, surrounded by a subtle, soft glow and set against a backdrop of sophisticated champagne gold and off-white tones, conveying a sense of premium event access and luxury digital invitation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyhDdNAXHt90wOt08915TybvxeOcR4MWb-Zi40LCh3Vm9NzXnd6Qi1oSe-o2Eze9OsLu2ro_A1ED5dsGZk-ncBszQM0DKh7MXmsK4t8z-KeretQmYaXbE3D5hszcUtIZeY-_3V9Aqa1Q3A3eH2u73r2HX4rHc9xQKLct55_PApA6OHWwsOgUG1WeNqtevNKcqmXSjjr8RVFjaD3CrVsNJQODVryu8ghrfthpiDJH6hPXIxr6DiyGoVIRfvmprit96LG8n85bW4az0"/>
+</div>
+</div>
+<div class="text-center mt-8">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Scan to Join the Memory</h3>
+<p class="text-on-surface-variant max-w-xs mx-auto">Unique invite code for the private gallery of The Sinclair Gala.</p>
+</div>
+</div>
+<div class="w-full max-w-lg grid grid-cols-1 gap-4">
+<button class="flex items-center justify-between px-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-high transition-all group active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="download">download</span>
+<span class="font-label-md text-label-md text-on-surface">Download QR for Print</span>
+</div>
+<span class="text-caption text-on-surface-variant opacity-60">High-res PNG / SVG</span>
+</button>
+<button class="flex items-center justify-between px-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-high transition-all group active:scale-[0.98]" id="copy-link">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="link">link</span>
+<span class="font-label-md text-label-md text-on-surface">Copy Invite Link</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" data-icon="content_copy">content_copy</span>
+</button>
+<button class="flex items-center justify-between px-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-high transition-all group active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="mail">mail</span>
+<span class="font-label-md text-label-md text-on-surface">Email Invitation</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" data-icon="send">send</span>
+</button>
+</div>
+</div>
+<!-- Live View Preview Section -->
+<div class="col-span-12 lg:col-span-5">
+<div class="sticky top-24">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-label-md text-label-md text-on-surface uppercase tracking-widest">Live Guest View</h4>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-caption text-on-surface-variant font-medium">Synced Preview</span>
+</div>
+</div>
+<!-- Phone Mockup Container -->
+<div class="relative mx-auto w-[320px] h-[650px] bg-[#1a1a1a] rounded-[3rem] border-[8px] border-[#333] shadow-2xl overflow-hidden">
+<!-- Notch -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#333] rounded-b-2xl z-30"></div>
+<!-- Internal Screen Content -->
+<div class="phone-mockup-inner w-full h-full bg-canvas-white overflow-y-auto relative z-10 flex flex-col">
+<!-- Hero Image in Phone -->
+<div class="h-64 w-full relative">
+<img alt="Event Preview" class="w-full h-full object-cover" data-alt="A lush, close-up shot of elegant white flowers and gold-rimmed glassware at a luxury wedding banquet. The lighting is warm and candle-lit, casting soft glows on crystal and satin. The mood is intimate and romantic, matching the premium aesthetic of a high-end gala invitation preview." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCclQeAjNbYQzkpqk7PauVV2ltEx7WUcuHL7tMxF4dSgZM5fQlq4m6uYLllZgl9LAtlAMBWI0zQAIP3V85WJLpZoaAxGdBn3Ow8x984OfW5LZKizs-xPeFypa7s4la3GsN_7ofuuJrygOyt8EKyBdWU2eK6mZqhq89HjIJ5iFyPckqqNvNSdxGXFS2693X857kUR24a1tNQi4cZO30QwYfhKMoWy9aY3SUCOrYGpC1ryHJgU49WbVLTZTBeAeL-ZwA0Il4DD3Wceks"/>
+<div class="absolute inset-0 bg-gradient-to-t from-canvas-white to-transparent"></div>
+<div class="absolute bottom-4 left-6">
+<h5 class="font-headline-md text-on-surface text-xl">The Sinclair Gala</h5>
+<p class="text-[12px] text-on-surface-variant">Welcome Guest</p>
+</div>
+</div>
+<!-- Phone Body Content -->
+<div class="px-6 py-6 flex-1 flex flex-col gap-6">
+<div class="p-4 rounded-2xl bg-primary/5 border border-primary/10">
+<p class="text-caption text-primary font-bold uppercase tracking-wider mb-2">Private Access</p>
+<p class="text-on-surface text-sm leading-relaxed">
+                                        You've been invited to view and contribute to the Sinclair memory archive. Upload your favorite moments from tonight.
+                                    </p>
+</div>
+<div class="space-y-4">
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold shadow-md">Enter Gallery</button>
+<button class="w-full py-4 bg-white border border-outline-variant text-on-surface rounded-xl font-bold">Upload Photos</button>
+</div>
+<div class="mt-4">
+<p class="text-caption text-on-surface-variant font-medium mb-3">Live Feed</p>
+<div class="grid grid-cols-2 gap-2">
+<div class="aspect-square bg-surface-container rounded-lg overflow-hidden">
+<img alt="Event Moment 1" class="w-full h-full object-cover" data-alt="A candid, high-energy photo of guests dancing at a lavish party under a large disco ball. The lighting is dramatic with purple and gold hues, capturing the joy and movement of the celebration in a professional, slightly blurred artistic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqWuZCkSisC-JXnZNzJXdsLfY3tg2oAg7N3esE7BKHnICfsSME0uu9fLMRgsbEIb7d5mYSpiHQoWXlSYHVwmeRgiNRwcGePl2JCiJ5kcz6VitHwUv3zK8DNB1VihxabJUv1foEbrskls0JyyOYqJ6HOf3pxeKHA_SeIiNHBmrEvjITOLvBsVpdA07krnnFzHsK1QheIrpil_GE1vodx0XJbaYaX5Tsgg5aPGDRlmQJhhLc2TMAFiOxDKGxGPat0ogWDFCaSmpcFGE"/>
+</div>
+<div class="aspect-square bg-surface-container rounded-lg overflow-hidden">
+<img alt="Event Moment 2" class="w-full h-full object-cover" data-alt="A beautifully plated gourmet appetizer at a luxury gala, featuring edible gold leaf and delicate microgreens. The image is captured with shallow depth of field, emphasizing the exquisite textures and the upscale atmosphere of the dinner event." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvca5Fy0dGnFDO9LhY5C4OQEk1dL_yYU1Ia1wzyCqnTU8tnvZ4LS_8Vtkzq9TMXSmHbSiNRBJhqjDp-l0WiB04Oi7FpIwpp7vu3wjlE3933by104T5kpQIx8yRLo949LOk5gs4b4NIrrbR3hvppcgZ-9tmBVvcNskTwQpDkMAo4hHZHwX9IdaCpZN2Wb2qMFGTTvSnVyc4O-OmXm4IT24ZZWythVX5a2M71bJXz_LTE1sAvWd_CiuL99E2EIBDaJ9d4S-Ie9O8eJk"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Phone Nav Bar -->
+<div class="h-16 border-t border-surface-variant flex items-center justify-around bg-surface-glass backdrop-blur-md px-6">
+<span class="material-symbols-outlined text-primary" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="photo_library">photo_library</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="person">person</span>
+</div>
+</div>
+<!-- Home Bar -->
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-[#333] rounded-full z-20"></div>
+</div>
+<p class="text-center mt-6 text-caption text-on-surface-variant opacity-60 italic max-w-xs mx-auto">
+                        This is an interactive simulation of the guest's mobile experience.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Success Toast (Hidden by default) -->
+<div class="fixed bottom-10 right-10 transform translate-y-20 opacity-0 transition-all duration-300 bg-on-surface text-surface-bright px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50" id="toast">
+<span class="material-symbols-outlined text-primary-container" data-icon="check_circle">check_circle</span>
+<span class="font-label-md text-label-md">Link copied to clipboard!</span>
+</div>
+<script>
+        // Micro-interaction for link copying
+        document.getElementById('copy-link').addEventListener('click', function() {
+            const toast = document.getElementById('toast');
+            
+            // Visual feedback on button
+            this.classList.add('bg-primary/5');
+            
+            // Show toast
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+                this.classList.remove('bg-primary/5');
+            }, 3000);
+        });
+
+        // Hover tilt effect for QR Card
+        const qrCard = document.querySelector('.glass-card');
+        qrCard.addEventListener('mousemove', (e) => {
+            const rect = qrCard.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 25;
+            const rotateY = (centerX - x) / 25;
+            
+            qrCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        qrCard.addEventListener('mouseleave', () => {
+            qrCard.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body></html>
