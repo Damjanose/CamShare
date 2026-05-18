@@ -1,5 +1,5 @@
 import { db } from "./db.js"
-import type { NotificationDto } from "@jewellery/types"
+import type { NotificationDto } from "@camshare/types"
 
 const iso = (d: Date) => d.toISOString()
 

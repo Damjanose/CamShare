@@ -1,6 +1,6 @@
 import type { Selectable } from "kysely"
 import type { CategoriesTable, ProductImagesTable, ProductsTable } from "./db.js"
-import type { Category, Product, ProductImage, UrgencyBadge } from "@jewellery/types"
+import type { Category, Product, ProductImage, UrgencyBadge } from "@camshare/types"
 
 const iso = (d: Date) => d.toISOString()
 

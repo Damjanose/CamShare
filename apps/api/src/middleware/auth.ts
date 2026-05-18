@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express"
 import jwt from "jsonwebtoken"
 import { db } from "../lib/db.js"
-import type { PermissionName } from "@jewellery/types"
+import type { PermissionName } from "@camshare/types"
 
 const accessSecret = process.env.JWT_ACCESS_SECRET
 if (!accessSecret) {

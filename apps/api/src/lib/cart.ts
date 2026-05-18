@@ -1,5 +1,5 @@
 import { db } from "./db.js"
-import type { CartResponse } from "@jewellery/types"
+import type { CartResponse } from "@camshare/types"
 
 export const getOrCreateCartId = async (userId: string) => {
   const existing = await db.selectFrom("carts").select("id").where("user_id", "=", userId).executeTakeFirst()

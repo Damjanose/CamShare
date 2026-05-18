@@ -1,4 +1,4 @@
-import type { OrderDetail, OrderStatus, OrderSummary } from "@jewellery/types"
+import type { OrderDetail, OrderStatus, OrderSummary } from "@camshare/types"
 import { db } from "./db.js"
 import { emitToUser } from "../realtime.js"
 

@@ -1,5 +1,5 @@
 {
-  "name": "@jewellery/types",
+  "name": "@camshare/types",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
