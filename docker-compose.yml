@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: template_auth_catalog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    # Use 5433 on the host when a local Postgres already owns 5432 (common on macOS).
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
