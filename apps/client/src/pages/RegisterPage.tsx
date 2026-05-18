@@ -1,14 +1,18 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { FcGoogle } from "react-icons/fc"
+import { FaApple } from "react-icons/fa"
+import AppleLogin from "react-apple-login"
 import { AuthShell } from "@/components/layout/AuthShell"
 import { Button } from "@/components/primitives/Button"
 import { FloatInput } from "@/components/primitives/FloatInput"
-import { Icon } from "@/components/primitives/Icon"
 import { useAuth } from "@/auth/AuthContext"
+import { useSocialAuth } from "@/auth/useSocialAuth"
 
 export const RegisterPage = () => {
   const { register } = useAuth()
   const navigate = useNavigate()
+  const { googleSignIn, appleLoginProps } = useSocialAuth("/dashboard")
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -82,12 +86,22 @@ export const RegisterPage = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline" type="button">
-            <Icon name="g_translate" /> Google
+          <Button variant="outline" type="button" onClick={() => googleSignIn()}>
+            <FcGoogle aria-hidden className="text-xl" /> Google
           </Button>
-          <Button variant="outline" type="button">
-            <Icon name="apple" /> Apple
-          </Button>
+          <AppleLogin
+            {...appleLoginProps}
+            render={({ onClick, disabled }) => (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onClick}
+                disabled={disabled}
+              >
+                <FaApple aria-hidden className="text-xl" /> Apple
+              </Button>
+            )}
+          />
         </div>
 
         <p className="text-center text-body-md text-on-surface-variant mt-2">
