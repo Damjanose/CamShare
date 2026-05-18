@@ -8,6 +8,9 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "mobile": "pnpm --filter mobile dev"
+    "mobile": "pnpm --filter mobile dev",
+    "start-front": "pnpm --filter @camshare/client dev",
+    "start-back": "pnpm --filter @camshare/api dev",
+    "start-mobile": "pnpm --filter @camshare/mobile dev"
   }
 }
