@@ -169,3 +169,63 @@ export type UpdateOrderStatusInput = {
   status: OrderStatus
   note?: string
 }
+
+export type Event = {
+  id: string
+  ownerId: string
+  title: string
+  description: string | null
+  eventDate: string | null
+  coverImageUrl: string | null
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export type EventChannel = {
+  id: string
+  eventId: string
+  name: string
+  description: string | null
+  sortOrder: number
+  createdAt: string
+}
+
+export type EventPhoto = {
+  id: string
+  channelId: string
+  uploaderId: string
+  url: string
+  caption: string | null
+  createdAt: string
+}
+
+export type EventMember = {
+  eventId: string
+  userId: string
+  joinedAt: string
+}
+
+export type CreateEventInput = {
+  title: string
+  description?: string
+  eventDate?: string
+  coverImageUrl?: string
+}
+
+export type UpdateEventInput = Partial<CreateEventInput & { isActive: boolean }>
+
+export type CreateChannelInput = {
+  name: string
+  description?: string
+  sortOrder?: number
+}
+
+export type JoinEventInput = {
+  token: string
+}
+
+export type AddPhotoInput = {
+  url: string
+  caption?: string
+}

@@ -8,6 +8,9 @@ import * as categoryHandlers from "./handlers/categories.js"
 import * as notificationHandlers from "./handlers/notifications.js"
 import * as orderHandlers from "./handlers/orders.js"
 import * as productHandlers from "./handlers/products.js"
+import * as eventHandlers from "./handlers/events.js"
+import * as eventChannelHandlers from "./handlers/eventChannels.js"
+import * as eventPhotoHandlers from "./handlers/eventPhotos.js"
 import { requireAuth, requirePermission } from "./middleware/auth.js"
 import { attachSocket } from "./socketServer.js"
 
@@ -51,6 +54,25 @@ app.patch("/orders/:id/status", requireAuth, requirePermission("order.write"), o
 app.get("/notifications", requireAuth, notificationHandlers.list)
 app.patch("/notifications/:id/read", requireAuth, notificationHandlers.markRead)
 app.post("/notifications/read-all", requireAuth, notificationHandlers.markAllRead)
+
+// Events — POST /events/join must come before GET /events/:eventId
+app.post("/events", requireAuth, eventHandlers.create)
+app.get("/events", requireAuth, eventHandlers.list)
+app.post("/events/join", requireAuth, eventHandlers.join)
+app.get("/events/:eventId", requireAuth, eventHandlers.getById)
+app.patch("/events/:eventId", requireAuth, eventHandlers.update)
+app.delete("/events/:eventId", requireAuth, eventHandlers.remove)
+app.post("/events/:eventId/join-token", requireAuth, eventHandlers.getJoinToken)
+app.get("/events/:eventId/members", requireAuth, eventHandlers.getMembers)
+
+app.get("/events/:eventId/channels", requireAuth, eventChannelHandlers.list)
+app.post("/events/:eventId/channels", requireAuth, eventChannelHandlers.create)
+app.patch("/events/:eventId/channels/:channelId", requireAuth, eventChannelHandlers.update)
+app.delete("/events/:eventId/channels/:channelId", requireAuth, eventChannelHandlers.remove)
+
+app.get("/events/:eventId/channels/:channelId/photos", requireAuth, eventPhotoHandlers.list)
+app.post("/events/:eventId/channels/:channelId/photos", requireAuth, eventPhotoHandlers.add)
+app.delete("/events/:eventId/channels/:channelId/photos/:photoId", requireAuth, eventPhotoHandlers.remove)
 
 const httpServer = createServer(app)
 attachSocket(httpServer)

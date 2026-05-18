@@ -121,6 +121,50 @@ export interface NotificationsTable {
   created_at: Generated<Date>
 }
 
+export interface EventsTable {
+  id: Generated<string>
+  owner_id: string
+  title: string
+  description: string | null
+  event_date: Date | null
+  cover_image_url: string | null
+  is_active: Generated<boolean>
+  created_at: Generated<Date>
+  updated_at: Generated<Date>
+}
+
+export interface EventJoinTokensTable {
+  id: Generated<string>
+  event_id: string
+  token: string
+  expires_at: Date | null
+  created_at: Generated<Date>
+}
+
+export interface EventMembersTable {
+  event_id: string
+  user_id: string
+  joined_at: Generated<Date>
+}
+
+export interface EventChannelsTable {
+  id: Generated<string>
+  event_id: string
+  name: string
+  description: string | null
+  sort_order: Generated<number>
+  created_at: Generated<Date>
+}
+
+export interface EventPhotosTable {
+  id: Generated<string>
+  channel_id: string
+  uploader_id: string
+  url: string
+  caption: string | null
+  created_at: Generated<Date>
+}
+
 export interface Database {
   users: UsersTable
   user_details: UserDetailsTable
@@ -136,6 +180,11 @@ export interface Database {
   order_items: OrderItemsTable
   order_status_events: OrderStatusEventsTable
   notifications: NotificationsTable
+  events: EventsTable
+  event_join_tokens: EventJoinTokensTable
+  event_members: EventMembersTable
+  event_channels: EventChannelsTable
+  event_photos: EventPhotosTable
 }
 
 const connectionString = process.env.DATABASE_URL

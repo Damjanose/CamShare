@@ -1,7 +1,7 @@
 import type { Server } from "node:http"
 import jwt from "jsonwebtoken"
 import { Server as IOServer } from "socket.io"
-import { roomForUser, setSocketServer } from "./realtime.js"
+import { roomForEvent, roomForUser, setSocketServer } from "./realtime.js"
 
 const accessSecret = process.env.JWT_ACCESS_SECRET
 if (!accessSecret) {
@@ -31,6 +31,10 @@ export const attachSocket = (httpServer: Server) => {
   io.on("connection", (socket) => {
     const userId = socket.data.userId as string
     void socket.join(roomForUser(userId))
+
+    socket.on("join-event", (eventId: string) => {
+      void socket.join(roomForEvent(eventId))
+    })
   })
 
   setSocketServer(io)

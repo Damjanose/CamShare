@@ -13,3 +13,9 @@ export const emitToUser = (userId: string, event: string, payload: unknown) => {
 }
 
 export const roomForUser = (userId: string) => `user:${userId}`
+
+export const emitToEvent = (eventId: string, event: string, payload: unknown) => {
+  io?.to(roomForEvent(eventId)).emit(event, payload)
+}
+
+export const roomForEvent = (eventId: string) => `event:${eventId}`

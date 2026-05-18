@@ -1,0 +1,163 @@
+import { randomUUID } from "crypto"
+import type { Event, EventMember, CreateEventInput, UpdateEventInput } from "@camshare/types"
+import { db } from "./db.js"
+import { emitToEvent } from "../realtime.js"
+
+const iso = (d: Date) => d.toISOString()
+
+const mapEvent = (row: {
+  id: string
+  owner_id: string
+  title: string
+  description: string | null
+  event_date: Date | null
+  cover_image_url: string | null
+  is_active: boolean
+  created_at: Date
+  updated_at: Date
+}): Event => ({
+  id: row.id,
+  ownerId: row.owner_id,
+  title: row.title,
+  description: row.description,
+  eventDate: row.event_date ? iso(row.event_date) : null,
+  coverImageUrl: row.cover_image_url,
+  isActive: row.is_active,
+  createdAt: iso(row.created_at),
+  updatedAt: iso(row.updated_at),
+})
+
+const isMember = async (eventId: string, userId: string): Promise<boolean> => {
+  const row = await db
+    .selectFrom("event_members")
+    .select("user_id")
+    .where("event_id", "=", eventId)
+    .where("user_id", "=", userId)
+    .executeTakeFirst()
+  return !!row
+}
+
+export const createEvent = async (ownerId: string, input: CreateEventInput): Promise<Event> => {
+  const event = await db.transaction().execute(async (trx) => {
+    const row = await trx
+      .insertInto("events")
+      .values({
+        owner_id: ownerId,
+        title: input.title,
+        description: input.description ?? null,
+        event_date: input.eventDate ? new Date(input.eventDate) : null,
+        cover_image_url: input.coverImageUrl ?? null,
+      })
+      .returningAll()
+      .executeTakeFirstOrThrow()
+
+    await trx.insertInto("event_members").values({ event_id: row.id, user_id: ownerId }).execute()
+
+    return row
+  })
+
+  return mapEvent(event)
+}
+
+export const listMyEvents = async (userId: string): Promise<Event[]> => {
+  const rows = await db
+    .selectFrom("events")
+    .innerJoin("event_members", "event_members.event_id", "events.id")
+    .where("event_members.user_id", "=", userId)
+    .selectAll("events")
+    .orderBy("events.created_at desc")
+    .execute()
+
+  return rows.map(mapEvent)
+}
+
+export const getEvent = async (eventId: string, userId: string): Promise<Event | null> => {
+  const member = await isMember(eventId, userId)
+  if (!member) return null
+
+  const row = await db.selectFrom("events").selectAll().where("id", "=", eventId).executeTakeFirst()
+  return row ? mapEvent(row) : null
+}
+
+export const updateEvent = async (eventId: string, userId: string, input: UpdateEventInput): Promise<Event | null> => {
+  const row = await db.selectFrom("events").select(["id", "owner_id"]).where("id", "=", eventId).executeTakeFirst()
+  if (!row || row.owner_id !== userId) return null
+
+  const updated = await db
+    .updateTable("events")
+    .set({
+      ...(input.title !== undefined && { title: input.title }),
+      ...(input.description !== undefined && { description: input.description }),
+      ...(input.eventDate !== undefined && { event_date: input.eventDate ? new Date(input.eventDate) : null }),
+      ...(input.coverImageUrl !== undefined && { cover_image_url: input.coverImageUrl }),
+      ...(input.isActive !== undefined && { is_active: input.isActive }),
+      updated_at: new Date(),
+    })
+    .where("id", "=", eventId)
+    .returningAll()
+    .executeTakeFirstOrThrow()
+
+  return mapEvent(updated)
+}
+
+export const deleteEvent = async (eventId: string, userId: string): Promise<boolean> => {
+  const row = await db.selectFrom("events").select(["id", "owner_id"]).where("id", "=", eventId).executeTakeFirst()
+  if (!row || row.owner_id !== userId) return false
+
+  await db.deleteFrom("events").where("id", "=", eventId).execute()
+  return true
+}
+
+export const generateJoinToken = async (eventId: string, userId: string): Promise<string | null> => {
+  const row = await db.selectFrom("events").select(["id", "owner_id"]).where("id", "=", eventId).executeTakeFirst()
+  if (!row || row.owner_id !== userId) return null
+
+  const existing = await db.selectFrom("event_join_tokens").select("token").where("event_id", "=", eventId).executeTakeFirst()
+  if (existing) return existing.token
+
+  const token = randomUUID()
+  await db.insertInto("event_join_tokens").values({ event_id: eventId, token, expires_at: null }).execute()
+  return token
+}
+
+export const joinEvent = async (token: string, userId: string): Promise<Event | null> => {
+  const tokenRow = await db
+    .selectFrom("event_join_tokens")
+    .select(["event_id", "expires_at"])
+    .where("token", "=", token)
+    .executeTakeFirst()
+
+  if (!tokenRow) return null
+  if (tokenRow.expires_at && tokenRow.expires_at < new Date()) return null
+
+  await db
+    .insertInto("event_members")
+    .values({ event_id: tokenRow.event_id, user_id: userId })
+    .onConflict((oc) => oc.columns(["event_id", "user_id"]).doNothing())
+    .execute()
+
+  const eventRow = await db.selectFrom("events").selectAll().where("id", "=", tokenRow.event_id).executeTakeFirstOrThrow()
+  const event = mapEvent(eventRow)
+
+  emitToEvent(tokenRow.event_id, "event:member_joined", { userId, eventId: tokenRow.event_id })
+
+  return event
+}
+
+export const listMembers = async (eventId: string, userId: string): Promise<EventMember[] | null> => {
+  const member = await isMember(eventId, userId)
+  if (!member) return null
+
+  const rows = await db
+    .selectFrom("event_members")
+    .selectAll()
+    .where("event_id", "=", eventId)
+    .orderBy("joined_at asc")
+    .execute()
+
+  return rows.map((r) => ({
+    eventId: r.event_id,
+    userId: r.user_id,
+    joinedAt: iso(r.joined_at),
+  }))
+}
