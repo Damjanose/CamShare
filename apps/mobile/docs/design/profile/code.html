@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Memories - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#201f1f",
+                        "surface-container-highest": "#353534",
+                        "surface-dim": "#131313",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "inverse-surface": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-bright": "#393939",
+                        "outline-variant": "#4d4635",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#ebdcff",
+                        "on-secondary-fixed": "#230f45",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed-dim": "#d3bcfc",
+                        "tertiary-fixed": "#ffd9e2",
+                        "secondary-container": "#523f76",
+                        "primary-fixed-dim": "#e9c349",
+                        "error-container": "#93000a",
+                        "on-tertiary": "#5c1333",
+                        "on-error-container": "#ffdad6",
+                        "surface": "#131313",
+                        "primary-fixed": "#ffe088",
+                        "tertiary-container": "#fa94b6",
+                        "on-tertiary-fixed": "#3e001e",
+                        "background": "#131313",
+                        "on-background": "#e5e2e1",
+                        "on-primary": "#3c2f00",
+                        "tertiary": "#ffbcd0",
+                        "primary-container": "#d4af37",
+                        "on-tertiary-container": "#772948",
+                        "secondary": "#d3bcfc",
+                        "surface-tint": "#e9c349",
+                        "on-secondary-fixed-variant": "#503d73",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-primary-container": "#554300",
+                        "on-tertiary-fixed-variant": "#792b4a",
+                        "primary": "#f2ca50",
+                        "inverse-on-surface": "#313030",
+                        "inverse-primary": "#735c00",
+                        "outline": "#99907c",
+                        "on-secondary-container": "#c4aeed",
+                        "on-secondary": "#38265b",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "on-surface-variant": "#d0c5af",
+                        "on-primary-fixed-variant": "#574500"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "1rem",
+                        "margin-main": "1.5rem",
+                        "stack-lg": "2.5rem",
+                        "stack-sm": "0.75rem",
+                        "stack-md": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "label-sm": ["DM Sans"],
+                        "body-md": ["DM Sans"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-xl": ["Playfair Display"],
+                        "body-lg": ["DM Sans"],
+                        "label-md": ["DM Sans"],
+                        "headline-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-xl": ["42px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(242, 202, 80, 0.1);
+        }
+        .atmospheric-glow {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at 10% 20%, rgba(242, 202, 80, 0.05) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(255, 188, 208, 0.05) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .profile-border-glow {
+            box-shadow: 0 0 20px rgba(242, 202, 80, 0.2);
+        }
+        .inner-glow-border {
+            border-top: 1px solid rgba(242, 202, 80, 0.15);
+            border-left: 1px solid rgba(242, 202, 80, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<div class="atmospheric-glow"></div>
+<!-- Top App Bar -->
+<header class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-margin-main h-16 w-full bg-background/20 backdrop-blur-xl">
+<button class="material-symbols-outlined text-primary hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200" data-icon="menu">menu</button>
+<h1 class="font-headline-md text-headline-md-mobile text-primary tracking-tight">Memories</h1>
+<div class="w-10 h-10 rounded-full border border-primary/20 overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A cinematic, high-fashion portrait of a sophisticated woman with elegant styling, set against a soft-focus studio background. The lighting is warm and ethereal, utilizing champagne gold tones and soft purple shadows to create a premium, artistic feel consistent with a luxury editorial aesthetic. Her expression is serene and confident." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAWXd6jpxEWByvOq673jWyc7hr5zHxQDAwMkjY32YVZtdzzcbMrBZh-q6gSGw97-vUJMw6oWiJps1o_GY-ULQY2kqw1YoD29CsSrDWK1HVrXAwXj2EMybGcRNIxdJ7_2hH1zXdoybAEPEQoPgh5j0VF2ICwqzgys95SyOuXoJNZZGVXTCEwgATQhikFlr3KYPnz3baYIgzVDx7NzvkDcZap44EumhLb37BrQ6gCzlx9FSc8X3cqXjVQtOw3ry4y_rA6TMwfw4n1Jo"/>
+</div>
+</header>
+<main class="pt-24 px-margin-main space-y-stack-lg max-w-2xl mx-auto">
+<!-- Profile Header -->
+<section class="flex flex-col items-center text-center space-y-stack-sm">
+<div class="relative">
+<div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-primary to-tertiary profile-border-glow">
+<div class="w-full h-full rounded-full border-4 border-background overflow-hidden">
+<img alt="Julianne Vance" class="w-full h-full object-cover" data-alt="Close-up luxury portrait of a woman with a serene expression, captured with professional editorial lighting. The image features soft, warm highlights of gold and subtle lavender shadows, emphasizing a sophisticated and timeless aesthetic. The focus is sharp on her eyes, while the background dissolves into a creamy, dark bokeh." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAHByn57eRtde41scbeIagQdh9BpbJED10cXGqvwcAvYSuqvx1bmoXbjbgywDU4gg4uc7WN7xoPLunvv0ZA0yiCYo91O3Wit2opc6IV5aGVzu5G3Et7lwHMCBgNNcEtPFj9Fsxw1FWJ4vU534zMxYVPjygsC3KpcgJJdUXE3LEfpBP6FxR67slk1j18ExBhi9ZCoFEn98qt8YnLLuYgueL7qn6JwA7xzc3Z3y4jRbxwIDyf70rzibhbHGmd2t4_Cgp30ZJNYPPAco"/>
+</div>
+</div>
+</div>
+<div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Julianne Vance</h2>
+<p class="font-label-md text-label-md text-on-surface-variant tracking-widest uppercase">@julianne.vance</p>
+</div>
+</section>
+<!-- Stats Grid -->
+<section class="grid grid-cols-2 gap-gutter">
+<div class="glass-panel inner-glow-border rounded-lg p-6 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-primary">24</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/70">EVENTS JOINED</span>
+</div>
+<div class="glass-panel inner-glow-border rounded-lg p-6 flex flex-col items-center justify-center">
+<span class="font-headline-md text-headline-md text-tertiary">142</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/70">MEMORIES SHARED</span>
+</div>
+</section>
+<!-- Personal Gallery -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end">
+<h3 class="font-headline-md text-headline-md text-on-background">My Uploads</h3>
+<button class="font-label-md text-label-md text-primary hover:opacity-80 transition-opacity">View All</button>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div class="aspect-[4/5] rounded-lg overflow-hidden glass-panel relative group">
+<img alt="Wedding Memory" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" data-alt="A poetic shot of a summer wedding reception at sunset, capturing the warm glow of string lights reflecting off crystal glassware. The atmosphere is filled with a nostalgic, soft-focus haze, using a palette of deep golds and warm blacks. The scene feels intimate, exclusive, and captured with a premium cinematic lens." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANtLp-ykJ-wmnqH68ZllzXnKh84-031KwcjvccZVh9iGIaXTxzIRtABn0Qoqs4CC2R0UdAelDU-Cs9mRqyU4j18rZwrmB8XvYv5UDpOcP1R5ign7pkoSEUIf3yvJ4_41MImpIYNpXpTKc-TZdGnnB21xGiDSzM_PZd4rZ1mJr4OgGe_qHC7noRwz6xOtpLPNqIvxca2bOce6R9KNwFiQyKEur5Jz6-IVk8dHciOSb29oJ4pKPnlm9dtDCefbtfwz3N4c8hh2GAU-I"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="font-label-sm text-label-sm text-white">Summer '23</span>
+</div>
+</div>
+<div class="aspect-[4/5] rounded-lg overflow-hidden glass-panel relative group">
+<img alt="Exhibition Memory" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" data-alt="A minimalist architectural detail of an art gallery featuring sharp shadows and a single beam of light hitting a white marble floor. The image uses a high-contrast dark mode aesthetic with deep shadows and soft metallic highlights. The mood is quiet, artistic, and evocative of a high-end luxury lifestyle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSa0oqSWMocgpntB1a_cK-p6AKFfcWTPeH2P1m4vWGy7SqXMOXa2vq7dmY4ASgH007pMvVQeu7rp_4a2i9pJG2rgctDGpcXj48Rq7hujOky81rpty_UzsvrSt4FrmVYJ54g9MezGaVnTCMfHsXQAAJTJKgnq-x4DsT8OuyCQepRLvFlBc9zB1EHfhLKfnxS1sDDaQR1t9MBBWqEkr2oKTwemRtkWg4-OA1FDFMMvZdPV4o__E7qr_NBBJ6hZqu8RnjzyeDjjYkdQ8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<span class="font-label-sm text-label-sm text-white">Gala Night</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Settings List -->
+<section class="glass-panel inner-glow-border rounded-lg overflow-hidden">
+<div class="px-6 py-4 bg-white/5 border-b border-white/10">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant">PREFERENCES</h3>
+</div>
+<div class="divide-y divide-white/5">
+<button class="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="person_edit">person_edit</span>
+<span class="font-body-md text-body-md">Edit Profile</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="font-body-md text-body-md">Notifications</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors" data-icon="lock">lock</span>
+<span class="font-body-md text-body-md">Privacy &amp; Safety</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-6 hover:bg-white/5 transition-colors group">
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-error/80 group-hover:text-error transition-colors" data-icon="logout">logout</span>
+<span class="font-body-md text-body-md text-error/80 group-hover:text-error transition-colors">Logout</span>
+</div>
+</button>
+</div>
+</section>
+<!-- Premium Upsell -->
+<section class="relative rounded-lg p-8 bg-gradient-to-br from-primary/20 to-tertiary/20 border border-primary/20 overflow-hidden text-center">
+<div class="absolute -top-12 -right-12 w-32 h-32 bg-primary/20 blur-3xl rounded-full"></div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-2">Upgrade to Curator</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6">Unlock unlimited high-resolution storage and exclusive linen-print physical books.</p>
+<button class="w-full py-4 rounded-full bg-gradient-to-r from-primary to-tertiary text-background font-label-sm hover:opacity-90 transition-opacity shadow-lg">LEARN MORE</button>
+</section>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-6 left-0 right-0 mx-auto w-[92%] max-w-md z-50 flex justify-around items-center h-16 px-4 bg-white/10 backdrop-blur-2xl border-t border-l border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-full">
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" title="Gallery">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" title="Calendar">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+</button>
+<button class="bg-gradient-to-br from-primary to-tertiary p-4 rounded-full -mt-8 shadow-lg text-background" title="Scan">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-primary transition-colors" title="Favorites">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:absolute after:-bottom-2 after:w-1 after:h-1 after:bg-primary after:rounded-full" title="Profile">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</nav>
+<script>
+        // Micro-interactions for glass cards
+        document.querySelectorAll('.glass-panel').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                
+                // Subtle lift effect
+                card.style.transform = 'translateY(-2px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add a soft glow that follows the cursor on the whole body (performance optimized)
+        const glow = document.createElement('div');
+        glow.style.cssText = `
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(242, 202, 80, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            transform: translate(-50%, -50%);
+            transition: opacity 1s;
+        `;
+        document.body.appendChild(glow);
+
+        document.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        });
+    </script>
+</body></html>
