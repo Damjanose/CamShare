@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { Icon } from "@/components/primitives/Icon"
 import { useAuth } from "@/auth/AuthContext"
 import { cn } from "@/lib/cn"
+import camShareLogo from "@/assets/camshare-logo.png"
 
 const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -24,9 +25,9 @@ export const MarketingShell = ({ children }: { children: ReactNode }) => {
       <header className="bg-surface-glass backdrop-blur-3xl border-b border-outline-variant/20 shadow-[0_20px_50px_rgba(0,0,0,0.05)] sticky top-0 z-50 flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-2">
-            <Icon name="auto_awesome" className="text-primary text-2xl" />
+            <img src={camShareLogo} alt="CamShare" className="h-9 w-9 object-contain rounded-xl" />
             <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">
-              Aeterna
+              CamShare
             </span>
           </Link>
           <nav className="hidden md:flex gap-6">
@@ -68,13 +69,13 @@ export const MarketingShell = ({ children }: { children: ReactNode }) => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex flex-col items-center md:items-start gap-1">
             <div className="flex items-center gap-2">
-              <Icon name="auto_awesome" className="text-primary" />
+              <img src={camShareLogo} alt="CamShare" className="h-7 w-7 object-contain rounded-lg" />
               <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">
-                Aeterna
+                CamShare
               </span>
             </div>
             <p className="text-caption text-on-surface-variant">
-              © {new Date().getFullYear()} Aeterna Studio. All memories preserved.
+              © {new Date().getFullYear()} CamShare. All memories preserved.
             </p>
           </div>
           <div className="flex gap-10">

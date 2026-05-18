@@ -99,7 +99,7 @@ export const LoginPage = () => {
         </div>
 
         <p className="text-center text-body-md text-on-surface-variant mt-2">
-          New to Aeterna?{" "}
+          New to CamShare?{" "}
           <Link to="/register" className="text-primary font-label-md hover:underline">
             Create an account
           </Link>

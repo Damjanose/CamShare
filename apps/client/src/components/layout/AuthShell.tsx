@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import type { ReactNode } from "react"
 import { Icon } from "@/components/primitives/Icon"
+import camShareLogo from "@/assets/camshare-logo.png"
 
 export const AuthShell = ({
   children,
@@ -23,9 +24,9 @@ export const AuthShell = ({
       />
       <header className="relative z-10 flex items-center justify-between px-margin-mobile md:px-margin-desktop py-6">
         <Link to="/" className="flex items-center gap-2">
-          <Icon name="auto_awesome" className="text-primary text-2xl" />
+          <img src={camShareLogo} alt="CamShare" className="h-9 w-9 object-contain rounded-xl" />
           <span className="font-headline-md text-headline-md font-bold text-primary tracking-tight">
-            Aeterna
+            CamShare
           </span>
         </Link>
         <Link

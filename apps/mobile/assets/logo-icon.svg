@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Gold ambient glow applied to the whole gem group -->
+    <filter id="gemGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="22" result="blur"/>
+      <feFlood flood-color="#f2ca50" flood-opacity="0.28" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadowColor"/>
+      <feMerge>
+        <feMergeNode in="shadowColor"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle inner table highlight -->
+    <radialGradient id="tableGrad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#fffbe8"/>
+      <stop offset="60%" stop-color="#fef0a8"/>
+      <stop offset="100%" stop-color="#f2ca50"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ─── App icon background ─── -->
+  <rect width="512" height="512" rx="88" fill="#131313"/>
+
+  <!-- ─── Gem mark ─── -->
+  <!--
+    Outer hexagon: pointy-top, R=160, center (256,256)
+      v0=(256,96)  v1=(395,176)  v2=(395,336)
+      v3=(256,416) v4=(117,336)  v5=(117,176)
+
+    Inner hexagon (table): R=72
+      i0=(256,184) i1=(318,220) i2=(318,292)
+      i3=(256,328) i4=(194,292) i5=(194,220)
+
+    Facet lines run from each inner vertex to the matching outer vertex.
+    Six crown sectors between inner and outer hex, lit from top-left.
+  -->
+
+  <g filter="url(#gemGlow)">
+
+    <!-- Crown sector 1: top  (brightest — main light hit) -->
+    <polygon points="256,184 256,96 395,176 318,220" fill="#f8eba0"/>
+    <!-- Crown sector 2: top-right (mid-light) -->
+    <polygon points="318,220 395,176 395,336 318,292" fill="#f2ca50"/>
+    <!-- Crown sector 3: bottom-right (shadow drop) -->
+    <polygon points="318,292 395,336 256,416 256,328" fill="#c8980a"/>
+    <!-- Crown sector 4: bottom (deepest shadow) -->
+    <polygon points="256,328 256,416 117,336 194,292" fill="#9a6e08"/>
+    <!-- Crown sector 5: bottom-left (shadow) -->
+    <polygon points="194,292 117,336 117,176 194,220" fill="#c8980a"/>
+    <!-- Crown sector 6: top-left (catching side-light) -->
+    <polygon points="194,220 117,176 256,96 256,184" fill="#e0b02a"/>
+
+    <!-- Outer hexagon border -->
+    <polygon points="256,96 395,176 395,336 256,416 117,336 117,176"
+             fill="none" stroke="#f2ca50" stroke-width="2.5" stroke-linejoin="round"/>
+
+  </g>
+
+  <!-- ─── Facet division lines (inner → outer vertices) ─── -->
+  <g stroke="#131313" stroke-width="2" stroke-linecap="round" opacity="0.4">
+    <line x1="256" y1="184" x2="256" y2="96"/>
+    <line x1="318" y1="220" x2="395" y2="176"/>
+    <line x1="318" y1="292" x2="395" y2="336"/>
+    <line x1="256" y1="328" x2="256" y2="416"/>
+    <line x1="194" y1="292" x2="117" y2="336"/>
+    <line x1="194" y1="220" x2="117" y2="176"/>
+  </g>
+
+  <!-- ─── Inner table (flat top face, lit directly) ─── -->
+  <polygon points="256,184 318,220 318,292 256,328 194,292 194,220"
+           fill="url(#tableGrad)" stroke="#f2ca50" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Specular highlight on table (top-left corner catchlight) -->
+  <polygon points="256,184 318,220 256,220 194,220"
+           fill="white" opacity="0.16"/>
+</svg>

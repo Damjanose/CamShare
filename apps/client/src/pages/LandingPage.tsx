@@ -195,7 +195,7 @@ export const LandingPage = () => {
               Feel the pulse of your celebration.
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
-              The Aeterna dashboard gives you a bird's-eye view of all incoming content. Watch
+              The CamShare dashboard gives you a bird's-eye view of all incoming content. Watch
               your gallery grow in real-time and provide your guests with a collective space to
               share their unique perspectives.
             </p>
@@ -308,7 +308,7 @@ export const LandingPage = () => {
               Start your first event in minutes
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl mx-auto">
-              Join thousands of hosts who use Aeterna to capture the moments that matter most.
+              Join thousands of hosts who use CamShare to capture the moments that matter most.
               No credit card required to start your first album.
             </p>
             <div className="flex flex-col md:flex-row justify-center gap-6">
