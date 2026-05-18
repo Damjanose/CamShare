@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aethel - Capture Every Moment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-auto-rows: 10px;
+            gap: 24px;
+        }
+        .masonry-item {
+            grid-row-end: span 20;
+        }
+        .masonry-item-tall {
+            grid-row-end: span 30;
+        }
+        .masonry-item-short {
+            grid-row-end: span 15;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#331012",
+                      "primary-fixed-dim": "#e9c349",
+                      "on-background": "#1b1c1c",
+                      "surface-container": "#f0eded",
+                      "secondary-fixed": "#e8ddff",
+                      "tertiary-fixed-dim": "#f5b7b7",
+                      "soft-amethyst": "#8E7CC3",
+                      "primary": "#735c00",
+                      "primary-container": "#d4af37",
+                      "on-surface": "#1b1c1c",
+                      "inverse-primary": "#e9c349",
+                      "tertiary": "#815152",
+                      "surface-container-low": "#f6f3f2",
+                      "inverse-on-surface": "#f3f0ef",
+                      "tertiary-fixed": "#ffdad9",
+                      "on-tertiary-container": "#64393a",
+                      "on-surface-variant": "#4d4635",
+                      "on-tertiary-fixed-variant": "#663a3b",
+                      "primary-fixed": "#ffe088",
+                      "error": "#ba1a1a",
+                      "outline-variant": "#d0c5af",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#574500",
+                      "outline": "#7f7663",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#655497",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#200b50",
+                      "surface-dim": "#dcd9d9",
+                      "faded-rose": "#E5A9A9",
+                      "tertiary-container": "#dfa4a4",
+                      "surface": "#fcf9f8",
+                      "champagne-gold": "#D4AF37",
+                      "surface-variant": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#4c3c7e",
+                      "on-secondary-container": "#534284",
+                      "surface-container-high": "#eae7e7",
+                      "surface-bright": "#fcf9f8",
+                      "surface-tint": "#735c00",
+                      "secondary-container": "#c7b3ff",
+                      "on-primary-fixed": "#241a00",
+                      "canvas-white": "#FAF9F6",
+                      "secondary-fixed-dim": "#cebdff",
+                      "surface-container-highest": "#e5e2e1",
+                      "background": "#fcf9f8",
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "surface-glass": "rgba(255, 255, 255, 0.7)",
+                      "inverse-surface": "#303030",
+                      "on-error": "#ffffff",
+                      "on-primary-container": "#554300"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "8px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "container-max": "1440px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Playfair Display"],
+                      "display-lg": ["Playfair Display"],
+                      "caption": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-md": ["Playfair Display"]
+              }
+            },
+          }
+        }
+      </script>
+</head>
+<body class="bg-canvas-white text-on-surface font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface/60 backdrop-blur-3xl border-b border-outline-variant/20 shadow-[0_20px_50px_rgba(0,0,0,0.15)] docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-margin-desktop py-4">
+<div class="flex items-center gap-8">
+<span class="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">Aethel</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-primary font-bold font-label-md text-label-md hover:text-primary transition-colors duration-300" href="#">Overview</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors duration-300" href="#">Features</a>
+<a class="text-on-surface-variant font-label-md text-label-md hover:text-primary transition-colors duration-300" href="#">Showcase</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">history</button>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-full font-label-md text-label-md hover:scale-105 active:scale-95 transition-all">New Event</button>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex flex-col md:flex-row items-center justify-between px-margin-desktop py-20 gap-16 overflow-hidden">
+<div class="flex-1 z-10">
+<h1 class="font-display-lg text-display-lg text-on-background mb-6 leading-tight">
+                    Collect memories from every event in <span class="text-primary italic">one shared album.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-xl">
+                    Create an event, share a QR code, and let guests upload photos and videos instantly. No app downloads, no account friction—just pure collective nostalgia.
+                </p>
+<div class="flex flex-wrap gap-4">
+<button class="bg-champagne-gold text-white px-10 py-4 rounded-full font-label-md text-label-md shadow-lg shadow-champagne-gold/20 hover:shadow-xl hover:shadow-champagne-gold/30 hover:-translate-y-1 transition-all">
+                        Create Event
+                    </button>
+<button class="glass-panel border-primary/20 text-primary px-10 py-4 rounded-full font-label-md text-label-md hover:bg-primary/5 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined">qr_code_scanner</span>
+                        Join Event (Scan QR)
+                    </button>
+</div>
+</div>
+<div class="flex-1 relative w-full h-[600px] flex justify-center items-center">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent rounded-full blur-3xl opacity-50 scale-150"></div>
+<!-- Mockup -->
+<div class="relative w-72 h-[580px] bg-black rounded-[3rem] border-8 border-gray-900 shadow-2xl overflow-hidden z-20 group">
+<img class="w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-110" data-alt="A premium high-end modern smartphone mockup displaying a beautiful event photo gallery. The screen shows a sophisticated masonry grid of wedding photos with golden accents and a soft amethyst blur background. The lighting is bright and airy, reflecting a luxury event atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxsqVmJCIkAtAEJaUq1znpsjVZmqT0xRuQiNiIHAmB8FsegQTwvbTAhR7d0YNcV7yKu7-D1M27Xg343lwuYfJCrmTp_cl6ZBNG2VFnFo5tI33X9mdk7H5OTYE1zilG4ZGtZZ3Q1l298eHv7ABfKe6e2FwSIIE0v8Xx7qwRGOxFCYHsxmRiZpnHuVdUa5OAkWKqmywBTYqVGdmSU0JmLkh0c5JPN2QMwaJXlb3hzdPHeVW52CU-8jD3G88C-bquzxaa1df_iZ4jpIc"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
+<div class="bg-white/20 backdrop-blur-md p-4 rounded-2xl border border-white/30 text-white text-center mb-4">
+<span class="material-symbols-outlined text-4xl mb-2" style="font-variation-settings: 'FILL' 1;">qr_code_2</span>
+<p class="text-xs font-label-md uppercase tracking-widest">Scanning QR...</p>
+</div>
+</div>
+</div>
+<!-- Floating Elements -->
+<div class="absolute top-20 right-0 glass-panel p-4 rounded-2xl shadow-xl animate-bounce" style="animation-duration: 3s;">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">add_a_photo</span>
+</div>
+<div>
+<p class="text-xs font-bold">New Upload</p>
+<p class="text-[10px] text-on-surface-variant">Just added to "Summer Gala"</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works -->
+<section class="px-margin-desktop py-24 bg-surface-container-low/50">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg mb-4">The simplest way to curate</h2>
+<div class="w-24 h-1 bg-champagne-gold mx-auto rounded-full"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="flex flex-col items-center text-center group">
+<div class="w-20 h-20 rounded-3xl bg-surface-container-highest flex items-center justify-center mb-6 shadow-sm group-hover:shadow-xl group-hover:bg-primary/10 transition-all duration-500 transform group-hover:-rotate-6">
+<span class="material-symbols-outlined text-4xl text-primary">edit_calendar</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-3">1. Create Event</h3>
+<p class="text-on-surface-variant">Name your memory, set upload limits, and customize your live gallery settings in seconds.</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-20 h-20 rounded-3xl bg-surface-container-highest flex items-center justify-center mb-6 shadow-sm group-hover:shadow-xl group-hover:bg-primary/10 transition-all duration-500 transform group-hover:rotate-6">
+<span class="material-symbols-outlined text-4xl text-primary">qr_code</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-3">2. Share QR Code</h3>
+<p class="text-on-surface-variant">Print it on tables or show it on big screens. Guests scan and gain instant access to upload.</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-20 h-20 rounded-3xl bg-surface-container-highest flex items-center justify-center mb-6 shadow-sm group-hover:shadow-xl group-hover:bg-primary/10 transition-all duration-500 transform group-hover:-rotate-6">
+<span class="material-symbols-outlined text-4xl text-primary">auto_stories</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-3">3. Collect Memories</h3>
+<p class="text-on-surface-variant">Watch as photos and videos stream into a beautiful, collaborative live album for everyone to enjoy.</p>
+</div>
+</div>
+</section>
+<!-- Features Grid -->
+<section class="px-margin-desktop py-24">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">lock</span>
+<h4 class="font-headline-md text-headline-md mb-4">Private Albums</h4>
+<p class="text-on-surface-variant">Your content is secure. Control who sees and contributes with custom privacy settings.</p>
+</div>
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">bolt</span>
+<h4 class="font-headline-md text-headline-md mb-4">QR-Based Access</h4>
+<p class="text-on-surface-variant">No apps to download. No accounts to create. Just a simple scan to start the magic.</p>
+</div>
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">sync</span>
+<h4 class="font-headline-md text-headline-md mb-4">Real-time Uploads</h4>
+<p class="text-on-surface-variant">Experience the event through every eye. Photos appear instantly in the live feed.</p>
+</div>
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">video_library</span>
+<h4 class="font-headline-md text-headline-md mb-4">Video Support</h4>
+<p class="text-on-surface-variant">Not just photos. Capture the laughter and music with high-quality video uploads.</p>
+</div>
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">shield_person</span>
+<h4 class="font-headline-md text-headline-md mb-4">Admin Control</h4>
+<p class="text-on-surface-variant">Moderate submissions and set upload caps to ensure a high-quality curation.</p>
+</div>
+<div class="glass-panel p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500 group">
+<span class="material-symbols-outlined text-primary mb-6 block text-3xl">grid_view</span>
+<h4 class="font-headline-md text-headline-md mb-4">Beautiful Gallery</h4>
+<p class="text-on-surface-variant">A responsive masonry layout that makes every captured moment look editorial.</p>
+</div>
+</div>
+</section>
+<!-- Demo Preview -->
+<section class="px-margin-desktop py-24 bg-surface-container-highest/20 overflow-hidden">
+<div class="flex flex-col lg:flex-row gap-16 items-center">
+<div class="w-full lg:w-2/5 order-2 lg:order-1">
+<div class="glass-panel p-1 rounded-[3rem] shadow-2xl relative">
+<div class="bg-white rounded-[2.8rem] overflow-hidden">
+<div class="p-8 border-b border-outline-variant/10 flex justify-between items-center">
+<div>
+<h5 class="font-headline-md text-headline-md text-primary">C &amp; J Wedding</h5>
+<p class="text-xs font-label-md uppercase text-on-surface-variant">Live Event Feed</p>
+</div>
+<span class="bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">LIVE</span>
+</div>
+<div class="p-6 masonry-grid h-[500px] overflow-y-auto">
+<div class="masonry-item rounded-2xl overflow-hidden bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of a sophisticated wedding reception table setting. Warm candlelight flickers against crystal glassware and golden cutlery, creating a romantic and upscale atmosphere. Soft focus on the background showing blurred guests celebrating in a luxury ballroom with champagne gold lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtL8lTTameardaaxUbzekf2kT7OCEg_ld9jhO4VH4-yOp0PF2q2iMl7hPZzlJJAcF9-DRu6i1ryz09XTCoOhaj0Eq1XZEDiXgspiXZL_4I8VtEsseTAP1jnghg9JgNLFhMGE_4hwOC6CCOlfIl3OtKW7ug3-zfeFRVbNF1k22abCnDrgPg8B67Q5875TOngNbqrMlqCR7-WiQZtQx4YniglHRfmj76s8TIzAbI30qls6z_attCOD1V-qJs3WkUTPVxPNt1fzKusj8"/>
+</div>
+<div class="masonry-item-tall rounded-2xl overflow-hidden bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="A wide-angle landscape shot of a premium outdoor garden wedding. Elegant white chairs are arranged in perfect rows on a lush green lawn, leading towards a floral arch under a soft sunset sky. The mood is serene, luxurious, and nostalgic, captured in a bright, light-mode digital photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1gGtDN12yAjc4HQESfTgk-SdQt-5reAJpNdnoL9L_1GELI4pRYFoYpS_Rl4DJTp25_L8nDl5WjlayO9QQGx9i44D3AbyIADKKX8MPLBU95pealch1i4lO7KCakpS4tpB4dw9iN8NNb-nz6vfiphCEnpLw-e3GIyM_hjcdNqfLq_ffLRms7rWdf55wiCkT8quzmB6tWPB_pDkqyH3ooX5IcTEOVd9k_rx2YPQ26Pw2uXCwL43lYCHUbY34ixwsXjBKWUE_heW2hNs"/>
+</div>
+<div class="masonry-item-short rounded-2xl overflow-hidden bg-gray-200">
+<img class="w-full h-full object-cover" data-alt="A candid moment of a couple laughing during their wedding toast. The lighting is warm and golden, highlighting the joy on their faces and the sparkle of their wedding attire. The overall aesthetic is editorial and premium, with a soft background blur that emphasizes the emotional resonance of the memory." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-4isqeNIidio8iABh5QqSZQjBF5Y8BuR-OILzrAXIRgPYXevpV0ULN9i7qfHF5aQ-DD04OGhHI8s9CWhPz9YMTu_4JG-7dke-wUXKqqTHWymoXl1HaT7cZz4kmF_WJVIjzQIYDSvCLgnjsr8Fob9jrAo5UuFy_JwjQnFoMNwVl8ORY-2hujbNhLfqUM08rMBcxzcAffh3p7hdWsRyigYlROgIbDDZbHXoBJ_-NFBZBTOilt-t2xhzY64zwgNxg22f4WLfehYElO4"/>
+</div>
+</div>
+</div>
+<div class="absolute -bottom-8 -right-8 w-48 h-48 glass-panel p-4 rounded-3xl shadow-2xl flex flex-col items-center justify-center border border-white/50 animate-pulse">
+<span class="material-symbols-outlined text-6xl text-primary" style="font-variation-settings: 'FILL' 1;">qr_code_2</span>
+<p class="text-[10px] font-bold mt-2 uppercase tracking-tighter">Scan to Upload</p>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-3/5 order-1 lg:order-2">
+<h2 class="font-display-lg text-display-lg mb-8 leading-tight">Feel the pulse of your celebration.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
+                        The Aethel dashboard gives you a bird's-eye view of all incoming content. Watch your gallery grow in real-time and provide your guests with a collective space to share their unique perspectives.
+                    </p>
+<ul class="space-y-6">
+<li class="flex items-start gap-4">
+<div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-primary text-sm">check</span>
+</div>
+<div>
+<p class="font-bold">Instant Masonry Layout</p>
+<p class="text-on-surface-variant">Photos of all sizes fit perfectly in our elegant grid.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
+<span class="material-symbols-outlined text-primary text-sm">check</span>
+</div>
+<div>
+<p class="font-bold">Seamless Transitions</p>
+<p class="text-on-surface-variant">Smooth animations that feel like high-end editorial software.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Use Cases -->
+<section class="px-margin-desktop py-24">
+<div class="text-center mb-16">
+<h2 class="font-headline-lg text-headline-lg">Made for your most precious moments</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A romantic wedding scene with soft drapes and delicate flower arrangements in a high-end luxury setting. The lighting is golden hour, creating a warm and emotional atmosphere. The image emphasizes premium event curation and nostalgic memories." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMtABPRG-Qus2ubIcxvxyZAK3Jo5sJqmmqx7M8w6rusT-xI8tZ5HS-HwqN9fU3qy7K6L5FzZP4DK9B06MjUuOVz4_9mdPuS5iunf3QW6mPt781CVqICPv4XK8xas7f07L7vUfWoDaaD9yOcJukjBETSnr30reuZN9W75SpenbVNK9JTa2ZakL1r5PBw1bDb_LgFaErTwebFk_9NNDTiV8EBqw0rLu8et8TJe67XjzhnrSeYtiDG15AsD4fIdE7squjtQ0E_uugmqg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<span class="text-white font-headline-md text-headline-md">Weddings</span>
+</div>
+</div>
+<div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden group cursor-pointer md:mt-12">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A vibrant birthday party celebration with high-end aesthetic decorations, glowing neon signs, and blurred movement of guests dancing. The mood is energetic and joyful, using a palette of soft amethysts and warm champagne gold accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJve3j_glU2SpPD1cTL3x3VXP47fWYgmO1SZ8H4FMmYXgZzf5KUTwr__P66KBNJ6vKFNqB2neJusCBYFpC8A5ym1adVBMbyh4NditEUhdM39QHnR-yeQS6FcYTTLuD9FcY3eCiVHJc-NWP2NWw0WUXEQvWjozuJ1iyACtJ7AeQenmc1Whfc2jUp3Q7RBkNV1wBmzke0TO__WJG2ezbiv6zNofW_P5PrP9HE5vSXWYSVthTgICXjvZAUcqdO_aXqxciEif-wRSVBbs"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<span class="text-white font-headline-md text-headline-md">Birthdays</span>
+</div>
+</div>
+<div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A sophisticated corporate networking event in a modern, glass-walled office space overlooking a city skyline. The lighting is bright and professional with a light-mode aesthetic. Guests are engaged in conversation, holding champagne flutes, embodying luxury and networking." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHiesMKEBJRTpi4GTB7GeKjTiUbN2xtXJrHPvaB6uHM_3jlH9gLB7lp-waFjAQ7copl9-MAMW1A4yR-Jj0Q6-7VJR49SGL4vN9qfGM2EHWCIQwrtwFiKXNaYZZUwGmNIvuVL9yUUlgSaJaiphIxsMi_-KPBGux29kPTHY1tMWNVH366qnxa_lDPSxO6HY5lJvNZiHRbnAGhoyknohOVMmkIBpP1513cmbv472a_jBwTdSAnVof0eU3H_AhVjY2PBk-Z0uYsfkqVU4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<span class="text-white font-headline-md text-headline-md">Corporate</span>
+</div>
+</div>
+<div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden group cursor-pointer md:mt-12">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="An elegant evening garden party with fairy lights strung between trees, reflecting a magical and festive atmosphere. The mood is intimate and warm, with a premium feel and a focus on social gathering and shared celebration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_0bkkDvUK_C7kJziLnUcOtMH_g1iP6dTdklV4N1tzyJdnPWhrNWDrOA_gYrrpPB6v289Fh4RNkaJisVA_vlXW-_uLQ-518MFES8-gyBwUfDzG1kD-kZGMN9pXbgmqYqY0_ATzyTgb1MBmrPPGdtYxQTe1JKeoCNv4IAX9GAefs91VrIJnjBM3qFjH6KXoDPbOgS-iPHhyE6ge_GR3fv6Raq0_k7tg79sVkH9vAj58kC5golqEQlWsP6BTnOl885fzteYLOET1GhU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<span class="text-white font-headline-md text-headline-md">Parties</span>
+</div>
+</div>
+<div class="relative aspect-[3/4] rounded-[2rem] overflow-hidden group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A stylish graduation celebration with students in caps and gowns tossing their caps into a clear blue sky. The scene is bright and optimistic, reflecting a milestone achievement and the start of a new journey, with a focus on shared success." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyuMNMIbWPnS7QZIShKE9392iEEviQz_8Vcqy7qwzhXJ7RsyVs1u2LaI_NJqU7OxNRwktWs1voHYLUfaqfWc11QofS1M37JnjF9gJut7aVGj-GVJzN028S-JZC63Awom5GNf3i5eyt1tJ9cTMet5amG3pHxslCLRTsdBXY9Os2Ljif4m01rIKiI3zu3KYaA6p9FWVCS_jhZ7V-gdhknjP3qd8xsnE8clgCyDykST6fzyKnsiiY9a7I09xyXqGynn6zZT1Sb0BXCOU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+<span class="text-white font-headline-md text-headline-md">Graduation</span>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-margin-desktop py-24">
+<div class="bg-primary-container/20 rounded-[3rem] p-16 text-center relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent"></div>
+<div class="relative z-10">
+<h2 class="font-display-lg text-display-lg mb-6">Start your first event in minutes</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl mx-auto">
+                        Join thousands of hosts who use Aethel to capture the moments that matter most. No credit card required to start your first album.
+                    </p>
+<div class="flex flex-col md:flex-row justify-center gap-6">
+<button class="bg-primary text-on-primary px-12 py-5 rounded-full font-label-md text-label-md shadow-2xl hover:scale-105 transition-transform">
+                            Create Event Free
+                        </button>
+<button class="bg-white/50 backdrop-blur-md border border-primary/20 text-primary px-12 py-5 rounded-full font-label-md text-label-md hover:bg-white/80 transition-all">
+                            Scan QR to try demo event
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="px-margin-desktop py-12 bg-white border-t border-outline-variant/10">
+<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+<div>
+<span class="font-headline-md text-headline-md font-extrabold text-primary tracking-tight">Aethel</span>
+<p class="text-caption text-on-surface-variant mt-2">© 2024 Aethel Platforms Inc. All memories reserved.</p>
+</div>
+<div class="flex gap-10">
+<a class="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">About</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+<a class="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Contact</a>
+</div>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">public</span>
+</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions for smooth scrolling and hover effects
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Atmospheric parallax on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            document.querySelectorAll('.animate-parallax').forEach(el => {
+                const speed = 0.5;
+                el.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+    </script>
+</body></html>

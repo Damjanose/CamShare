@@ -1,94 +1,110 @@
-import { useState } from "react"
-import { FiEye, FiEyeOff } from "react-icons/fi"
-import { Link, useNavigate } from "react-router-dom"
-import { useAuth } from "../types/auth-context"
-import { extractFieldErrors } from "../utils/form-errors"
+import { useState, type FormEvent } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { FcGoogle } from "react-icons/fc"
+import { FaApple } from "react-icons/fa"
+import AppleLogin from "react-apple-login"
+import { AuthShell } from "@/components/layout/AuthShell"
+import { Button } from "@/components/primitives/Button"
+import { FloatInput } from "@/components/primitives/FloatInput"
+import { useAuth } from "@/auth/AuthContext"
+import { useSocialAuth } from "@/auth/useSocialAuth"
 
 export const LoginPage = () => {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo =
+    (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/dashboard"
+  const { googleSignIn, appleLoginProps } = useSocialAuth(redirectTo)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-  const clearFieldError = (field: string) => {
-    setError(null)
-    setFieldErrors((prev) => {
-      if (!prev[field]) return prev
-      const next = { ...prev }
-      delete next[field]
-      return next
-    })
-  }
+  const [submitting, setSubmitting] = useState(false)
 
-  const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    setError(null)
-    setFieldErrors({})
-    try {
-      await login({ email, password })
-      navigate("/categories")
-    } catch (err) {
-      const { fieldErrors: nextFieldErrors, formError } = extractFieldErrors(err)
-      setFieldErrors(nextFieldErrors)
-      setError(formError ?? "Invalid credentials")
-    }
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+    await login(email, password)
+    setSubmitting(false)
+    navigate(redirectTo, { replace: true })
   }
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-12 col-md-8 col-lg-5">
-        <div className="card border-0 shadow-sm">
-          <div className="card-body p-4 p-md-5">
-            <h1 className="h2 fw-bold mb-2">Welcome back</h1>
-            <p className="text-secondary mb-4">Log in to browse categories and products.</p>
-            <form onSubmit={onSubmit} className="d-grid gap-3">
-              <input
-                className={`form-control form-control-lg ${fieldErrors.email ? "is-invalid" : ""}`}
-                placeholder="Email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value)
-                  clearFieldError("email")
-                }}
-              />
-              {fieldErrors.email && <div className="invalid-feedback d-block">{fieldErrors.email}</div>}
-              <div className="password-field-wrap">
-                <input
-                  className={`form-control form-control-lg password-input ${fieldErrors.password ? "is-invalid" : ""}`}
-                  placeholder="Password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value)
-                    clearFieldError("password")
-                  }}
-                />
-                <button
-                  className="password-toggle-btn"
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <FiEyeOff aria-hidden="true" /> : <FiEye aria-hidden="true" />}
-                </button>
-              </div>
-              {fieldErrors.password && <div className="invalid-feedback d-block">{fieldErrors.password}</div>}
-              <button className="btn btn-primary btn-lg" type="submit">
-                Login
-              </button>
-            </form>
-            {error && <div className="alert alert-danger mt-3 mb-0">{error}</div>}
-            <p className="mb-0 mt-4 text-secondary">
-              No account?{" "}
-              <Link className="fw-semibold" to="/register">
-                Register
-              </Link>
-            </p>
+    <AuthShell
+      title="Welcome back to your archive"
+      subtitle="Sign in to continue curating the chapters that matter most."
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <FloatInput
+          label="Email"
+          type="email"
+          autoComplete="email"
+          placeholder="you@studio.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <FloatInput
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <div className="flex items-center justify-between text-caption">
+          <label className="flex items-center gap-2 text-on-surface-variant">
+            <input
+              type="checkbox"
+              className="rounded border-outline-variant text-primary focus:ring-primary"
+            />
+            Remember me
+          </label>
+          <a href="#" className="text-primary hover:underline">
+            Forgot password?
+          </a>
+        </div>
+        <Button variant="gold" size="lg" type="submit" disabled={submitting}>
+          {submitting ? "Signing in…" : "Sign In"}
+        </Button>
+
+        <div className="relative my-2">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-outline-variant/40" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-white/85 px-4 text-caption uppercase tracking-widest text-on-surface-variant">
+              or continue with
+            </span>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Button variant="outline" type="button" onClick={() => googleSignIn()}>
+            <FcGoogle aria-hidden className="text-xl" /> Google
+          </Button>
+          <AppleLogin
+            {...appleLoginProps}
+            render={({ onClick, disabled }) => (
+              <Button
+                variant="outline"
+                type="button"
+                onClick={onClick}
+                disabled={disabled}
+              >
+                <FaApple aria-hidden className="text-xl" /> Apple
+              </Button>
+            )}
+          />
+        </div>
+
+        <p className="text-center text-body-md text-on-surface-variant mt-2">
+          New to Aeterna?{" "}
+          <Link to="/register" className="text-primary font-label-md hover:underline">
+            Create an account
+          </Link>
+        </p>
+      </form>
+    </AuthShell>
   )
 }
