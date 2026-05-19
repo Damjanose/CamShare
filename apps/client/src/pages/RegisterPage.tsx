@@ -17,13 +17,20 @@ export const RegisterPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    await register({ fullName, email, password })
-    setSubmitting(false)
-    navigate("/dashboard", { replace: true })
+    setError(null)
+    try {
+      await register({ fullName, email, password })
+      navigate("/dashboard", { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -32,6 +39,11 @@ export const RegisterPage = () => {
       subtitle="Create your account and start collecting memories from every event."
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            {error}
+          </p>
+        )}
         <FloatInput
           label="Full Name"
           placeholder="Julianne Vance"

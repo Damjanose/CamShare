@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
 import { QrCard } from "@/components/event/QrCard"
 import { Icon } from "@/components/primitives/Icon"
 import { useEventsStore } from "@/stores/eventsStore"
 import { usePhotosStore } from "@/stores/photosStore"
+import { apiClient } from "@/api/client"
 
 const formatLongDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
@@ -14,13 +15,25 @@ const formatLongDate = (iso: string) =>
 
 export const QrInvitePage = () => {
   const { eventId } = useParams<{ eventId: string }>()
-  const event = useEventsStore((s) => (eventId ? s.getById(eventId) : undefined))
-  const photos = usePhotosStore((s) => (eventId ? s.forEvent(eventId) : []))
+  const event = useEventsStore((s) => s.events.find((e) => e.id === eventId))
+  const allPhotos = usePhotosStore((s) => s.photos)
+  const photos = eventId ? allPhotos.filter((p) => p.eventId === eventId) : []
   const [copied, setCopied] = useState(false)
+  const [joinToken, setJoinToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!eventId) return
+    apiClient
+      .post<{ token: string }>(`/events/${eventId}/join-token`)
+      .then((data) => setJoinToken(data.token))
+      .catch(() => setJoinToken(null))
+  }, [eventId])
 
   if (!event) return <Navigate to="/dashboard" replace />
 
-  const inviteUrl = `${window.location.origin}/invite/${event.inviteCode}`
+  const inviteUrl = joinToken
+    ? `${window.location.origin}/invite/${joinToken}`
+    : `${window.location.origin}/invite/${event.inviteCode}`
 
   const handleCopy = async () => {
     try {
@@ -163,68 +176,109 @@ const PhoneMockup = ({
   previewPhotos: string[]
 }) => {
   return (
-    <div className="relative mx-auto w-[320px] h-[650px] bg-[#1a1a1a] rounded-[3rem] border-[8px] border-[#333] shadow-2xl overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#333] rounded-b-2xl z-30" />
-      <div className="hide-scrollbar w-full h-full bg-canvas-white overflow-y-auto relative z-10 flex flex-col">
-        <div className="h-64 w-full relative">
-          <img
-            src={event.coverUrl}
-            alt={event.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-canvas-white to-transparent" />
-          <div className="absolute bottom-4 left-6">
-            <h5 className="font-headline-md text-on-surface text-xl">{event.name}</h5>
-            <p className="text-[12px] text-on-surface-variant">Welcome Guest</p>
-          </div>
-        </div>
-        <div className="px-6 py-6 flex-1 flex flex-col gap-6">
-          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10">
-            <p className="text-caption text-primary font-bold uppercase tracking-wider mb-2">
-              Private Access
-            </p>
-            <p className="text-on-surface text-sm leading-relaxed">
-              You've been invited to view and contribute to this memory archive. Upload your
-              favorite moments from tonight.
-            </p>
-          </div>
-          <div className="space-y-3">
-            <button
-              type="button"
-              className="w-full py-4 bg-primary text-on-primary rounded-xl font-bold shadow-md"
+    <div className="relative mx-auto w-[300px] h-[620px] bg-[#131313] rounded-[3rem] border-[7px] border-[#2a2a2a] shadow-2xl overflow-hidden">
+      {/* Notch */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#2a2a2a] rounded-b-2xl z-30" />
+
+      {/* Screen — dark surface */}
+      <div className="hide-scrollbar w-full h-full bg-[#131313] overflow-y-auto relative z-10 flex flex-col">
+
+        {/* Subtle atmospheric purple tint top-left */}
+        <div
+          className="absolute top-0 left-0 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, rgba(211,188,252,0.08) 0%, transparent 70%)" }}
+        />
+
+        <div className="px-5 pt-10 pb-4 flex-1 flex flex-col">
+          {/* Header */}
+          <p className="text-[9px] font-bold tracking-[3px] uppercase mb-1" style={{ color: "#f2ca50" }}>
+            YOUR EVENTS
+          </p>
+          <p className="text-[22px] font-bold mb-4" style={{ color: "#e5e2e1", fontFamily: "serif" }}>
+            Moments
+          </p>
+
+          {/* Section label */}
+          <p className="text-[8px] font-bold tracking-[2.5px] uppercase mb-2" style={{ color: "#99907c" }}>
+            UPCOMING
+          </p>
+
+          {/* Event card */}
+          <div className="relative rounded-2xl overflow-hidden mb-4" style={{ height: 140 }}>
+            <img src={event.coverUrl} alt={event.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(19,19,19,0.85) 0%, transparent 55%)" }} />
+            {/* Glass badge */}
+            <div
+              className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider"
+              style={{ background: "rgba(242,202,80,0.18)", color: "#f2ca50", border: "1px solid rgba(242,202,80,0.3)" }}
             >
-              Enter Gallery
-            </button>
-            <button
-              type="button"
-              className="w-full py-4 bg-white border border-outline-variant text-on-surface rounded-xl font-bold"
-            >
-              Upload Photos
-            </button>
+              LIVE
+            </div>
+            <div className="absolute bottom-3 left-3">
+              <p className="text-[13px] font-semibold leading-tight" style={{ color: "#e5e2e1", fontFamily: "serif" }}>
+                {event.name}
+              </p>
+              <p className="text-[9px] mt-0.5" style={{ color: "#d0c5af" }}>Tap to enter gallery</p>
+            </div>
           </div>
-          {previewPhotos.length > 0 && (
-            <div>
-              <p className="text-caption text-on-surface-variant font-medium mb-3">Live Feed</p>
-              <div className="grid grid-cols-2 gap-2">
-                {previewPhotos.map((url) => (
-                  <div
-                    key={url}
-                    className="aspect-square bg-surface-container rounded-lg overflow-hidden"
-                  >
-                    <img src={url} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
+
+          {/* Memories section */}
+          <p className="text-[8px] font-bold tracking-[2.5px] uppercase mb-2" style={{ color: "#99907c" }}>
+            MEMORIES
+          </p>
+          {previewPhotos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-1.5">
+              {previewPhotos.slice(0, 4).map((url, i) => (
+                <div key={i} className="rounded-xl overflow-hidden" style={{ height: 72 }}>
+                  <img src={url} alt="" className="w-full h-full object-cover" style={{ opacity: 0.85 }} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-xl" style={{ height: 72, background: "#201f1f" }} />
+              ))}
             </div>
           )}
         </div>
-        <div className="h-16 border-t border-surface-variant flex items-center justify-around bg-surface-glass backdrop-blur-md px-6">
-          <Icon name="home" filled className="text-primary" />
-          <Icon name="photo_library" className="text-on-surface-variant" />
-          <Icon name="person" className="text-on-surface-variant" />
+
+        {/* Floating bottom nav — matches real BottomNav exactly */}
+        <div className="absolute bottom-3 left-4 right-4 z-20" style={{ height: 56 }}>
+          {/* Glass pill */}
+          <div
+            className="absolute inset-0 rounded-full flex items-center justify-around px-2"
+            style={{
+              background: "rgba(19,19,19,0.6)",
+              border: "1px solid rgba(242,202,80,0.10)",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <Icon name="auto_awesome" filled className="!text-[18px] !text-[#f2ca50]" />
+            <Icon name="calendar_month" className="!text-[18px] !text-[#d0c5af]" />
+            <span className="w-10" />
+            <Icon name="favorite_border" className="!text-[18px] !text-[#d0c5af]" />
+            <Icon name="person_outline" className="!text-[18px] !text-[#d0c5af]" />
+          </div>
+
+          {/* Centre QR button — elevated, pink→gold gradient, pink glow */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center rounded-full"
+            style={{
+              width: 52,
+              height: 52,
+              top: -12,
+              background: "linear-gradient(135deg, #fa94b6, #f2ca50)",
+              boxShadow: "0 6px 18px rgba(250,148,182,0.55)",
+            }}
+          >
+            <Icon name="qr_code_scanner" filled className="!text-[22px] !text-[#3c2f00]" />
+          </div>
         </div>
       </div>
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-[#333] rounded-full z-20" />
+
+      {/* Home indicator */}
+      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-20 h-1 bg-[#353534] rounded-full z-30" />
     </div>
   )
 }

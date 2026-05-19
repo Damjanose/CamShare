@@ -1,8 +1,22 @@
 import { create } from "zustand"
 import { mockUser } from "@/data/mockUser"
 import type { User } from "@/types/domain"
+import { apiClient, setTokens, clearTokens } from "@/api/client"
 
 const STORAGE_KEY = "aeterna_session_user"
+
+type ApiAuthResponse = {
+  user: { id: string; fullName: string; email: string }
+  tokens: { accessToken: string; refreshToken: string }
+}
+
+const toWebUser = (u: ApiAuthResponse["user"]): User => ({
+  id: u.id,
+  fullName: u.fullName,
+  email: u.email,
+  avatarUrl: mockUser.avatarUrl,
+  tier: "Free",
+})
 
 const loadUser = (): User | null => {
   try {
@@ -24,30 +38,35 @@ const persistUser = (user: User | null) => {
 
 type AuthState = {
   user: User | null
-  login: (email: string, _password: string) => Promise<User>
+  login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
   logout: () => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: loadUser(),
-  login: async (email) => {
-    const user: User = { ...mockUser, email: email || mockUser.email }
+  login: async (email, password) => {
+    const data = await apiClient.post<ApiAuthResponse>("/auth/login", { email, password })
+    setTokens(data.tokens.accessToken, data.tokens.refreshToken)
+    const user = toWebUser(data.user)
     persistUser(user)
     set({ user })
     return user
   },
-  register: async ({ fullName, email }) => {
-    const user: User = {
-      ...mockUser,
-      fullName: fullName || mockUser.fullName,
-      email: email || mockUser.email,
-    }
+  register: async ({ fullName, email, password }) => {
+    const data = await apiClient.post<ApiAuthResponse>("/auth/register", {
+      email,
+      password,
+      fullName,
+    })
+    setTokens(data.tokens.accessToken, data.tokens.refreshToken)
+    const user = toWebUser(data.user)
     persistUser(user)
     set({ user })
     return user
   },
   logout: () => {
+    clearTokens()
     persistUser(null)
     set({ user: null })
   },

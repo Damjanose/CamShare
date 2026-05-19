@@ -35,18 +35,25 @@ export const CreateEventPage = () => {
     reader.readAsDataURL(file)
   }
 
-  const handleSubmit = (event: FormEvent) => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!name.trim()) return
-    const created = addEvent({
-      name,
-      description,
-      date,
-      location,
-      coverUrl: coverPreview ?? DEFAULT_COVER,
-      privacy,
-    })
-    navigate(`/events/${created.id}/invite`)
+    if (!name.trim() || submitting) return
+    setSubmitting(true)
+    try {
+      const created = await addEvent({
+        name,
+        description,
+        date,
+        location,
+        coverUrl: coverPreview ?? DEFAULT_COVER,
+        privacy,
+      })
+      navigate(`/events/${created.id}/invite`)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -281,8 +288,8 @@ export const CreateEventPage = () => {
         </GlassPanel>
 
         <div className="md:col-span-12 flex justify-center mt-12">
-          <Button variant="gold" size="lg" type="submit" className="px-12 py-5 text-lg">
-            <Icon name="qr_code_2" className="text-3xl" /> Generate Event &amp; QR
+          <Button variant="gold" size="lg" type="submit" disabled={submitting} className="px-12 py-5 text-lg">
+            <Icon name="qr_code_2" className="text-3xl" /> {submitting ? "Creating…" : "Generate Event & QR"}
           </Button>
         </div>
       </form>
@@ -302,7 +309,7 @@ const ToggleRow = ({
   onChange: (value: boolean) => void
 }) => {
   return (
-    <div className="flex justify-between items-start gap-4">
+    <div className="flex justify-between items-center gap-4">
       <div>
         <h3 className="font-label-md text-on-surface">{title}</h3>
         <p className="text-on-surface-variant font-caption mt-1">{description}</p>

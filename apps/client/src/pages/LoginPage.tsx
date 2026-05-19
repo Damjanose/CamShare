@@ -19,13 +19,20 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    await login(email, password)
-    setSubmitting(false)
-    navigate(redirectTo, { replace: true })
+    setError(null)
+    try {
+      await login(email, password)
+      navigate(redirectTo, { replace: true })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -34,6 +41,11 @@ export const LoginPage = () => {
       subtitle="Sign in to continue curating the chapters that matter most."
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            {error}
+          </p>
+        )}
         <FloatInput
           label="Email"
           type="email"

@@ -135,14 +135,28 @@
 
   .gold-toggle {
     appearance: none;
+    -webkit-appearance: none;
+    display: block;
+    margin: 0;
     width: 44px;
     height: 24px;
-    background: #e5e2e1;
+    background: #4d4635;
     border-radius: 12px;
     position: relative;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background 0.25s ease;
     flex-shrink: 0;
+    outline: none;
+  }
+
+  .gold-toggle:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .gold-toggle:focus-visible {
+    outline: 2px solid rgba(212, 175, 55, 0.55);
+    outline-offset: 3px;
   }
 
   .gold-toggle:checked {
@@ -156,13 +170,15 @@
     height: 18px;
     background: white;
     border-radius: 50%;
-    top: 3px;
+    top: 50%;
     left: 3px;
-    transition: transform 0.3s ease;
+    transform: translateY(-50%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   }
 
   .gold-toggle:checked::before {
-    transform: translateX(20px);
+    transform: translateY(-50%) translateX(20px);
   }
 
   .hide-scrollbar {

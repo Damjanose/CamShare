@@ -27,8 +27,9 @@ const formatDate = (iso: string) =>
 
 export const EventGalleryPage = () => {
   const { eventId } = useParams<{ eventId: string }>()
-  const event = useEventsStore((s) => (eventId ? s.getById(eventId) : undefined))
-  const photos = usePhotosStore((s) => (eventId ? s.forEvent(eventId) : []))
+  const event = useEventsStore((s) => s.events.find((e) => e.id === eventId))
+  const allPhotos = usePhotosStore((s) => s.photos)
+  const photos = eventId ? allPhotos.filter((p) => p.eventId === eventId) : []
   const [filter, setFilter] = useState<Filter>("all")
   const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null)
 

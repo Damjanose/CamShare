@@ -2,7 +2,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { GlassCard } from '../components/primitives/GlassCard';
@@ -25,6 +37,8 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
   const queryClient = useQueryClient();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkValue, setLinkValue] = useState('');
 
   const joinMutation = useMutation<Event, Error, string>({
     mutationFn: (token) => eventsService.join({ token }),
@@ -33,19 +47,85 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
     },
   });
 
+  function extractToken(raw: string): string {
+    try {
+      const url = new URL(raw);
+      const parts = url.pathname.split('/').filter(Boolean);
+      const idx = parts.indexOf('invite');
+      if (idx !== -1 && parts[idx + 1]) return parts[idx + 1];
+      return parts[parts.length - 1] ?? raw;
+    } catch {
+      return raw.trim();
+    }
+  }
+
   function handleBarcodeScanned({ data }: { type: string; data: string }) {
     setScanned(true);
-    joinMutation.mutate(data);
+    joinMutation.mutate(extractToken(data));
+  }
+
+  function handleLinkJoin() {
+    const token = extractToken(linkValue);
+    if (!token) {
+      Alert.alert('Invalid link', 'Please paste a valid invite link.');
+      return;
+    }
+    setShowLinkModal(false);
+    setScanned(true);
+    joinMutation.mutate(token);
+  }
+
+  function openLinkModal() {
+    setLinkValue('');
+    setShowLinkModal(true);
   }
 
   function reset() {
     setScanned(false);
+    setLinkValue('');
     joinMutation.reset();
   }
 
+  const LinkModal = (
+    <Modal
+      visible={showLinkModal}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setShowLinkModal(false)}
+    >
+      <KeyboardAvoidingView
+        style={styles.modalBackdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <Pressable style={StyleSheet.absoluteFill} onPress={() => setShowLinkModal(false)} />
+        <View style={[styles.modalCard, { marginBottom: insets.bottom + 24 }]}>
+          <Text style={styles.resultLabel}>PASTE INVITE LINK</Text>
+          <TextInput
+            value={linkValue}
+            onChangeText={setLinkValue}
+            placeholder="https://…/invite/…"
+            placeholderTextColor={Colors.onSurfaceVariant}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoFocus
+            style={styles.linkInput}
+          />
+          <View style={styles.linkActions}>
+            <TouchableOpacity onPress={() => setShowLinkModal(false)} style={styles.scanAgainBtn}>
+              <Text style={styles.scanAgainText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLinkJoin} style={styles.joinLinkBtn}>
+              <Text style={styles.joinLinkBtnText}>Join</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+
   // Permission loading state
   if (!permission) {
-    return <View style={styles.root} />;
+    return <View style={styles.root}>{LinkModal}</View>;
   }
 
   // Permission not granted
@@ -66,7 +146,11 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
             onPress={requestPermission}
             style={{ marginTop: 24 }}
           />
+          <TouchableOpacity onPress={openLinkModal} style={styles.linkButton}>
+            <Text style={styles.linkButtonText}>Join via link instead</Text>
+          </TouchableOpacity>
         </View>
+        {LinkModal}
         <BottomNav active={activeTab} onPress={onTabPress} />
       </View>
     );
@@ -138,10 +222,16 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
         )}
 
         {!scanned && (
-          <Text style={styles.hint}>Align the QR code within the frame</Text>
+          <>
+            <Text style={styles.hint}>Align the QR code within the frame</Text>
+            <TouchableOpacity onPress={openLinkModal} style={styles.linkButton}>
+              <Text style={styles.linkButtonText}>Join via link instead</Text>
+            </TouchableOpacity>
+          </>
         )}
       </View>
 
+      {LinkModal}
       <BottomNav active={activeTab} onPress={onTabPress} />
     </View>
   );
@@ -155,8 +245,6 @@ const styles = StyleSheet.create({
   vignette: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'transparent',
-    // Radial-style vignette via nested gradient not possible in RN — using semi-transparent overlay
-    // The camera + scanner frame create sufficient depth
   },
   topBar: {
     position: 'absolute',
@@ -222,6 +310,55 @@ const styles = StyleSheet.create({
     ...TextStyles.bodyMd,
     color: Colors.onSurfaceVariant,
     marginBottom: 12,
+  },
+  linkButton: {
+    marginTop: 8,
+  },
+  linkButtonText: {
+    ...TextStyles.labelMd,
+    color: Colors.primary,
+    textAlign: 'center',
+    opacity: 0.85,
+  },
+  // Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: '#1e1e1e',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(242,202,80,0.15)',
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 16,
+    marginHorizontal: 0,
+  },
+  linkInput: {
+    ...TextStyles.bodyMd,
+    color: Colors.onSurface,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.outlineVariant,
+    paddingVertical: 8,
+    marginBottom: 20,
+  },
+  linkActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  joinLinkBtn: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  joinLinkBtnText: {
+    ...TextStyles.labelMd,
+    color: Colors.onPrimary,
   },
   // Permission screen
   permissionContent: {
