@@ -78,23 +78,23 @@ export function LoginScreen() {
         {/* Email / Password login */}
         <TextInput
           placeholder="Email"
-          placeholderTextColor="#888"
+          placeholderTextColor={Colors.onSurfaceVariant}
           autoCapitalize="none"
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
-          style={{ color: '#fff', borderBottomWidth: 1, borderColor: '#444', marginTop: 24, paddingVertical: 8, width: '100%', maxWidth: 320 }}
+          style={{ color: Colors.onSurface, borderBottomWidth: 1, borderColor: Colors.outlineVariant, marginTop: 24, paddingVertical: 8, width: '100%', maxWidth: 320 }}
         />
         <TextInput
           placeholder="Password"
-          placeholderTextColor="#888"
+          placeholderTextColor={Colors.onSurfaceVariant}
           secureTextEntry
           value={password}
           onChangeText={setPassword}
-          style={{ color: '#fff', borderBottomWidth: 1, borderColor: '#444', marginTop: 12, paddingVertical: 8, width: '100%', maxWidth: 320 }}
+          style={{ color: Colors.onSurface, borderBottomWidth: 1, borderColor: Colors.outlineVariant, marginTop: 12, paddingVertical: 8, width: '100%', maxWidth: 320 }}
         />
         <TouchableOpacity onPress={handleEmailLogin} style={{ marginTop: 16 }}>
-          <Text style={{ color: '#f2ca50', textAlign: 'center' }}>Sign in with email</Text>
+          <Text style={{ color: Colors.primary, textAlign: 'center' }}>Sign in with email</Text>
         </TouchableOpacity>
 
         {/* Decorative photo strip */}
