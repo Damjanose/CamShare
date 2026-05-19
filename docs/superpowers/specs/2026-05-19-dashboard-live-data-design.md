@@ -9,7 +9,17 @@ The dashboard is seeded entirely from mock data (`mockEvents`, `mockUser`). The 
 
 ## Goal
 
-Replace all static content on the dashboard with real API data. Align the client `Event` type with the API shape end-to-end so there is no mapping layer.
+Replace all static content on the dashboard with real API data. Align the client `Event` type with the API response shape end-to-end so there is no mapping layer.
+
+---
+
+## Type Ownership
+
+Two separate `Event` type definitions exist and must both be updated:
+- **`packages/types/src/index.ts`** — shared API contract, consumed by the API server only
+- **`apps/client/src/types/domain.ts`** — client-local type, used by all React components and stores
+
+The client does not import from `packages/types` directly. The client type is updated to mirror the API response shape.
 
 ---
 
@@ -17,7 +27,7 @@ Replace all static content on the dashboard with real API data. Align the client
 
 ### 1a. Shared types (`packages/types/src/index.ts`)
 
-Add `guestCount` and `photoCount` to the exported `Event` type:
+Add `guestCount: number` and `photoCount: number` to the exported `Event` type:
 
 ```ts
 export type Event = {
@@ -36,23 +46,34 @@ export type Event = {
 }
 ```
 
-`CreateEventInput` and `UpdateEventInput` are unchanged — counts are computed, never written by the client.
+`CreateEventInput` and `UpdateEventInput` are unchanged — counts are computed server-side.
 
 ### 1b. `apps/api/src/lib/events.ts`
 
-Update `mapEvent` signature to accept `guestCount` and `photoCount` parameters.
+**Verified join paths (from `db/migrations/003_events.sql`):**
+- `guestCount`: COUNT of `event_members` where `event_members.event_id = events.id`
+- `photoCount`: correlated subquery —
+  ```sql
+  SELECT COUNT(*) FROM event_photos ep
+  INNER JOIN event_channels ec ON ep.channel_id = ec.id
+  WHERE ec.event_id = events.id
+  ```
 
-Update `listMyEvents` to compute counts in a single query using Kysely:
-- `guestCount`: `COUNT` of rows in `event_members` where `event_id = events.id`
-- `photoCount`: `COUNT` of rows in `event_photos` joined through `event_channels` where `event_channels.event_id = events.id`
+**`mapEvent`:** Updated to accept the extended row type including `guest_count` and `photo_count` (both optional, defaulting to 0). Parse as integers: `Number(row.guest_count ?? 0)`.
 
-Update `getEvent` similarly.
+**Functions to update — all call `mapEvent` and must pass counts:**
+
+- **`listMyEvents`:** Add both correlated scalar subqueries to the SELECT clause. Kysely returns COUNT as a string; cast to integer in `mapEvent`.
+- **`getEvent`:** Same two scalar subqueries on the single-row SELECT.
+- **`updateEvent`:** Same two scalar subqueries on the UPDATE…RETURNING SELECT.
+- **`joinEvent`:** Same two scalar subqueries on the post-join SELECT.
+- **`createEvent`:** The inserted row does not have counts readily available. Supply hardcoded defaults directly after insert: `guestCount: 1` (owner added as member in the same transaction) and `photoCount: 0`. No need to re-query.
 
 ---
 
 ## 2. Client Type (`apps/client/src/types/domain.ts`)
 
-Replace the existing `Event` type with one that mirrors the API exactly:
+Replace the existing `Event` type:
 
 ```ts
 export type Event = {
@@ -71,29 +92,54 @@ export type Event = {
 }
 ```
 
-Fields removed: `name`, `date`, `coverUrl`, `location`, `privacy`, `inviteCode`.  
-These never existed in the database schema and were mock-only.
+Fields removed: `name`, `date`, `coverUrl`, `location`, `privacy`, `inviteCode`.
+
+**`User` type:**
+- `avatarUrl: string` → `avatarUrl: string | null`. The API does not return an avatar URL; `null` is the correct absence value. Note: existing avatar consumers in `SidebarNav.tsx` and `TopBar.tsx` already null-guard `avatarUrl` — no changes required there.
+- `tier: "Free" | "Premium Member"` — kept as-is. `authStore.ts` hardcodes `"Free"` and this is acceptable; it has no API backing and is out of scope to remove.
 
 ---
 
 ## 3. Events Store (`apps/client/src/stores/eventsStore.ts`)
 
-- Remove `mockEvents` import and initialization (`events: []` on startup)
-- Remove the `fromApi(apiEvent, input)` mapper (was specific to create-only flow)
-- Add `loading: boolean` state field
-- Add `fetchEvents(): Promise<void>` action — calls `GET /events`, sets `events` and clears `loading`
-- Update `addEvent` to return and prepend the raw API `Event` (no field renaming needed)
+**Route confirmed:** `GET /events` is registered at `apps/api/src/index.ts`.
+
+State shape:
+```ts
+type EventsState = {
+  events: Event[]
+  loading: boolean
+  error: string | null
+  fetchEvents: () => Promise<void>
+  getById: (id: string) => Event | undefined
+  addEvent: (input: EventInput) => Promise<Event>
+}
+```
+
+**`EventInput`:** `Omit<Event, "id" | "guestCount" | "photoCount" | "ownerId" | "createdAt" | "updatedAt" | "isActive">` — yields `{ title, description, eventDate, endDate, coverImageUrl }`. This matches the `POST /events` request body exactly. `location` and `privacy` are absent automatically.
+
+Changes:
+- Initialize `events: []`, `loading: false`, `error: null`
+- Remove `mockEvents` import and local `ApiEvent` type
+- Remove `fromApi(apiEvent, input)` mapping function
+- **Add `fetchEvents()`:**
+  - Sets `loading: true`, `error: null`
+  - On success: `set({ events, loading: false, error: null })`
+  - On failure: `set({ loading: false, error: "Failed to load events" })`
+- **Update `addEvent`:** calls `POST /events`, prepends returned `Event` to store. No field renaming. `CreateEventPage` uses `created.id` to navigate — `id` present on new type, compatible.
+- Remove mock fallback in `addEvent` catch block
 
 ---
 
 ## 4. Dashboard (`apps/client/src/pages/DashboardPage.tsx`)
 
-- Call `fetchEvents()` in a `useEffect` on mount
-- Show a skeleton loading state while `loading` is true
-- **Remove** the Storage `GlassPanel` (no API backing)
-- **Remove** the `"+2 this month"` hardcoded sub-text; stat shows count only
-- Show an empty state (the existing "Start a New Memory Chapter" CTA is sufficient)
-- `totalMemories` and `totalGuests` are derived from real event data
+- `useEffect(() => { fetchEvents() }, [fetchEvents])` — `fetchEvents` from Zustand is referentially stable, so this is functionally equivalent to `[]` and satisfies exhaustive-deps lint.
+- **Loading:** skeleton placeholder cards in place of StatCards and event grid
+- **Error:** inline error message + "Retry" button that calls `fetchEvents()` again
+- **Remove** the Storage `GlassPanel` (no API for storage quota)
+- **Remove** the `"+2 this month"` hardcoded sub-text; show event count only
+- `totalMemories` and `totalGuests` derived from real events via `.reduce()`
+- **Empty state:** existing "Start a New Memory Chapter" CTA block is sufficient
 
 ---
 
@@ -110,32 +156,37 @@ These never existed in the database schema and were mock-only.
 - Remove `event.location` display
 
 ### `QrInvitePage.tsx`
-- `event.name` → `event.title`
+- `event.name` → `event.title` (in JSX and breadcrumb)
 - `event.date` → `event.eventDate`
+- `event.coverUrl` → `event.coverImageUrl`
 - Remove `event.location` display
-- Remove `event.coverUrl` → `event.coverImageUrl`
-- Remove `event.inviteCode` fallback (already fetches join token from API)
+- Remove `event.inviteCode` fallback (line 34): when `joinToken` is null, show a loading spinner in place of the invite URL. `joinToken` is local `useState` — not an Event field.
+- **`PhoneMockup` sub-component** (inline at bottom of file): update its local prop type from `{ name: string; coverUrl: string }` to `{ title: string; coverImageUrl: string }` and update all JSX references inside it.
 
 ### `CreateEventPage.tsx`
-- Remove `location` and `privacy` form fields (no DB columns for them)
-- Remove them from the form state and submission payload
+- Remove `location` and `privacy` form fields from UI and local state
+- Update `addEvent(...)` call in `handleSubmit` to use new field names:
+  - `name` → `title`
+  - `date` → `eventDate`
+  - `coverUrl` → `coverImageUrl`
+  - Remove `location` and `privacy` from the payload
 
 ### `authStore.ts`
 - Remove `mockUser` import
-- Use `null` for `avatarUrl` in `toWebUser` (the `User` type already supports `string`)
+- In `toWebUser`: set `avatarUrl: null`
 
 ---
 
 ## 6. Cleanup
 
-- `apps/client/src/data/mockEvents.ts` — delete (no longer imported)
-- `apps/client/src/data/mockUser.ts` — delete (no longer imported)
-- `apps/client/src/data/mockPhotos.ts` — delete if no longer imported elsewhere
+- **Delete `mockEvents.ts`** after `eventsStore.ts` is updated (no longer imported)
+- **Delete `mockUser.ts`** after `authStore.ts` is updated (no longer imported). Must be deleted after, not before.
+- **Keep `mockPhotos.ts`** — still imported by `photosStore.ts`; gallery live data is out of scope
 
 ---
 
 ## Out of Scope
 
-- Adding `location` or `privacy` to the DB schema
+- Adding `location` or `privacy` DB columns
 - Storage quota API
-- Photo store / gallery live data (separate concern)
+- Photo store / gallery live data (photos store retains mock seed)
