@@ -1,96 +1,143 @@
-# Jewellery e-commerce (full stack)
+# CamShare
 
-Monorepo: **React (Vite) client**, **Express + TypeScript API**, **PostgreSQL** (Docker or local), with **Socket.IO** for order/notification hints.
+Event photo-sharing platform. Guests join events via QR code, upload and browse photos organized in channels, and get real-time updates — all with a cinematic dark UI.
+
+**Stack:** React (Vite) web client · Expo React Native mobile app · Express + TypeScript API · PostgreSQL · Socket.IO
+
+---
+
+## What it does
+
+- **Events** — create an event, generate a QR join token, share it with guests
+- **Channels** — organize photos within an event by moment or theme (ceremony, reception, etc.)
+- **Photo sharing** — guests upload photos to channels; everyone in the event sees them
+- **Real-time** — Socket.IO pushes new photos, order status changes, and notifications live
+- **E-commerce** — product catalogue, cart, checkout, and order management with staff permissions
+- **Admin** — staff roles (`admin`, `product.write`, `order.write`) for managing products and orders
+
+---
+
+## Monorepo layout
+
+| Package | Description |
+|---------|-------------|
+| `apps/api` | Express REST API + Socket.IO server |
+| `apps/client` | Vite + React 19 web SPA (storefront + admin) |
+| `apps/mobile` | Expo SDK 54 React Native app (iOS + Android) |
+| `packages/types` | Shared TypeScript types consumed by all apps |
+| `db` | SQL migrations + seed script |
+
+---
 
 ## Prerequisites
 
 - Node.js 20+
 - pnpm 10+
-- Docker Desktop (recommended) or local Postgres
+- Docker Desktop (for Postgres) — or a local Postgres instance
 
-## First-time setup
+---
 
-### 1) Install
+## Setup
+
+### 1. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-### 2) Environment
+### 2. Environment variables
 
-Copy [.env.example](.env.example) to `apps/api/.env` and set at minimum:
+Copy `.env.example` to `apps/api/.env` and set:
 
-- `DATABASE_URL`
-- `JWT_ACCESS_SECRET`
-- `JWT_REFRESH_SECRET`
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5433/template_auth_catalog
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+```
 
-Optional: `apps/client/.env.development` (see [.env.example](.env.example) for `VITE_*` defaults).
+Optional web client overrides in `apps/client/.env.development`:
 
-### 3) Database
+```env
+VITE_API_URL=http://localhost:3001
+VITE_SOCKET_URL=http://localhost:3001
+```
 
-**Docker (recommended)**
+Optional mobile overrides in `apps/mobile/.env`:
+
+```env
+EXPO_PUBLIC_API_URL=http://localhost:3001
+EXPO_PUBLIC_SOCKET_URL=http://localhost:3001
+```
+
+### 3. Start the database
 
 ```bash
 docker compose up -d
 ```
 
-Use in `apps/api/.env`:
-
-```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5433/template_auth_catalog
-```
-
-**Local Postgres** — create DB `template_auth_catalog` and point `DATABASE_URL` at your role.
-
-### 4) Migrate & seed
+### 4. Migrate and seed
 
 ```bash
-pnpm --filter @jewellery/api db:migrate
-pnpm --filter @jewellery/api db:seed
+pnpm --filter @camshare/api db:migrate
+pnpm --filter @camshare/api db:seed
 ```
 
-### 5) Development
+Seed creates a default admin user:
+
+- **Email:** `admin@example.com`
+- **Password:** `Admin123!`
+
+### 5. Start development servers
 
 ```bash
-pnpm dev
+pnpm dev          # API + web client in parallel
 ```
 
 - API + Socket.IO: `http://localhost:3001`
-- Client: `http://localhost:5173`
+- Web client: `http://localhost:5173`
 
-## Default admin
+**Mobile app:**
 
-- Email: `admin@example.com`
-- Password: `Admin123!`
+```bash
+cd apps/mobile
+npx expo start --clear
+```
 
-## Features
+Scan the QR code with Expo Go or run on a simulator.
 
-- Public **catalogue** (categories, products, featured filter, product images, urgency badges, stock).
-- **Cart** and **checkout** (MVP: simulated payment choice + shipping text).
-- **Orders** with status timeline and staff transitions (`order.write` or `admin`).
-- **Notifications** persisted + pushed over **Socket.IO** (`order:created`, `order:status_updated`, `notification:new`).
-- **Admin** UI for products and orders (staff permissions).
+---
 
-## API & realtime contract
+## Common commands
 
-See [docs/backend-contract.md](docs/backend-contract.md).
+```bash
+pnpm dev              # start API + web client
+pnpm build            # build all workspaces
+pnpm lint             # lint all workspaces
+pnpm typecheck        # typecheck all workspaces
 
-## QA
+pnpm --filter @camshare/api db:migrate
+pnpm --filter @camshare/api db:seed
+```
 
-See [docs/qa-checklist.md](docs/qa-checklist.md).
+---
+
+## Architecture notes
+
+- **Auth** — JWT access tokens (short-lived, in-memory) + refresh tokens (persisted in `localStorage` on web, `expo-secure-store` on mobile). Silent refresh on 401.
+- **Realtime** — Socket.IO authenticates via JWT in the handshake; server emits `order:created`, `order:status_updated`, `notification:new` to per-user rooms.
+- **Permissions** — `admin`, `product.read/write`, `category.read/write`, `order.read/write`. Staff routes require `admin | product.write | order.write`.
+- **ORM** — [Kysely](https://kysely.dev) for type-safe SQL queries.
+
+See [docs/backend-contract.md](docs/backend-contract.md) for the full API and Socket.IO event reference.
+
+---
 
 ## Troubleshooting
 
-- **Docker not running** — start Docker Desktop before `docker compose up -d`.
-- **`role "postgres" does not exist`** — use Docker Postgres or adjust `DATABASE_URL` to your local role.
-- **JWT errors** — ensure `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` are set in `apps/api/.env`.
-- **CORS / API URL** — set `VITE_API_URL` to the API origin if not using localhost:3001.
-
-## Packages
-
-| Package | Description |
-|---------|-------------|
-| `apps/client` | Vite + React storefront & admin UI |
-| `apps/api` | Express API + Socket.IO |
-| `packages/types` | Shared TypeScript types |
-| `db` | SQL migrations + seed script |
+| Symptom | Fix |
+|---------|-----|
+| Docker not running | Start Docker Desktop before `docker compose up -d` |
+| `role "postgres" does not exist` | Use Docker Postgres or adjust `DATABASE_URL` to your local role |
+| JWT errors on startup | Ensure `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` are set |
+| CORS / wrong API URL | Set `VITE_API_URL` (web) or `EXPO_PUBLIC_API_URL` (mobile) to the API origin |
+| Metro bundler cache issues | `npx expo start --clear` |
