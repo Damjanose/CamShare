@@ -1,50 +1,79 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+// apps/mobile/src/context/AuthContext.tsx
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import type { User, LoginInput, RegisterInput } from '@camshare/types';
+import { setAccessToken, setUnauthorizedHandler } from '../api/client';
+import { authService } from '../services/auth';
+import { useAuthStore } from '../stores/authStore';
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  permissions: string[];
-};
+const REFRESH_KEY = 'camshare_refresh_token';
 
 type AuthContextValue = {
   user: User | null;
   accessToken: string | null;
-  logout: () => void;
-  googleLogin: () => void;
-  appleLogin: () => void;
+  login: (input: LoginInput) => Promise<void>;
+  register: (input: RegisterInput) => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const MOCK_USER: User = {
-  id: '1',
-  name: 'Demo User',
-  email: 'demo@example.com',
-  permissions: [],
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [accessToken, setToken] = useState<string | null>(null);
+  const setSessionReady = useAuthStore((s) => s.setSessionReady);
 
-  function googleLogin() {
-    setUser(MOCK_USER);
-    setAccessToken('mock-access-token');
-  }
+  const applySession = async (access: string, refresh: string, authUser: User) => {
+    setAccessToken(access);
+    setToken(access);
+    setUser(authUser);
+    await SecureStore.setItemAsync(REFRESH_KEY, refresh);
+  };
 
-  function appleLogin() {
-    setUser(MOCK_USER);
-    setAccessToken('mock-access-token');
-  }
-
-  function logout() {
-    setUser(null);
+  const clearSession = async () => {
     setAccessToken(null);
-  }
+    setToken(null);
+    setUser(null);
+    await SecureStore.deleteItemAsync(REFRESH_KEY);
+  };
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => { clearSession(); });
+
+    const bootstrap = async () => {
+      try {
+        const stored = await SecureStore.getItemAsync(REFRESH_KEY);
+        if (stored) {
+          const data = await authService.refresh(stored);
+          await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
+        }
+      } catch {
+        await SecureStore.deleteItemAsync(REFRESH_KEY);
+      } finally {
+        setSessionReady(true);
+      }
+    };
+
+    bootstrap();
+  }, []);
+
+  const login = async (input: LoginInput) => {
+    const data = await authService.login(input);
+    await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
+  };
+
+  const register = async (input: RegisterInput) => {
+    const data = await authService.register(input);
+    await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
+  };
+
+  const logout = async () => {
+    try { await authService.logout(); } catch { /* ignore — clear locally regardless */ }
+    await clearSession();
+  };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, logout, googleLogin, appleLogin }}>
+    <AuthContext.Provider value={{ user, accessToken, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
