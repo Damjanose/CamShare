@@ -38,6 +38,7 @@ const persistUser = (user: User | null) => {
 
 type AuthState = {
   user: User | null
+  accessToken: string | null
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
   logout: () => void
@@ -45,12 +46,13 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: loadUser(),
+  accessToken: null,
   login: async (email, password) => {
     const data = await apiClient.post<ApiAuthResponse>("/auth/login", { email, password })
     setTokens(data.tokens.accessToken, data.tokens.refreshToken)
     const user = toWebUser(data.user)
     persistUser(user)
-    set({ user })
+    set({ user, accessToken: data.tokens.accessToken })
     return user
   },
   register: async ({ fullName, email, password }) => {
@@ -62,12 +64,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     setTokens(data.tokens.accessToken, data.tokens.refreshToken)
     const user = toWebUser(data.user)
     persistUser(user)
-    set({ user })
+    set({ user, accessToken: data.tokens.accessToken })
     return user
   },
   logout: () => {
     clearTokens()
     persistUser(null)
-    set({ user: null })
+    set({ user: null, accessToken: null })
   },
 }))

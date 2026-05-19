@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto"
 import type { Event, EventMember, CreateEventInput, UpdateEventInput } from "@camshare/types"
 import { db } from "./db.js"
-import { emitToEvent } from "../realtime.js"
+import { emitToEvent, emitToUser } from "../realtime.js"
 
 const iso = (d: Date) => d.toISOString()
 
@@ -139,7 +139,20 @@ export const joinEvent = async (token: string, userId: string): Promise<Event | 
   const eventRow = await db.selectFrom("events").selectAll().where("id", "=", tokenRow.event_id).executeTakeFirstOrThrow()
   const event = mapEvent(eventRow)
 
-  emitToEvent(tokenRow.event_id, "event:member_joined", { userId, eventId: tokenRow.event_id })
+  const joinerDetails = await db
+    .selectFrom("user_details")
+    .select("full_name")
+    .where("user_id", "=", userId)
+    .executeTakeFirst()
+
+  const payload = {
+    userId,
+    eventId: tokenRow.event_id,
+    fullName: joinerDetails?.full_name ?? "Someone",
+  }
+
+  emitToEvent(tokenRow.event_id, "event:member_joined", payload)
+  emitToUser(eventRow.owner_id, "event:member_joined", payload)
 
   return event
 }

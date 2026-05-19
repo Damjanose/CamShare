@@ -1,4 +1,5 @@
 import { createServer } from "node:http"
+import path from "node:path"
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
@@ -11,6 +12,7 @@ import * as productHandlers from "./handlers/products.js"
 import * as eventHandlers from "./handlers/events.js"
 import * as eventChannelHandlers from "./handlers/eventChannels.js"
 import * as eventPhotoHandlers from "./handlers/eventPhotos.js"
+import * as uploadHandlers from "./handlers/upload.js"
 import { requireAuth, requirePermission } from "./middleware/auth.js"
 import { attachSocket } from "./socketServer.js"
 
@@ -19,6 +21,7 @@ const port = Number(process.env.API_PORT ?? 3001)
 
 app.use(cors())
 app.use(express.json())
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")))
 
 app.get("/health", (_req, res) => res.json({ ok: true }))
 
@@ -54,6 +57,8 @@ app.patch("/orders/:id/status", requireAuth, requirePermission("order.write"), o
 app.get("/notifications", requireAuth, notificationHandlers.list)
 app.patch("/notifications/:id/read", requireAuth, notificationHandlers.markRead)
 app.post("/notifications/read-all", requireAuth, notificationHandlers.markAllRead)
+
+app.post("/upload", requireAuth, uploadHandlers.uploadMiddleware, uploadHandlers.handleUpload)
 
 // Events — POST /events/join must come before GET /events/:eventId
 app.post("/events", requireAuth, eventHandlers.create)

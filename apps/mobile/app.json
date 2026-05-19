@@ -34,6 +34,12 @@
         {
           "cameraPermission": "CamShare needs camera access to scan event QR codes."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "CamShare needs access to your photos to upload memories to events."
+        }
       ]
     ]
   }
