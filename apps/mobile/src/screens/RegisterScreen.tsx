@@ -1,7 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
-  Image,
   StyleSheet,
   Text,
   TextInput,
@@ -15,23 +14,43 @@ import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
 import { useAuth } from '../context/AuthContext';
-import { GALLERY_ITEMS } from '../data/gallery';
 
 type Props = { navigation?: any };
 
-export function LoginScreen({ navigation }: Props) {
-  const { login } = useAuth();
+export function RegisterScreen({ navigation }: Props) {
+  const { register } = useAuth();
   const insets = useSafeAreaInsets();
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleEmailLogin = async () => {
+  const passwordMismatch = confirm.length > 0 && password !== confirm;
+
+  const handleRegister = async () => {
+    if (!fullName.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+    if (password !== confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
     try {
-      await login({ email, password });
+      setLoading(true);
+      await register({ fullName: fullName.trim(), email, password });
     } catch (e: any) {
       setError(e?.response?.data?.message ?? e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,21 +58,38 @@ export function LoginScreen({ navigation }: Props) {
     <View style={styles.root}>
       <AtmosphericBackground />
 
+      {/* Back button */}
+      <TouchableOpacity
+        onPress={() => navigation?.goBack()}
+        activeOpacity={0.7}
+        style={[styles.backButton, { top: insets.top + 16 }]}
+      >
+        <Ionicons name="arrow-back" size={20} color={Colors.onSurfaceVariant} />
+      </TouchableOpacity>
+
       {/* Brand cluster */}
-      <View style={[styles.brandCluster, { paddingTop: insets.top + 40 }]}>
+      <View style={[styles.brandCluster, { paddingTop: insets.top + 64 }]}>
         <View style={styles.sparkleBadge}>
           <Text style={styles.sparkle}>✦</Text>
         </View>
-        <Text style={styles.title}>Event Memories</Text>
+        <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>
-          A private digital sanctuary for your most cherished life moments.
+          Join and start preserving your event memories.
         </Text>
       </View>
 
-      {/* CTA section */}
+      {/* Form */}
       <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
-        {/* Primary: email + password card */}
         <View style={styles.inputCard}>
+          <TextInput
+            placeholder="Full Name"
+            placeholderTextColor={Colors.onSurfaceVariant}
+            autoCapitalize="words"
+            value={fullName}
+            onChangeText={setFullName}
+            style={styles.input}
+          />
+          <View style={styles.inputSeparator} />
           <TextInput
             placeholder="Email"
             placeholderTextColor={Colors.onSurfaceVariant}
@@ -85,66 +121,52 @@ export function LoginScreen({ navigation }: Props) {
               />
             </TouchableOpacity>
           </View>
+          <View style={[styles.inputSeparator, passwordMismatch && styles.inputSeparatorError]} />
+          <View style={styles.inputRow}>
+            <TextInput
+              placeholder="Confirm Password"
+              placeholderTextColor={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
+              secureTextEntry={!showConfirm}
+              value={confirm}
+              onChangeText={setConfirm}
+              style={[styles.inputFlex, passwordMismatch && styles.inputError]}
+            />
+            <TouchableOpacity
+              onPress={() => setShowConfirm((v) => !v)}
+              activeOpacity={0.7}
+              style={styles.eyeButton}
+            >
+              <Ionicons
+                name={showConfirm ? 'eye-off-outline' : 'eye-outline'}
+                size={18}
+                color={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
+
+        {passwordMismatch && (
+          <Text style={styles.mismatchError}>Passwords do not match</Text>
+        )}
 
         <TouchableOpacity
-          onPress={handleEmailLogin}
+          onPress={handleRegister}
           activeOpacity={0.85}
-          style={styles.signInButton}
+          disabled={loading}
+          style={[styles.createButton, loading && styles.createButtonDisabled]}
         >
-          <Text style={styles.signInLabel}>Sign In</Text>
+          <Text style={styles.createLabel}>
+            {loading ? 'Creating…' : 'Create Account'}
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation?.navigate('Register')} activeOpacity={0.7}>
-          <Text style={styles.createAccountLink}>New here? Create an account</Text>
+        <TouchableOpacity onPress={() => navigation?.goBack()} activeOpacity={0.7}>
+          <Text style={styles.signInLink}>Already have an account? Sign in</Text>
         </TouchableOpacity>
-
-        {/* Optional social login */}
-        <View style={styles.optionalRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.optionalLabel}>optional</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <View style={styles.socialRow}>
-          <TouchableOpacity
-            onPress={() => setError('Google sign-in is coming soon.')}
-            activeOpacity={0.8}
-            style={styles.socialButton}
-          >
-            <Ionicons name="logo-google" size={15} color={Colors.onSurface} />
-            <Text style={styles.socialLabel}>Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => setError('Apple sign-in is coming soon.')}
-            activeOpacity={0.8}
-            style={styles.socialButton}
-          >
-            <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
-            <Text style={styles.socialLabel}>Apple</Text>
-          </TouchableOpacity>
-        </View>
 
         <Text style={styles.terms}>
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </Text>
-
-        {/* Decorative photo strip */}
-        <View style={styles.glassStrip}>
-          <View style={[styles.photoPanel, { flex: 2 }]}>
-            <Image source={{ uri: GALLERY_ITEMS[0].uri }} style={styles.panelImage} />
-            <View style={styles.panelOverlay} />
-          </View>
-          <View style={[styles.photoPanel, { flex: 1, marginTop: -24 }]}>
-            <Image source={{ uri: GALLERY_ITEMS[6].uri }} style={styles.panelImage} />
-            <View style={styles.panelOverlay} />
-          </View>
-          <View style={[styles.photoPanel, { flex: 1.5 }]}>
-            <Image source={{ uri: GALLERY_ITEMS[9].uri }} style={styles.panelImage} />
-            <View style={styles.panelOverlay} />
-          </View>
-        </View>
       </View>
 
       <Snackbar message={error} onDismiss={() => setError(null)} />
@@ -156,6 +178,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.surface,
+  },
+  backButton: {
+    position: 'absolute',
+    left: Spacing.marginMain,
+    zIndex: 10,
+    padding: 8,
   },
   brandCluster: {
     flex: 1,
@@ -188,7 +216,7 @@ const styles = StyleSheet.create({
     ...TextStyles.bodyMd,
     color: Colors.onSurfaceVariant,
     textAlign: 'center',
-    maxWidth: 280,
+    maxWidth: 260,
     lineHeight: 22,
   },
   ctaSection: {
@@ -198,7 +226,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  // Input card groups both fields
   inputCard: {
     width: '100%',
     backgroundColor: Colors.glassSurface,
@@ -226,6 +253,9 @@ const styles = StyleSheet.create({
     paddingRight: 4,
     ...TextStyles.bodyMd,
   },
+  inputError: {
+    color: Colors.error,
+  },
   eyeButton: {
     paddingHorizontal: 14,
     height: 52,
@@ -236,8 +266,17 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.outlineVariant,
     marginHorizontal: 18,
   },
-  // Primary sign-in button
-  signInButton: {
+  inputSeparatorError: {
+    backgroundColor: Colors.error,
+    opacity: 0.5,
+  },
+  mismatchError: {
+    ...TextStyles.labelSm,
+    color: Colors.error,
+    alignSelf: 'flex-start',
+    paddingLeft: 4,
+  },
+  createButton: {
     width: '100%',
     height: Spacing.buttonHeight,
     backgroundColor: Colors.primary,
@@ -245,58 +284,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  signInLabel: {
+  createButtonDisabled: {
+    opacity: 0.5,
+  },
+  createLabel: {
     ...TextStyles.labelMd,
     color: Colors.onPrimary,
     letterSpacing: 0.6,
   },
-  createAccountLink: {
+  signInLink: {
     ...TextStyles.labelSm,
     color: Colors.primary,
     textAlign: 'center',
     opacity: 0.85,
-  },
-  // Optional divider
-  optionalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    gap: 10,
-    marginTop: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.outlineVariant,
-  },
-  optionalLabel: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
-    opacity: 0.5,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  // Social buttons — small, side by side
-  socialRow: {
-    flexDirection: 'row',
-    gap: 10,
-    width: '100%',
-  },
-  socialButton: {
-    flex: 1,
-    height: 40,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-    backgroundColor: Colors.glassSurface,
-    borderWidth: 1,
-    borderColor: Colors.outlineVariant,
-    borderRadius: 12,
-  },
-  socialLabel: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
   },
   terms: {
     ...TextStyles.labelSm,
@@ -305,27 +305,5 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     paddingHorizontal: 8,
     lineHeight: 18,
-  },
-  glassStrip: {
-    flexDirection: 'row',
-    gap: 8,
-    width: '100%',
-    height: 110,
-    marginTop: 4,
-    opacity: 0.4,
-    overflow: 'hidden',
-  },
-  photoPanel: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  panelImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  panelOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 });
