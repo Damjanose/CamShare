@@ -176,6 +176,7 @@ export type Event = {
   title: string
   description: string | null
   eventDate: string | null
+  endDate: string | null
   coverImageUrl: string | null
   isActive: boolean
   createdAt: string
@@ -210,6 +211,7 @@ export type CreateEventInput = {
   title: string
   description?: string
   eventDate?: string
+  endDate?: string
   coverImageUrl?: string
 }
 

@@ -1,5 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const fmtDate = (iso: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${String(d.getUTCDate()).padStart(2, '0')}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${d.getUTCFullYear()}`;
+};
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { TextStyles } from '../../constants/typography';
@@ -35,7 +41,7 @@ export function EventCard({ event, onPress }: Props) {
         {/* Bottom content */}
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
-          <Text style={styles.date}>{event.eventDate ?? ''}</Text>
+          <Text style={styles.date}>{fmtDate(event.eventDate)}</Text>
         </View>
       </ImageBackground>
     </TouchableOpacity>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react"
 import { useAuthStore } from "@/stores/authStore"
 import type { User } from "@/types/domain"
 
@@ -15,14 +15,22 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const user = useAuthStore((s) => s.user)
   const accessToken = useAuthStore((s) => s.accessToken)
+  const sessionReady = useAuthStore((s) => s.sessionReady)
+  const bootstrap = useAuthStore((s) => s.bootstrap)
   const login = useAuthStore((s) => s.login)
   const register = useAuthStore((s) => s.register)
   const logout = useAuthStore((s) => s.logout)
+
+  useEffect(() => {
+    bootstrap()
+  }, [bootstrap])
 
   const value = useMemo(
     () => ({ user, accessToken, login, register, logout }),
     [user, accessToken, login, register, logout],
   )
+
+  if (!sessionReady) return null
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,5 +1,10 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+const fmtYear = (iso: string | null): string => {
+  if (!iso) return '';
+  return String(new Date(iso).getUTCFullYear());
+};
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { TextStyles } from '../../constants/typography';
@@ -34,7 +39,7 @@ export function PastMemoryCard({ event, onPress, size }: Props) {
 
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
-          <Text style={styles.year}>{(event.eventDate ?? '').split(',')[1]?.trim() ?? (event.eventDate ?? '')}</Text>
+          <Text style={styles.year}>{fmtYear(event.eventDate)}</Text>
         </View>
       </ImageBackground>
     </TouchableOpacity>

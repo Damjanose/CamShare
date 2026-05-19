@@ -18,12 +18,10 @@ const tabs: { id: Filter; label: string }[] = [
   { id: "video", label: "Video" },
 ]
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
+const formatDate = (iso: string): string => {
+  const d = new Date(iso)
+  return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${d.getUTCFullYear()}`
+}
 
 export const EventGalleryPage = () => {
   const { eventId } = useParams<{ eventId: string }>()

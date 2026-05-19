@@ -127,6 +127,7 @@ export interface EventsTable {
   title: string
   description: string | null
   event_date: Date | null
+  end_date: Date | null
   cover_image_url: string | null
   is_active: Generated<boolean>
   created_at: Generated<Date>

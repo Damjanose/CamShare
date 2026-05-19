@@ -6,12 +6,10 @@ import { useEventsStore } from "@/stores/eventsStore"
 import { usePhotosStore } from "@/stores/photosStore"
 import { apiClient } from "@/api/client"
 
-const formatLongDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  })
+const formatLongDate = (iso: string): string => {
+  const d = new Date(iso)
+  return `${String(d.getUTCDate()).padStart(2, "0")}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${d.getUTCFullYear()}`
+}
 
 export const QrInvitePage = () => {
   const { eventId } = useParams<{ eventId: string }>()

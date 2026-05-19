@@ -18,6 +18,7 @@ export const CreateEventPage = () => {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [date, setDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [location, setLocation] = useState("")
   const [privacy, setPrivacy] = useState<"public" | "private">("private")
   const [autoApprove, setAutoApprove] = useState(false)
@@ -46,6 +47,7 @@ export const CreateEventPage = () => {
         name,
         description,
         date,
+        endDate,
         location,
         coverUrl: coverPreview ?? DEFAULT_COVER,
         privacy,
@@ -101,41 +103,37 @@ export const CreateEventPage = () => {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-                  Date
-                </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    className="form-underline font-body-md text-body-md"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                  <Icon
-                    name="calendar_today"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-                  Location
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    className="form-underline font-body-md text-body-md"
-                    placeholder="The Glass House, NY"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                  <Icon
-                    name="location_on"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <DateCard
+                label="Event Date"
+                icon="event"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+              <DateCard
+                label="End Date"
+                icon="event_busy"
+                value={endDate}
+                min={date || undefined}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
+                Location
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  className="form-underline font-body-md text-body-md"
+                  placeholder="The Glass House, NY"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+                <Icon
+                  name="location_on"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
+                />
               </div>
             </div>
           </div>
@@ -293,6 +291,74 @@ export const CreateEventPage = () => {
           </Button>
         </div>
       </form>
+    </div>
+  )
+}
+
+const toDisplay = (ymd: string): string => {
+  if (!ymd) return ""
+  const [y, m, d] = ymd.split("-")
+  return `${d} — ${m} — ${y}`
+}
+
+const DateCard = ({
+  label,
+  icon,
+  value,
+  min,
+  onChange,
+}: {
+  label: string
+  icon: string
+  value: string
+  min?: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) => {
+  const ref = useRef<HTMLInputElement>(null)
+
+  const open = () => {
+    const el = ref.current
+    if (!el) return
+    try {
+      el.showPicker()
+    } catch {
+      el.click()
+    }
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") open() }}
+      className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 p-5 cursor-pointer group hover:border-primary/50 hover:bg-primary/[0.03] transition-all duration-200 select-none"
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <Icon name={icon} className="text-primary text-base" />
+        <span className="font-label-md text-on-surface-variant uppercase tracking-widest text-xs">
+          {label}
+        </span>
+      </div>
+      {value ? (
+        <p className="font-headline-md text-headline-md text-on-surface tracking-wide">
+          {toDisplay(value)}
+        </p>
+      ) : (
+        <p className="font-body-md text-on-surface-variant/50 italic text-sm">Select date</p>
+      )}
+      <div className="mt-3 h-px bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
+      <input
+        ref={ref}
+        type="date"
+        required
+        min={min}
+        value={value}
+        onChange={onChange}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+      />
     </div>
   )
 }

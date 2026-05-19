@@ -10,6 +10,7 @@ export type Event = {
   id: string
   name: string
   date: string
+  endDate?: string
   location: string
   coverUrl: string
   description: string

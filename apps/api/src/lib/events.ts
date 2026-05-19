@@ -11,6 +11,7 @@ const mapEvent = (row: {
   title: string
   description: string | null
   event_date: Date | null
+  end_date: Date | null
   cover_image_url: string | null
   is_active: boolean
   created_at: Date
@@ -21,6 +22,7 @@ const mapEvent = (row: {
   title: row.title,
   description: row.description,
   eventDate: row.event_date ? iso(row.event_date) : null,
+  endDate: row.end_date ? iso(row.end_date) : null,
   coverImageUrl: row.cover_image_url,
   isActive: row.is_active,
   createdAt: iso(row.created_at),
@@ -46,6 +48,7 @@ export const createEvent = async (ownerId: string, input: CreateEventInput): Pro
         title: input.title,
         description: input.description ?? null,
         event_date: input.eventDate ? new Date(input.eventDate) : null,
+        end_date: input.endDate ? new Date(input.endDate) : null,
         cover_image_url: input.coverImageUrl ?? null,
       })
       .returningAll()
@@ -60,6 +63,13 @@ export const createEvent = async (ownerId: string, input: CreateEventInput): Pro
 }
 
 export const listMyEvents = async (userId: string): Promise<Event[]> => {
+  // Delete expired events — cascade removes all channels, photos, members, tokens
+  await db
+    .deleteFrom("events")
+    .where("end_date", "is not", null)
+    .where("end_date", "<", new Date())
+    .execute()
+
   const rows = await db
     .selectFrom("events")
     .innerJoin("event_members", "event_members.event_id", "events.id")
@@ -89,6 +99,7 @@ export const updateEvent = async (eventId: string, userId: string, input: Update
       ...(input.title !== undefined && { title: input.title }),
       ...(input.description !== undefined && { description: input.description }),
       ...(input.eventDate !== undefined && { event_date: input.eventDate ? new Date(input.eventDate) : null }),
+      ...(input.endDate !== undefined && { end_date: input.endDate ? new Date(input.endDate) : null }),
       ...(input.coverImageUrl !== undefined && { cover_image_url: input.coverImageUrl }),
       ...(input.isActive !== undefined && { is_active: input.isActive }),
       updated_at: new Date(),

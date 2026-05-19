@@ -6,6 +6,7 @@ const createSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   eventDate: z.string().optional(),
+  endDate: z.string().optional(),
   coverImageUrl: z.string().url().optional(),
 })
 

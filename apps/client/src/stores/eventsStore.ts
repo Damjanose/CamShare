@@ -12,6 +12,7 @@ type ApiEvent = {
   title: string
   description: string | null
   eventDate: string | null
+  endDate: string | null
   coverImageUrl: string | null
   isActive: boolean
   createdAt: string
@@ -35,6 +36,7 @@ const fromApi = (apiEvent: ApiEvent, input: EventInput): Event => ({
   id: apiEvent.id,
   name: input.name,
   date: apiEvent.eventDate ?? input.date,
+  endDate: apiEvent.endDate ?? input.endDate ?? undefined,
   location: input.location,
   description: apiEvent.description ?? input.description,
   coverUrl: apiEvent.coverImageUrl ?? input.coverUrl,
@@ -56,6 +58,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
         title: input.name,
         description: input.description || undefined,
         eventDate: input.date || undefined,
+        endDate: input.endDate || undefined,
         coverImageUrl: input.coverUrl || undefined,
       })
       event = fromApi(apiEvent, input)
