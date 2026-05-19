@@ -1,10 +1,9 @@
-import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { TextStyles } from '../../constants/typography';
-import { Event } from '../../data/events';
+import type { Event } from '@camshare/types';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width - Spacing.marginMain * 2;
@@ -23,7 +22,7 @@ export function EventCard({ event, onPress }: Props) {
       style={styles.container}
     >
       <ImageBackground
-        source={{ uri: event.coverUri }}
+        source={{ uri: event.coverImageUrl ?? undefined }}
         style={styles.image}
         resizeMode="cover"
       >
@@ -33,21 +32,10 @@ export function EventCard({ event, onPress }: Props) {
           style={styles.gradient}
         />
 
-        {/* Tag chip (top right) */}
-        <BlurView
-          intensity={20}
-          tint="dark"
-          experimentalBlurMethod="dimezisBlurView"
-          style={styles.tagChip}
-        >
-          <Text style={styles.tagText}>{event.tag.toUpperCase()}</Text>
-        </BlurView>
-
         {/* Bottom content */}
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
-          <Text style={styles.date}>{event.date}</Text>
-          <Text style={styles.location} numberOfLines={1}>{event.location}</Text>
+          <Text style={styles.date}>{event.eventDate ?? ''}</Text>
         </View>
       </ImageBackground>
     </TouchableOpacity>
@@ -71,22 +59,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     top: '40%',
   },
-  tagChip: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 999,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-  },
-  tagText: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurface,
-    letterSpacing: 1.5,
-  },
   content: {
     padding: 20,
     gap: 4,
@@ -101,9 +73,5 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-  },
-  location: {
-    ...TextStyles.labelMd,
-    color: Colors.onSurfaceVariant,
   },
 });

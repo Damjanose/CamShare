@@ -3,7 +3,7 @@ import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 import { TextStyles } from '../../constants/typography';
-import { Event } from '../../data/events';
+import type { Event } from '@camshare/types';
 
 type Props = {
   event: Event;
@@ -19,7 +19,7 @@ export function PastMemoryCard({ event, onPress, size }: Props) {
       style={[styles.container, { width: size, height: size }]}
     >
       <ImageBackground
-        source={{ uri: event.coverUri }}
+        source={{ uri: event.coverImageUrl ?? undefined }}
         style={styles.image}
         resizeMode="cover"
       >
@@ -34,12 +34,7 @@ export function PastMemoryCard({ event, onPress, size }: Props) {
 
         <View style={styles.content}>
           <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
-          <Text style={styles.year}>{event.date.split(',')[1]?.trim() ?? event.date}</Text>
-          {event.photoCount > 0 && (
-            <View style={styles.countBadge}>
-              <Text style={styles.countText}>{event.photoCount} photos</Text>
-            </View>
-          )}
+          <Text style={styles.year}>{(event.eventDate ?? '').split(',')[1]?.trim() ?? (event.eventDate ?? '')}</Text>
         </View>
       </ImageBackground>
     </TouchableOpacity>
@@ -78,20 +73,5 @@ const styles = StyleSheet.create({
     ...TextStyles.labelSm,
     color: Colors.onSurfaceVariant,
     letterSpacing: 1,
-  },
-  countBadge: {
-    marginTop: 4,
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(242,202,80,0.15)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: 'rgba(242,202,80,0.25)',
-  },
-  countText: {
-    ...TextStyles.labelSm,
-    color: Colors.primary,
-    fontSize: 10,
   },
 });

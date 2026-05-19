@@ -11,6 +11,7 @@ import {
 } from '@expo-google-fonts/playfair-display';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useState } from 'react';
@@ -19,6 +20,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavTab } from './src/components/navigation/BottomNav';
 import { Colors } from './src/constants/colors';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { useAuthStore } from './src/stores/authStore';
+import { useSocketLifecycle } from './src/hooks/useSocketLifecycle';
 import { GalleryScreen } from './src/screens/GalleryScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
@@ -26,6 +29,7 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 import { ScannerScreen } from './src/screens/ScannerScreen';
 
 const Stack = createNativeStackNavigator();
+const queryClient = new QueryClient();
 
 /** Authenticated screen stack — manages tab state centrally */
 function MainNavigator() {
@@ -120,6 +124,22 @@ function RootNavigator() {
   );
 }
 
+function AppContent() {
+  const sessionReady = useAuthStore((s) => s.sessionReady);
+  useSocketLifecycle();
+
+  if (!sessionReady) {
+    return <View style={{ flex: 1, backgroundColor: Colors.surface }} />;
+  }
+
+  return (
+    <NavigationContainer>
+      <RootNavigator />
+      <StatusBar style="light" backgroundColor="transparent" translucent />
+    </NavigationContainer>
+  );
+}
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_700Bold,
@@ -136,13 +156,12 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <NavigationContainer>
-          <RootNavigator />
-          <StatusBar style="light" backgroundColor="transparent" translucent />
-        </NavigationContainer>
-      </AuthProvider>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }

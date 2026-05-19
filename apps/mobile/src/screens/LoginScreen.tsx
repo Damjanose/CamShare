@@ -1,8 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -16,8 +19,18 @@ import { useAuth } from '../context/AuthContext';
 import { GALLERY_ITEMS } from '../data/gallery';
 
 export function LoginScreen() {
-  const { googleLogin, appleLogin } = useAuth();
+  const { login } = useAuth();
   const insets = useSafeAreaInsets();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleEmailLogin = async () => {
+    try {
+      await login({ email, password });
+    } catch (e: any) {
+      Alert.alert('Login failed', e?.response?.data?.message ?? e.message);
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -39,7 +52,11 @@ export function LoginScreen() {
       {/* CTA section — bottom */}
       <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
         {/* Google button — custom gradient */}
-        <TouchableOpacity onPress={googleLogin} activeOpacity={0.85} style={styles.googleWrapper}>
+        <TouchableOpacity
+          onPress={() => Alert.alert('Not yet supported', 'Google sign-in is coming soon.')}
+          activeOpacity={0.85}
+          style={styles.googleWrapper}
+        >
           <View style={styles.googleGradient}>
             <Ionicons name="logo-google" size={20} color={Colors.onPrimary} />
             <Text style={styles.googleLabel}>Continue with Google</Text>
@@ -50,13 +67,35 @@ export function LoginScreen() {
         <GhostButton
           label="Continue with Apple"
           icon={<Ionicons name="logo-apple" size={20} color={Colors.onSurface} />}
-          onPress={appleLogin}
+          onPress={() => Alert.alert('Not yet supported', 'Apple sign-in is coming soon.')}
           style={styles.appleWrapper}
         />
 
         <Text style={styles.terms}>
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </Text>
+
+        {/* Email / Password login */}
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#888"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+          style={{ color: '#fff', borderBottomWidth: 1, borderColor: '#444', marginTop: 24, paddingVertical: 8, width: '100%', maxWidth: 320 }}
+        />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+          style={{ color: '#fff', borderBottomWidth: 1, borderColor: '#444', marginTop: 12, paddingVertical: 8, width: '100%', maxWidth: 320 }}
+        />
+        <TouchableOpacity onPress={handleEmailLogin} style={{ marginTop: 16 }}>
+          <Text style={{ color: '#f2ca50', textAlign: 'center' }}>Sign in with email</Text>
+        </TouchableOpacity>
 
         {/* Decorative photo strip */}
         <View style={styles.glassStrip}>

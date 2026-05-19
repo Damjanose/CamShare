@@ -1,4 +1,5 @@
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
+import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
@@ -7,7 +8,8 @@ import { PastMemoryCard } from '../components/ui/PastMemoryCard';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
-import { ACTIVE_EVENTS, PAST_MEMORIES, Event } from '../data/events';
+import { eventsService } from '../services/events';
+import type { Event } from '@camshare/types';
 
 const { width } = Dimensions.get('window');
 const MEMORY_CARD_SIZE = (width - Spacing.marginMain * 2 - Spacing.gutter) / 2;
@@ -20,6 +22,14 @@ type Props = {
 
 export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
   const insets = useSafeAreaInsets();
+
+  const { data: events = [], isLoading } = useQuery({
+    queryKey: ['events'],
+    queryFn: eventsService.list,
+  });
+
+  const activeEvents = events.filter((e) => e.isActive);
+  const pastEvents = events.filter((e) => !e.isActive);
 
   function handleEventPress(event: Event) {
     navigation.navigate('Gallery', { eventId: event.id, eventTitle: event.title });
@@ -48,26 +58,32 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
           </View>
         </View>
 
-        {/* Active events */}
-        <Text style={styles.sectionLabel}>UPCOMING</Text>
-        <View style={styles.eventList}>
-          {ACTIVE_EVENTS.map((event) => (
-            <EventCard key={event.id} event={event} onPress={handleEventPress} />
-          ))}
-        </View>
+        {isLoading ? (
+          <ActivityIndicator color={Colors.primary} style={{ marginTop: 40 }} />
+        ) : (
+          <>
+            {/* Active events */}
+            <Text style={styles.sectionLabel}>UPCOMING</Text>
+            <View style={styles.eventList}>
+              {activeEvents.map((event) => (
+                <EventCard key={event.id} event={event} onPress={handleEventPress} />
+              ))}
+            </View>
 
-        {/* Past memories */}
-        <Text style={[styles.sectionLabel, { marginTop: Spacing.stackLg }]}>MEMORIES</Text>
-        <View style={styles.memoriesGrid}>
-          {PAST_MEMORIES.map((event) => (
-            <PastMemoryCard
-              key={event.id}
-              event={event}
-              onPress={handleMemoryPress}
-              size={MEMORY_CARD_SIZE}
-            />
-          ))}
-        </View>
+            {/* Past memories */}
+            <Text style={[styles.sectionLabel, { marginTop: Spacing.stackLg }]}>MEMORIES</Text>
+            <View style={styles.memoriesGrid}>
+              {pastEvents.map((event) => (
+                <PastMemoryCard
+                  key={event.id}
+                  event={event}
+                  onPress={handleMemoryPress}
+                  size={MEMORY_CARD_SIZE}
+                />
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       <BottomNav active={activeTab} onPress={onTabPress} />
