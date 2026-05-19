@@ -43,7 +43,7 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 });
 
 let isRefreshing = false;
-let pendingQueue: Array<(token: string) => void> = [];
+let pendingQueue: Array<{ onToken: (token: string) => void; onError: (err: unknown) => void }> = [];
 
 apiClient.interceptors.response.use(
   (res) => res,
@@ -57,10 +57,13 @@ apiClient.interceptors.response.use(
     original._retry = true;
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        pendingQueue.push((token) => {
-          original.headers.Authorization = `Bearer ${token}`;
-          resolve(apiClient(original));
+      return new Promise((resolve, reject) => {
+        pendingQueue.push({
+          onToken: (token) => {
+            original.headers.Authorization = `Bearer ${token}`;
+            resolve(apiClient(original));
+          },
+          onError: reject,
         });
       });
     }
@@ -76,12 +79,13 @@ apiClient.interceptors.response.use(
       setAccessToken(newAccess);
       await SecureStore.setItemAsync(REFRESH_KEY, data.tokens.refreshToken);
 
-      pendingQueue.forEach((cb) => cb(newAccess));
+      pendingQueue.forEach(({ onToken }) => onToken(newAccess));
       pendingQueue = [];
 
       original.headers.Authorization = `Bearer ${newAccess}`;
       return apiClient(original);
-    } catch {
+    } catch (error) {
+      pendingQueue.forEach(({ onError }) => onError(error));
       pendingQueue = [];
       _onUnauthorized?.();
       return Promise.reject(error);
