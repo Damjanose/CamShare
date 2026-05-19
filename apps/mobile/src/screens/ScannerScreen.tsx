@@ -1,7 +1,8 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { GlassCard } from '../components/primitives/GlassCard';
@@ -10,24 +11,36 @@ import { ScannerFrame } from '../components/ui/ScannerFrame';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
+import { eventsService } from '../services/events';
+import type { Event } from '@camshare/types';
 
 type Props = {
+  navigation: any;
   activeTab: NavTab;
   onTabPress: (tab: NavTab) => void;
 };
 
-export function ScannerScreen({ activeTab, onTabPress }: Props) {
+export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-  const [scannedData, setScannedData] = useState<string | null>(null);
 
-  function handleBarcodeScanned({ type, data }: { type: string; data: string }) {
+  const joinMutation = useMutation<Event, Error, string>({
+    mutationFn: (token) => eventsService.join({ token }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    },
+  });
+
+  function handleBarcodeScanned({ data }: { type: string; data: string }) {
     setScanned(true);
-    setScannedData(data);
-    Alert.alert('QR Code Scanned', data, [
-      { text: 'Scan Again', onPress: () => { setScanned(false); setScannedData(null); } },
-    ]);
+    joinMutation.mutate(data);
+  }
+
+  function reset() {
+    setScanned(false);
+    joinMutation.reset();
   }
 
   // Permission loading state
@@ -85,18 +98,46 @@ export function ScannerScreen({ activeTab, onTabPress }: Props) {
 
       {/* Bottom hint or result */}
       <View style={[styles.bottomSection, { paddingBottom: insets.bottom + 96 }]}>
-        {scannedData ? (
+        {joinMutation.isPending && (
           <GlassCard style={styles.resultCard}>
-            <Text style={styles.resultLabel}>SCANNED DATA</Text>
-            <Text style={styles.resultText} numberOfLines={3}>{scannedData}</Text>
-            <TouchableOpacity
-              onPress={() => { setScanned(false); setScannedData(null); }}
-              style={styles.scanAgainBtn}
-            >
-              <Text style={styles.scanAgainText}>Scan Again</Text>
+            <ActivityIndicator color={Colors.primary} style={{ marginBottom: 8 }} />
+            <Text style={styles.resultLabel}>JOINING EVENT…</Text>
+          </GlassCard>
+        )}
+
+        {joinMutation.isSuccess && (
+          <GlassCard style={styles.resultCard}>
+            <Text style={styles.resultLabel}>JOINED</Text>
+            <Text style={styles.resultText}>{joinMutation.data.title}</Text>
+            <GradientButton
+              label="Go to Gallery"
+              onPress={() =>
+                navigation.navigate('Gallery', {
+                  eventId: joinMutation.data.id,
+                  eventTitle: joinMutation.data.title,
+                })
+              }
+              style={{ marginTop: 4, marginBottom: 8 }}
+            />
+            <TouchableOpacity onPress={reset} style={styles.scanAgainBtn}>
+              <Text style={styles.scanAgainText}>Scan Another</Text>
             </TouchableOpacity>
           </GlassCard>
-        ) : (
+        )}
+
+        {joinMutation.isError && (
+          <GlassCard style={styles.resultCard}>
+            <Text style={styles.resultLabel}>FAILED TO JOIN</Text>
+            <Text style={styles.errorText}>
+              {joinMutation.error.message || 'Invalid or expired QR code'}
+            </Text>
+            <TouchableOpacity onPress={reset} style={styles.scanAgainBtn}>
+              <Text style={styles.scanAgainText}>Try Again</Text>
+            </TouchableOpacity>
+          </GlassCard>
+        )}
+
+        {!scanned && (
           <Text style={styles.hint}>Align the QR code within the frame</Text>
         )}
       </View>
@@ -176,6 +217,11 @@ const styles = StyleSheet.create({
   scanAgainText: {
     ...TextStyles.labelMd,
     color: Colors.secondary,
+  },
+  errorText: {
+    ...TextStyles.bodyMd,
+    color: Colors.onSurfaceVariant,
+    marginBottom: 12,
   },
   // Permission screen
   permissionContent: {

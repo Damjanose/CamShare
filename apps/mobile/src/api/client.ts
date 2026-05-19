@@ -50,7 +50,9 @@ apiClient.interceptors.response.use(
   async (error) => {
     const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status !== 401 || original._retry) {
+    // Don't intercept auth endpoints — their 401s are credential errors, not session expiry
+    const isAuthEndpoint = original.url?.startsWith('/auth/');
+    if (error.response?.status !== 401 || original._retry || isAuthEndpoint) {
       return Promise.reject(error);
     }
 
