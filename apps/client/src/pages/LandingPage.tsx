@@ -11,11 +11,6 @@ const features = [
     body: "Your content is secure. Control who sees and contributes with custom privacy settings.",
   },
   {
-    icon: "bolt",
-    title: "QR-Based Access",
-    body: "No apps to download. No accounts to create. Just a simple scan to start the magic.",
-  },
-  {
     icon: "sync",
     title: "Real-time Uploads",
     body: "Experience the event through every eye. Photos appear instantly in the live feed.",
@@ -191,17 +186,56 @@ export const LandingPage = () => {
 
       {/* FEATURES */}
       <section id="features" className="px-margin-mobile md:px-margin-desktop py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature) => (
-            <GlassPanel
-              key={feature.title}
-              className="p-8 rounded-[2rem] hover:shadow-2xl transition-all duration-500"
-            >
-              <Icon name={feature.icon} className="text-primary mb-6 block text-3xl" />
-              <h4 className="font-headline-md text-headline-md mb-4">{feature.title}</h4>
-              <p className="text-on-surface-variant">{feature.body}</p>
-            </GlassPanel>
-          ))}
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <span className="block text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md mb-4">
+            ● Features
+          </span>
+          <h2 className="font-display-lg text-display-lg text-on-background mb-6">
+            Built for moments that matter.
+          </h2>
+          <div aria-hidden="true" className="w-10 h-1 bg-champagne-gold rounded-full mx-auto" />
+        </div>
+
+        {/* Asymmetric grid: hero card left + supporting sub-grid right */}
+        <div className="flex flex-col md:flex-row gap-8 md:items-stretch">
+          {/* Hero card — QR-Based Access */}
+          <div className="md:w-1/2 bg-[#1a1a1a] rounded-[2rem] p-10 flex flex-col justify-between min-h-[320px]">
+            <div>
+              <Icon name="bolt" className="text-champagne-gold mb-6 block text-6xl" />
+              <h4 className="font-headline-lg text-headline-lg text-white mb-4">
+                QR-Based Access
+              </h4>
+              <p className="text-gray-300 text-base leading-relaxed">
+                No apps to download. No accounts to create. Just a simple scan to start the magic.
+              </p>
+            </div>
+            <span className="inline-block bg-champagne-gold text-black text-xs font-bold px-4 py-1.5 rounded-full mt-8 self-start">
+              Core feature
+            </span>
+          </div>
+
+          {/* Supporting sub-grid — 5 cards in 2 columns */}
+          <div className="md:w-1/2 grid grid-cols-2 gap-8">
+            {features.slice(0, 4).map((feature) => (
+              <GlassPanel
+                key={feature.title}
+                className="p-6 rounded-[2rem] hover:shadow-2xl transition-all duration-500"
+              >
+                <Icon name={feature.icon} className="text-primary mb-4 block text-3xl" />
+                <h4 className="font-headline-md text-headline-md mb-2">{feature.title}</h4>
+                <p className="text-on-surface-variant text-sm">{feature.body}</p>
+              </GlassPanel>
+            ))}
+            {/* Beautiful Gallery — gold gradient, full width */}
+            <div className="col-span-2 bg-gradient-to-br from-champagne-gold to-yellow-600 rounded-[2rem] p-6 hover:shadow-2xl transition-all duration-500">
+              <Icon name={features[4].icon} className="text-white mb-4 block text-3xl" />
+              <h4 className="font-headline-md text-headline-md mb-2 text-white">
+                {features[4].title}
+              </h4>
+              <p className="text-white/80 text-sm">{features[4].body}</p>
+            </div>
+          </div>
         </div>
       </section>
 
