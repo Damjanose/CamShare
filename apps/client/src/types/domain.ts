@@ -2,23 +2,23 @@ export type User = {
   id: string
   fullName: string
   email: string
-  avatarUrl: string
+  avatarUrl: string | null
   tier: "Free" | "Premium Member"
 }
 
 export type Event = {
   id: string
-  name: string
-  date: string
-  endDate?: string
-  location: string
-  coverUrl: string
-  description: string
-  privacy: "public" | "private"
+  ownerId: string
+  title: string
+  description: string | null
+  eventDate: string | null
+  endDate: string | null
+  coverImageUrl: string | null
+  isActive: boolean
   guestCount: number
   photoCount: number
-  inviteCode: string
-  ownerId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export type Photo = {
