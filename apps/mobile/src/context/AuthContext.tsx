@@ -14,6 +14,7 @@ type AuthContextValue = {
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,8 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await clearSession();
   };
 
+  const deleteAccount = async () => {
+    await authService.deleteAccount();
+    try { await clearSession(); } catch { /* SecureStore error — account already deleted server-side */ }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, accessToken, login, register, logout }}>
+    <AuthContext.Provider value={{ user, accessToken, login, register, logout, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

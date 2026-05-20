@@ -15,6 +15,9 @@ export const authService = {
   me: () =>
     apiClient.get<User>('/auth/me').then((r) => r.data),
 
+  deleteAccount: () =>
+    apiClient.delete('/account').then((r) => r.data),
+
   // Uses refreshTokens (non-intercepted) to avoid triggering the 401 interceptor
   refresh: (refreshToken: string) =>
     refreshTokens(refreshToken),
