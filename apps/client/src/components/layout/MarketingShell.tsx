@@ -79,15 +79,15 @@ export const MarketingShell = ({ children }: { children: ReactNode }) => {
             </p>
           </div>
           <div className="flex gap-10">
-            <a className="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">
+            <Link className="text-label-md text-on-surface-variant hover:text-primary transition-colors" to="/about">
               About
-            </a>
-            <a className="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">
+            </Link>
+            <Link className="text-label-md text-on-surface-variant hover:text-primary transition-colors" to="/privacy">
               Privacy
-            </a>
-            <a className="text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">
-              Contact
-            </a>
+            </Link>
+            <Link className="text-label-md text-on-surface-variant hover:text-primary transition-colors" to="/terms">
+              Terms
+            </Link>
           </div>
           <div className="flex gap-4">
             <a

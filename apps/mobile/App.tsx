@@ -28,6 +28,9 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 import { ScannerScreen } from './src/screens/ScannerScreen';
+import { AboutScreen } from './src/screens/AboutScreen';
+import { PrivacyScreen } from './src/screens/PrivacyScreen';
+import { TermsScreen } from './src/screens/TermsScreen';
 
 const Stack = createNativeStackNavigator();
 const queryClient = new QueryClient();
@@ -107,6 +110,9 @@ function MainNavigator() {
           />
         )}
       </Stack.Screen>
+      <Stack.Screen name="About" component={AboutScreen} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} />
+      <Stack.Screen name="Terms" component={TermsScreen} />
     </Stack.Navigator>
   );
 }

@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
@@ -21,6 +22,7 @@ type Props = {
 
 export function ProfileScreen({ activeTab, onTabPress }: Props) {
   const { user, logout } = useAuth();
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   const initials = user?.fullName
@@ -33,6 +35,12 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
     { label: 'Privacy', value: 'Private' },
     { label: 'Help & Support' },
     { label: 'Sign Out', onPress: logout, destructive: true },
+  ];
+
+  const legalRows: SettingRow[] = [
+    { label: 'About CamShare', onPress: () => navigation.navigate('About') },
+    { label: 'Privacy Policy', onPress: () => navigation.navigate('Privacy') },
+    { label: 'Terms & Conditions', onPress: () => navigation.navigate('Terms') },
   ];
 
   return (
@@ -96,6 +104,25 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
               {!row.value && row.onPress && (
                 <Text style={styles.chevron}>›</Text>
               )}
+            </TouchableOpacity>
+          ))}
+        </GlassCard>
+
+        {/* Legal & About */}
+        <Text style={[styles.sectionLabel, { marginTop: 24 }]}>LEGAL</Text>
+        <GlassCard padding={0} style={styles.settingsCard}>
+          {legalRows.map((row, i) => (
+            <TouchableOpacity
+              key={row.label}
+              onPress={row.onPress}
+              activeOpacity={0.7}
+              style={[
+                styles.settingRow,
+                i < legalRows.length - 1 && styles.settingBorder,
+              ]}
+            >
+              <Text style={styles.settingLabel}>{row.label}</Text>
+              <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
           ))}
         </GlassCard>
