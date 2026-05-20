@@ -19,8 +19,6 @@ export const CreateEventPage = () => {
   const [description, setDescription] = useState("")
   const [date, setDate] = useState("")
   const [endDate, setEndDate] = useState("")
-  const [location, setLocation] = useState("")
-  const [privacy, setPrivacy] = useState<"public" | "private">("private")
   const [autoApprove, setAutoApprove] = useState(false)
   const [hiRes, setHiRes] = useState(true)
   const [liveSlideshow, setLiveSlideshow] = useState(false)
@@ -44,13 +42,11 @@ export const CreateEventPage = () => {
     setSubmitting(true)
     try {
       const created = await addEvent({
-        name,
+        title: name,
         description,
-        date,
-        endDate,
-        location,
-        coverUrl: coverPreview ?? DEFAULT_COVER,
-        privacy,
+        eventDate: date || null,
+        endDate: endDate || null,
+        coverImageUrl: coverPreview ?? DEFAULT_COVER,
       })
       navigate(`/events/${created.id}/invite`)
     } finally {
@@ -117,24 +113,6 @@ export const CreateEventPage = () => {
                 min={date || undefined}
                 onChange={(e) => setEndDate(e.target.value)}
               />
-            </div>
-            <div>
-              <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-                Location
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="form-underline font-body-md text-body-md"
-                  placeholder="The Glass House, NY"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                />
-                <Icon
-                  name="location_on"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none"
-                />
-              </div>
             </div>
           </div>
         </GlassPanel>
@@ -207,12 +185,6 @@ export const CreateEventPage = () => {
             <h2 className="font-headline-md text-headline-md">Privacy &amp; Sophistication</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-            <ToggleRow
-              title="QR-only Access"
-              description="Only users with the physical event QR can view or upload."
-              checked={privacy === "private"}
-              onChange={(value) => setPrivacy(value ? "private" : "public")}
-            />
             <ToggleRow
               title="Auto-approve Uploads"
               description="Media appears instantly without moderator review."
