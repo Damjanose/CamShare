@@ -9,6 +9,7 @@ export interface UsersTable {
   is_active: Generated<boolean>
   created_at: Generated<Date>
   updated_at: Generated<Date>
+  deleted_at: Date | null
 }
 
 export interface UserDetailsTable {
