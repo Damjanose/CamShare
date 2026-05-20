@@ -1,5 +1,4 @@
 import { create } from "zustand"
-import { mockUser } from "@/data/mockUser"
 import type { User } from "@/types/domain"
 import { apiClient, setTokens, clearTokens } from "@/api/client"
 
@@ -16,7 +15,7 @@ const toWebUser = (u: ApiAuthResponse["user"]): User => ({
   id: u.id,
   fullName: u.fullName,
   email: u.email,
-  avatarUrl: mockUser.avatarUrl,
+  avatarUrl: null,
   tier: "Free",
 })
 
