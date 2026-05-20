@@ -179,6 +179,8 @@ export type Event = {
   endDate: string | null
   coverImageUrl: string | null
   isActive: boolean
+  guestCount: number
+  photoCount: number
   createdAt: string
   updatedAt: string
 }
