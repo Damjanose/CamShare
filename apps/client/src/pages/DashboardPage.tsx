@@ -1,17 +1,60 @@
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
 import { StatCard } from "@/components/event/StatCard"
 import { EventCard } from "@/components/event/EventCard"
 import { Icon } from "@/components/primitives/Icon"
-import { GlassPanel } from "@/components/primitives/GlassPanel"
 import { useAuth } from "@/auth/AuthContext"
 import { useEventsStore } from "@/stores/eventsStore"
 
 export const DashboardPage = () => {
   const { user } = useAuth()
   const events = useEventsStore((s) => s.events)
+  const loading = useEventsStore((s) => s.loading)
+  const error = useEventsStore((s) => s.error)
+  const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
-  const totalMemories = events.reduce((sum, event) => sum + event.photoCount, 0)
-  const totalGuests = events.reduce((sum, event) => sum + event.guestCount, 0)
+  useEffect(() => {
+    fetchEvents()
+  }, [fetchEvents])
+
+  const totalMemories = events.reduce((sum, e) => sum + e.photoCount, 0)
+  const totalGuests = events.reduce((sum, e) => sum + e.guestCount, 0)
+
+  if (loading) {
+    return (
+      <>
+        <header className="mb-12">
+          <div className="h-10 w-64 bg-surface-container-high rounded-xl animate-pulse mb-2" />
+          <div className="h-5 w-96 bg-surface-container-high rounded-lg animate-pulse" />
+        </header>
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-surface-container-high rounded-3xl animate-pulse" />
+          ))}
+        </section>
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="aspect-[4/5] bg-surface-container-high rounded-3xl animate-pulse" />
+          ))}
+        </section>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-6">
+        <p className="font-body-lg text-on-surface-variant">{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchEvents()}
+          className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-all"
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -25,8 +68,8 @@ export const DashboardPage = () => {
         </p>
       </header>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        <StatCard label="Total Events" value={events.length} sub="+2 this month" subTone="primary" />
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <StatCard label="Total Events" value={events.length} />
         <StatCard
           label="Total Memories"
           value={totalMemories >= 1000 ? `${(totalMemories / 1000).toFixed(1)}k` : totalMemories}
@@ -38,18 +81,6 @@ export const DashboardPage = () => {
           sub="collaborators"
           subTone="amethyst"
         />
-        <GlassPanel className="bg-white/40 border-white p-6 rounded-3xl shadow-sm">
-          <div className="flex justify-between items-center mb-2">
-            <p className="font-label-md text-on-surface-variant">Storage</p>
-            <span className="font-label-md text-primary">65%</span>
-          </div>
-          <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-            <div className="h-full bg-primary-container w-[65%] rounded-full shadow-[0_0_8px_rgba(212,175,55,0.4)]" />
-          </div>
-          <p className="text-[10px] mt-2 text-on-surface-variant uppercase tracking-widest">
-            32.5 GB of 50 GB Used
-          </p>
-        </GlassPanel>
       </section>
 
       <section>
