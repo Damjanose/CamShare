@@ -243,9 +243,14 @@ export const LandingPage = () => {
       <section id="showcase" className="px-margin-mobile md:px-margin-desktop py-24 bg-surface-container-highest/20">
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           <div className="w-full lg:w-3/5">
-            <h2 className="font-display-lg text-display-lg mb-8 leading-tight">
-              Feel the pulse of your celebration.
+            <span className="block text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md mb-4">
+              ● Showcase
+            </span>
+            <h2 className="font-display-lg text-display-lg mb-6 leading-tight">
+              Feel the pulse of your{" "}
+              <span className="text-champagne-gold italic">celebration.</span>
             </h2>
+            <div aria-hidden="true" className="w-10 h-1 bg-champagne-gold rounded-full mb-8" />
             <p className="font-body-lg text-body-lg text-on-surface-variant mb-8">
               The CamShare dashboard gives you a bird's-eye view of all incoming content. Watch
               your gallery grow in real-time and provide your guests with a collective space to
@@ -261,10 +266,14 @@ export const LandingPage = () => {
                   title: "Seamless Transitions",
                   body: "Smooth animations that feel like high-end editorial software.",
                 },
+                {
+                  title: "Live Guest Counter",
+                  body: "See exactly who's uploading in real time.",
+                },
               ].map((item) => (
                 <li key={item.title} className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Icon name="check" className="text-primary text-sm" />
+                  <div className="w-6 h-6 rounded-full bg-champagne-gold flex items-center justify-center flex-shrink-0 mt-1">
+                    <Icon name="check" className="text-white text-sm" />
                   </div>
                   <div>
                     <p className="font-bold">{item.title}</p>
@@ -277,12 +286,12 @@ export const LandingPage = () => {
           <div className="w-full lg:w-2/5">
             <GlassPanel className="p-1 rounded-[3rem] shadow-2xl relative">
               <div className="bg-white rounded-[2.8rem] overflow-hidden">
-                <div className="p-8 border-b border-outline-variant/10 flex justify-between items-center">
+                <div className="bg-[#1a1a1a] p-8 border-b border-white/10 flex justify-between items-center">
                   <div>
-                    <h5 className="font-headline-md text-headline-md text-primary">
+                    <h5 className="font-headline-md text-headline-md text-white">
                       C &amp; J Wedding
                     </h5>
-                    <p className="text-xs font-label-md uppercase text-on-surface-variant">
+                    <p className="text-xs font-label-md uppercase text-gray-400">
                       Live Event Feed
                     </p>
                   </div>
