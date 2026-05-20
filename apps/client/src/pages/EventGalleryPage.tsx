@@ -52,16 +52,11 @@ export const EventGalleryPage = () => {
     <div className="max-w-container-max mx-auto">
       <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-16">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{event.name}</h1>
+          <h1 className="font-headline-lg text-headline-lg text-primary mb-2">{event.title}</h1>
           <div className="flex flex-wrap items-center gap-4 text-on-surface-variant">
             <span className="flex items-center gap-1 font-label-md text-label-md">
               <Icon name="calendar_today" className="text-sm" />
-              {formatDate(event.date)}
-            </span>
-            <span className="w-1 h-1 bg-outline-variant rounded-full" />
-            <span className="flex items-center gap-1 font-label-md text-label-md">
-              <Icon name="location_on" className="text-sm" />
-              {event.location}
+              {event.eventDate ? formatDate(event.eventDate) : "Date TBD"}
             </span>
           </div>
         </div>
