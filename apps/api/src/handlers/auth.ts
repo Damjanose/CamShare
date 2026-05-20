@@ -62,6 +62,18 @@ export const logout = async (req: Request, res: Response) => {
   return res.status(204).send()
 }
 
+export const deleteAccount = async (req: Request, res: Response) => {
+  if (!req.auth) {
+    return res.status(401).json({ message: "Unauthorized" })
+  }
+  try {
+    await authService.deleteAccount(req.auth.userId)
+    return res.status(204).send()
+  } catch (error) {
+    return handleError(res, error)
+  }
+}
+
 export const me = async (req: Request, res: Response) => {
   if (!req.auth) {
     return res.status(401).json({ message: "Unauthorized" })
@@ -76,7 +88,15 @@ const handleError = (res: Response, error: unknown) => {
     return res.status(400).json({ message: "Validation failed", issues: error.issues })
   }
 
-  if (error instanceof Error && (error.message === "Email already exists" || error.message === "Invalid credentials" || error.message === "Invalid refresh token")) {
+  if (
+    error instanceof Error &&
+    (
+      error.message === "Email already exists" ||
+      error.message === "Invalid credentials" ||
+      error.message === "Invalid refresh token" ||
+      error.message === "Your account has been permanently deleted."
+    )
+  ) {
     return res.status(401).json({ message: error.message })
   }
 

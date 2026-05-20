@@ -30,6 +30,7 @@ app.post("/auth/login", authHandlers.login)
 app.post("/auth/refresh", authHandlers.refresh)
 app.post("/auth/logout", requireAuth, authHandlers.logout)
 app.get("/auth/me", requireAuth, authHandlers.me)
+app.delete("/account", requireAuth, authHandlers.deleteAccount)
 
 app.get("/categories", categoryHandlers.list)
 app.get("/categories/:id", categoryHandlers.getById)

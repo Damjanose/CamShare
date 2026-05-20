@@ -146,3 +146,13 @@ export const refresh = async (refreshToken: string): Promise<AuthResponse> => {
 export const logout = async (sessionId: string) => {
   await db.updateTable("auth_sessions").set({ revoked_at: new Date() }).where("id", "=", sessionId).execute()
 }
+
+export const deleteAccount = async (userId: string) => {
+  await db.updateTable("users").set({ deleted_at: new Date() }).where("id", "=", userId).execute()
+  await db
+    .updateTable("auth_sessions")
+    .set({ revoked_at: new Date() })
+    .where("user_id", "=", userId)
+    .where("revoked_at", "is", null)
+    .execute()
+}
