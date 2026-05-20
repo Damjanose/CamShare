@@ -73,6 +73,9 @@ export const LandingPage = () => {
       {/* HERO */}
       <section className="relative flex flex-col md:flex-row items-center justify-between px-margin-mobile md:px-margin-desktop py-20 gap-16 overflow-hidden min-h-[800px]">
         <div className="flex-1 z-10">
+          <span className="block text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md mb-4">
+            ● The Platform
+          </span>
           <h1 className="font-display-lg text-display-lg text-on-background mb-6 leading-tight">
             Collect memories from every event in{" "}
             <span className="text-primary italic">one shared album.</span>
@@ -91,6 +94,21 @@ export const LandingPage = () => {
             <Button variant="ghost" size="lg">
               <Icon name="qr_code_scanner" /> Join Event (Scan QR)
             </Button>
+          </div>
+          <div className="flex flex-wrap gap-4 mt-8">
+            {[
+              { stat: "500+", label: "Events hosted" },
+              { stat: "12k+", label: "Photos shared" },
+              { stat: "∞",    label: "Memories made" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="bg-white border border-outline-variant/30 rounded-xl px-6 py-3 text-center"
+              >
+                <span className="block font-bold text-2xl text-champagne-gold">{item.stat}</span>
+                <span className="text-xs text-on-surface-variant">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
         <div className="flex-1 relative w-full h-[600px] flex justify-center items-center">
