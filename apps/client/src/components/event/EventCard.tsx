@@ -17,16 +17,16 @@ export const EventCard = ({ event }: { event: Event }) => {
     >
       <div className="aspect-[4/5] overflow-hidden">
         <img
-          src={event.coverUrl}
-          alt={event.name}
+          src={event.coverImageUrl ?? ""}
+          alt={event.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
       </div>
       <div className="p-6 absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
         <p className="font-label-md text-caption text-white/80 mb-1 uppercase tracking-widest">
-          {formatDate(event.date)}
+          {event.eventDate ? formatDate(event.eventDate) : "Date TBD"}
         </p>
-        <h3 className="font-headline-md text-headline-md mb-2">{event.name}</h3>
+        <h3 className="font-headline-md text-headline-md mb-2">{event.title}</h3>
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1 text-caption font-label-md">
             <Icon name="photo_library" className="text-[18px]" /> {event.photoCount} Uploads
