@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom"
+import { ScrollToTop } from "@/components/ScrollToTop"
 import { AppShell } from "@/components/layout/AppShell"
 import { ProtectedRoute } from "@/auth/ProtectedRoute"
 import { LandingPage } from "@/pages/LandingPage"
@@ -14,7 +15,9 @@ import { TermsPage } from "@/pages/TermsPage"
 
 export const App = () => {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
@@ -36,6 +39,7 @@ export const App = () => {
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </>
   )
 }
