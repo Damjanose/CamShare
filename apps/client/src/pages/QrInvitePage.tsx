@@ -29,11 +29,10 @@ export const QrInvitePage = () => {
 
   if (!event) return <Navigate to="/dashboard" replace />
 
-  const inviteUrl = joinToken
-    ? `${window.location.origin}/invite/${joinToken}`
-    : `${window.location.origin}/invite/${event.inviteCode}`
+  const inviteUrl = joinToken ? `${window.location.origin}/invite/${joinToken}` : null
 
   const handleCopy = async () => {
+    if (!inviteUrl) return
     try {
       await navigator.clipboard.writeText(inviteUrl)
       setCopied(true)
@@ -56,14 +55,14 @@ export const QrInvitePage = () => {
               to={`/events/${event.id}`}
               className="text-primary hover:underline"
             >
-              {event.name}
+              {event.title}
             </Link>
           </nav>
           <h1 className="font-headline-lg text-[40px] leading-tight text-on-surface">
-            {event.name}
+            {event.title}
           </h1>
           <p className="text-on-surface-variant mt-2 font-body-md italic opacity-80">
-            {formatLongDate(event.date)} • {event.location}
+            {event.eventDate ? formatLongDate(event.eventDate) : "Date TBD"}
           </p>
         </div>
         <div className="flex gap-4">
@@ -102,31 +101,39 @@ export const QrInvitePage = () => {
 
       <div className="grid grid-cols-12 gap-12">
         <div className="col-span-12 lg:col-span-7 flex flex-col items-center justify-start">
-          <QrCard
-            value={inviteUrl}
-            title="Scan to Join the Memory"
-            subtitle={`Unique invite code for the private gallery of ${event.name}.`}
-          />
-          <div className="w-full max-w-lg grid grid-cols-1 gap-4 mt-10">
-            <ActionRow icon="download" label="Download QR for Print" hint="High-res PNG / SVG" />
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="flex items-center justify-between px-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-high transition-all active:scale-[0.98] group"
-            >
-              <div className="flex items-center gap-4">
-                <Icon name="link" className="text-primary" />
-                <span className="font-label-md text-label-md text-on-surface">
-                  {copied ? "Link copied to clipboard" : "Copy Invite Link"}
-                </span>
-              </div>
-              <Icon
-                name={copied ? "check_circle" : "content_copy"}
-                className="text-on-surface-variant opacity-70 group-hover:opacity-100 transition-opacity"
+          {inviteUrl ? (
+            <>
+              <QrCard
+                value={inviteUrl}
+                title="Scan to Join the Memory"
+                subtitle={`Unique invite code for the private gallery of ${event.title}.`}
               />
-            </button>
-            <ActionRow icon="mail" label="Email Invitation" hint="Send to guest list" />
-          </div>
+              <div className="w-full max-w-lg grid grid-cols-1 gap-4 mt-10">
+                <ActionRow icon="download" label="Download QR for Print" hint="High-res PNG / SVG" />
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex items-center justify-between px-6 py-5 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl hover:bg-surface-container-high transition-all active:scale-[0.98] group"
+                >
+                  <div className="flex items-center gap-4">
+                    <Icon name="link" className="text-primary" />
+                    <span className="font-label-md text-label-md text-on-surface">
+                      {copied ? "Link copied to clipboard" : "Copy Invite Link"}
+                    </span>
+                  </div>
+                  <Icon
+                    name={copied ? "check_circle" : "content_copy"}
+                    className="text-on-surface-variant opacity-70 group-hover:opacity-100 transition-opacity"
+                  />
+                </button>
+                <ActionRow icon="mail" label="Email Invitation" hint="Send to guest list" />
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-48 text-on-surface-variant font-body-md">
+              Generating invite link…
+            </div>
+          )}
         </div>
 
         <div className="col-span-12 lg:col-span-5">
@@ -170,7 +177,7 @@ const PhoneMockup = ({
   event,
   previewPhotos,
 }: {
-  event: { name: string; coverUrl: string }
+  event: { title: string; coverImageUrl: string | null }
   previewPhotos: string[]
 }) => {
   return (
@@ -203,7 +210,7 @@ const PhoneMockup = ({
 
           {/* Event card */}
           <div className="relative rounded-2xl overflow-hidden mb-4" style={{ height: 140 }}>
-            <img src={event.coverUrl} alt={event.name} className="w-full h-full object-cover" />
+            <img src={event.coverImageUrl ?? ""} alt={event.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(19,19,19,0.85) 0%, transparent 55%)" }} />
             {/* Glass badge */}
             <div
@@ -214,7 +221,7 @@ const PhoneMockup = ({
             </div>
             <div className="absolute bottom-3 left-3">
               <p className="text-[13px] font-semibold leading-tight" style={{ color: "#e5e2e1", fontFamily: "serif" }}>
-                {event.name}
+                {event.title}
               </p>
               <p className="text-[9px] mt-0.5" style={{ color: "#d0c5af" }}>Tap to enter gallery</p>
             </div>
