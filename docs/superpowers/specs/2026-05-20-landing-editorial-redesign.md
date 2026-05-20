@@ -29,10 +29,13 @@
 **New file:** `apps/client/src/components/ScrollToTop.tsx`
 
 - Uses `useEffect` + `useLocation` from `react-router-dom`
-- On every location change calls `window.scrollTo({ top: 0, behavior: 'instant' })`
-- Renders `null`
+- On every location change, scroll to top **only when there is no hash** in the new location (i.e. `location.hash === ''`). Hash-anchor navigation (e.g. `/#features`, `/#showcase`) must be left to the browser's native scroll-to-anchor behavior — ScrollToTop must not override it.
+- Calls `window.scrollTo({ top: 0, behavior: 'instant' })` when the condition above is met.
+- Renders `null`.
 
 **Mount point:** Inside `<App>` above `<Routes>` (App.tsx).
+
+**Nav link coexistence:** The Overview nav link stays as `to="/"` (not `/#overview`). Clicking it navigates to the root route; ScrollToTop fires and resets to the top, which is where the hero lives. Features and Showcase links (`to="/#features"`, `to="/#showcase"`) contain a hash, so ScrollToTop skips them and the browser scrolls to the element with that id.
 
 ---
 
@@ -40,23 +43,29 @@
 
 **Changes to the hero `<section>` in LandingPage.tsx:**
 
-- Add `id="overview"` to the section element
+- Keep `id` absent (the hero is always at the top; no anchor needed since Overview uses `/`)
 - Insert a label chip above the `<h1>`:
   ```
   ● THE PLATFORM
   ```
-  Styled: `text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md`
+  Styled: `text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md block mb-4`
 - Keep the existing headline copy; the italic gold span on "one shared album." stays
 - Add a stat row below the CTA button group — three stat cards in a flex row:
+
   | Stat | Label |
   |---|---|
   | 500+ | Events hosted |
   | 12k+ | Photos shared |
   | ∞ | Memories made |
-  Each card: `bg-white border border-outline-variant/30 rounded-xl px-6 py-3 text-center`
 
-**Nav link update in MarketingShell.tsx:**  
-Change `{ to: "/", label: "Overview" }` → `{ to: "/#overview", label: "Overview" }`
+  Container: `flex flex-wrap gap-4 mt-8`  
+  Each card: `bg-white border border-outline-variant/30 rounded-xl px-6 py-3 text-center`  
+  Stat number: `font-bold text-2xl text-champagne-gold block`  
+  Stat label: `text-xs text-on-surface-variant`
+
+  On mobile (`< md`), the stat row wraps naturally due to `flex-wrap`.
+
+**Nav link in MarketingShell.tsx stays as `{ to: "/", label: "Overview" }`** — no change needed (ScrollToTop handles the scroll).
 
 ---
 
@@ -65,30 +74,44 @@ Change `{ to: "/", label: "Overview" }` → `{ to: "/#overview", label: "Overvie
 **Changes to the `#features` section in LandingPage.tsx:**
 
 ### Section header (new, above the grid)
+
 ```
-● FEATURES                          ← gold label chip
-Built for moments that matter.      ← bold H2
-──────────────────────────          ← 40px gold divider bar
+● FEATURES                          ← gold label chip (same style as hero chip)
+Built for moments that matter.      ← bold H2 (font-display-lg text-display-lg)
+<div aria-hidden="true" />          ← 40px × 4px gold divider bar, rounded-full, mx-auto or left-aligned, mb-12
 ```
 
 ### Grid restructure
-Replace the current 3-column uniform grid with a 2-column asymmetric layout:
 
-- **Left column** — Hero card (full height, `row-span-2` or `grid-row: span 3`):
-  - Background: `bg-[#1a1a1a]` (dark)
-  - Feature: **QR-Based Access** (the core differentiator)
-  - Large icon (text-5xl), bold white title, white body copy, gold "Key feature" pill badge
-  - Padding: `p-10`
+Replace the current `grid-cols-1 md:grid-cols-2 lg:grid-cols-3` uniform grid with:
 
-- **Right column** — 2×3 sub-grid of smaller supporting cards:
-  1. Private Albums
-  2. Real-time Uploads
-  3. Video Support
-  4. Admin Control
-  5. Beautiful Gallery ← gets gold gradient background (`bg-gradient-to-br from-champagne-gold to-yellow-600 text-white`)
+```
+grid grid-cols-1 md:grid-cols-2 gap-8
+```
 
-All cards: `rounded-[2rem]`, same border radius as existing GlassPanel usage.  
-Small cards: use `GlassPanel` as now, `p-6 rounded-[2rem]`.
+**Left column — Hero card** (`md:row-span-3`, full height of the right 2×3 grid):
+- Background: `bg-[#1a1a1a]` — not a GlassPanel
+- Feature: **QR-Based Access**
+- Layout inside: `flex flex-col justify-between h-full p-10`
+- Icon: `text-6xl text-champagne-gold mb-6`
+- Title: `font-headline-lg text-headline-lg text-white mb-4`
+- Body: `text-on-surface-variant text-base leading-relaxed` (on dark bg use `text-gray-300`)
+- Gold pill badge at bottom: `inline-block bg-champagne-gold text-black text-xs font-bold px-4 py-1.5 rounded-full mt-8`; text: "Core feature"
+- Border radius: `rounded-[2rem]`
+- Minimum height on mobile: `min-h-[320px]`; on md+ height is determined by the row-span
+
+**Right column — 2-column sub-grid of 5 supporting cards** (`grid grid-cols-2 gap-8`):
+
+Order and treatment:
+1. Private Albums — `GlassPanel p-6 rounded-[2rem]`
+2. Real-time Uploads — `GlassPanel p-6 rounded-[2rem]`
+3. Video Support — `GlassPanel p-6 rounded-[2rem]`
+4. Admin Control — `GlassPanel p-6 rounded-[2rem]`
+5. Beautiful Gallery — `col-span-2 p-6 rounded-[2rem] bg-gradient-to-br from-champagne-gold to-yellow-600` (spans full width of the right sub-grid; white text + white icon)
+
+Each card retains: icon (`text-3xl mb-4`), title (`font-headline-md text-headline-md mb-2`), body (`text-on-surface-variant text-sm`). Beautiful Gallery card uses `text-white` for all text.
+
+**Mobile:** On screens `< md`, the outer grid collapses to 1 column (hero card full width, then sub-grid below). The sub-grid stays `grid-cols-2` at all breakpoints.
 
 ---
 
@@ -97,22 +120,25 @@ Small cards: use `GlassPanel` as now, `p-6 rounded-[2rem]`.
 **Changes to the `#showcase` section in LandingPage.tsx:**
 
 ### Left column — text
-- Insert gold label chip `● SHOWCASE` above the headline
-- Headline: keep copy, add italic + gold on the last word:
+
+- Insert gold label chip `● SHOWCASE` above the headline (same chip style as other sections; `block mb-4`)
+- Headline keep existing copy, wrap the last word in italic gold:
+  ```jsx
+  Feel the pulse of your{" "}
+  <span className="text-champagne-gold italic">celebration.</span>
   ```
-  Feel the pulse of your celebration.
-                              ↑ italic + text-champagne-gold
-  ```
-- Add 40px gold divider bar below the headline
-- Change checkmark icon containers from `bg-primary/20` to `bg-champagne-gold`; icon `text-white text-sm`
-- Add a **third bullet**:
+- Add 40px gold divider bar below the headline (`aria-hidden="true"`, `w-10 h-1 bg-champagne-gold rounded-full mb-8`)
+- Change checkmark icon containers from `bg-primary/20` to `bg-champagne-gold`; change icon class to `text-white text-sm`
+- Add a **third bullet** to the `ul`:
   - Title: `Live Guest Counter`
   - Body: `See exactly who's uploading in real time.`
 
 ### Right column — mockup
-- Change the inner mockup header bar from white to `bg-[#1a1a1a]` dark
-- Event name and "Live Event Feed" label switch to white text
-- LIVE badge stays red + white
+
+- The inner white `<div>` header bar: change background from white to `bg-[#1a1a1a]`
+- `h5` event name (`C & J Wedding`): change `text-primary` to `text-white`
+- `"Live Event Feed"` label: change `text-on-surface-variant` to `text-gray-400`
+- LIVE badge: no change (already red + white)
 
 ---
 
@@ -120,7 +146,7 @@ Small cards: use `GlassPanel` as now, `p-6 rounded-[2rem]`.
 
 - No changes to any other sections (How It Works, Use Cases, CTA)
 - No changes to authenticated app pages
-- No content changes to the nav or footer beyond the Overview link href
+- No content changes to the nav or footer
 - No new routes
 
 ---
@@ -131,5 +157,5 @@ Small cards: use `GlassPanel` as now, `p-6 rounded-[2rem]`.
 |---|---|
 | `apps/client/src/components/ScrollToTop.tsx` | Create new |
 | `apps/client/src/App.tsx` | Mount `<ScrollToTop />` above `<Routes>` |
-| `apps/client/src/components/layout/MarketingShell.tsx` | Change Overview link to `/#overview` |
+| `apps/client/src/components/layout/MarketingShell.tsx` | No change (Overview link stays as `"/"`) |
 | `apps/client/src/pages/LandingPage.tsx` | All section changes above |
