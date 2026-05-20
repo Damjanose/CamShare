@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { GlassCard } from '../components/primitives/GlassCard';
@@ -21,13 +22,37 @@ type Props = {
 };
 
 export function ProfileScreen({ activeTab, onTabPress }: Props) {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
+  const [deleting, setDeleting] = useState(false);
 
   const initials = user?.fullName
     ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'ME';
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Your account will be scheduled for deletion. Log back in within 30 days to recover it.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteAccount();
+            } catch {
+              setDeleting(false);
+              Alert.alert('Error', 'Failed to delete account. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const settings: SettingRow[] = [
     { label: 'Notifications', value: 'On' },
@@ -35,6 +60,7 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
     { label: 'Privacy', value: 'Private' },
     { label: 'Help & Support' },
     { label: 'Sign Out', onPress: logout, destructive: true },
+    { label: 'Delete Account', onPress: handleDeleteAccount, destructive: true },
   ];
 
   const legalRows: SettingRow[] = [
@@ -87,14 +113,19 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
         {/* Settings list */}
         <Text style={styles.sectionLabel}>SETTINGS</Text>
         <GlassCard padding={0} style={styles.settingsCard}>
-          {settings.map((row, i) => (
+          {settings.map((row, i) => {
+            const isDeleteRow = row.label === 'Delete Account';
+            const isDisabled = isDeleteRow && deleting;
+            return (
             <TouchableOpacity
               key={row.label}
               onPress={row.onPress}
               activeOpacity={row.onPress ? 0.7 : 1}
+              disabled={isDisabled}
               style={[
                 styles.settingRow,
                 i < settings.length - 1 && styles.settingBorder,
+                isDisabled && { opacity: 0.4 },
               ]}
             >
               <Text style={[styles.settingLabel, row.destructive && styles.settingDestructive]}>
@@ -105,7 +136,8 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
                 <Text style={styles.chevron}>›</Text>
               )}
             </TouchableOpacity>
-          ))}
+            );
+          })}
         </GlassCard>
 
         {/* Legal & About */}
