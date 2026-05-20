@@ -16,6 +16,8 @@ const mapEvent = (row: {
   is_active: boolean
   created_at: Date
   updated_at: Date
+  guest_count?: string | null
+  photo_count?: string | null
 }): Event => ({
   id: row.id,
   ownerId: row.owner_id,
@@ -25,9 +27,31 @@ const mapEvent = (row: {
   endDate: row.end_date ? iso(row.end_date) : null,
   coverImageUrl: row.cover_image_url,
   isActive: row.is_active,
+  guestCount: Number(row.guest_count ?? 0),
+  photoCount: Number(row.photo_count ?? 0),
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
 })
+
+const fetchWithCounts = (eventId: string) =>
+  db
+    .selectFrom("events")
+    .selectAll("events")
+    .select((eb) => [
+      eb
+        .selectFrom("event_members")
+        .whereRef("event_members.event_id", "=", "events.id")
+        .select(eb.fn.countAll<string>().as("c"))
+        .as("guest_count"),
+      eb
+        .selectFrom("event_photos")
+        .innerJoin("event_channels", "event_channels.id", "event_photos.channel_id")
+        .whereRef("event_channels.event_id", "=", "events.id")
+        .select(eb.fn.countAll<string>().as("c"))
+        .as("photo_count"),
+    ])
+    .where("events.id", "=", eventId)
+    .executeTakeFirst()
 
 const isMember = async (eventId: string, userId: string): Promise<boolean> => {
   const row = await db
@@ -59,7 +83,7 @@ export const createEvent = async (ownerId: string, input: CreateEventInput): Pro
     return row
   })
 
-  return mapEvent(event)
+  return mapEvent({ ...event, guest_count: "1", photo_count: "0" })
 }
 
 export const listMyEvents = async (userId: string): Promise<Event[]> => {
@@ -72,9 +96,22 @@ export const listMyEvents = async (userId: string): Promise<Event[]> => {
 
   const rows = await db
     .selectFrom("events")
-    .innerJoin("event_members", "event_members.event_id", "events.id")
-    .where("event_members.user_id", "=", userId)
+    .innerJoin("event_members as em", "em.event_id", "events.id")
+    .where("em.user_id", "=", userId)
     .selectAll("events")
+    .select((eb) => [
+      eb
+        .selectFrom("event_members")
+        .whereRef("event_members.event_id", "=", "events.id")
+        .select(eb.fn.countAll<string>().as("c"))
+        .as("guest_count"),
+      eb
+        .selectFrom("event_photos")
+        .innerJoin("event_channels", "event_channels.id", "event_photos.channel_id")
+        .whereRef("event_channels.event_id", "=", "events.id")
+        .select(eb.fn.countAll<string>().as("c"))
+        .as("photo_count"),
+    ])
     .orderBy("events.created_at desc")
     .execute()
 
@@ -85,15 +122,23 @@ export const getEvent = async (eventId: string, userId: string): Promise<Event |
   const member = await isMember(eventId, userId)
   if (!member) return null
 
-  const row = await db.selectFrom("events").selectAll().where("id", "=", eventId).executeTakeFirst()
+  const row = await fetchWithCounts(eventId)
   return row ? mapEvent(row) : null
 }
 
-export const updateEvent = async (eventId: string, userId: string, input: UpdateEventInput): Promise<Event | null> => {
-  const row = await db.selectFrom("events").select(["id", "owner_id"]).where("id", "=", eventId).executeTakeFirst()
+export const updateEvent = async (
+  eventId: string,
+  userId: string,
+  input: UpdateEventInput,
+): Promise<Event | null> => {
+  const row = await db
+    .selectFrom("events")
+    .select(["id", "owner_id"])
+    .where("id", "=", eventId)
+    .executeTakeFirst()
   if (!row || row.owner_id !== userId) return null
 
-  const updated = await db
+  await db
     .updateTable("events")
     .set({
       ...(input.title !== undefined && { title: input.title }),
@@ -105,10 +150,10 @@ export const updateEvent = async (eventId: string, userId: string, input: Update
       updated_at: new Date(),
     })
     .where("id", "=", eventId)
-    .returningAll()
-    .executeTakeFirstOrThrow()
+    .execute()
 
-  return mapEvent(updated)
+  const updated = await fetchWithCounts(eventId)
+  return updated ? mapEvent(updated) : null
 }
 
 export const deleteEvent = async (eventId: string, userId: string): Promise<boolean> => {
@@ -147,7 +192,8 @@ export const joinEvent = async (token: string, userId: string): Promise<Event | 
     .onConflict((oc) => oc.columns(["event_id", "user_id"]).doNothing())
     .execute()
 
-  const eventRow = await db.selectFrom("events").selectAll().where("id", "=", tokenRow.event_id).executeTakeFirstOrThrow()
+  const eventRow = await fetchWithCounts(tokenRow.event_id)
+  if (!eventRow) return null
   const event = mapEvent(eventRow)
 
   const joinerDetails = await db
