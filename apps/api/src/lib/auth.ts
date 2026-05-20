@@ -82,6 +82,25 @@ export const login = async (input: { email: string; password: string }, context:
     throw new Error("Invalid credentials")
   }
 
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+  const cutoff = new Date(Date.now() - THIRTY_DAYS_MS)
+
+  if (user.deleted_at !== null) {
+    if (user.deleted_at > cutoff) {
+      // Still within 30-day recovery window — reactivate silently and continue
+      await db.updateTable("users").set({ deleted_at: null }).where("id", "=", user.id).execute()
+    } else {
+      // Past 30 days — hard delete atomically, then reject login
+      // orders must be deleted first: orders.user_id has ON DELETE RESTRICT
+      // all other related tables (user_details, auth_sessions, events, etc.) cascade from users
+      await db.transaction().execute(async (trx) => {
+        await trx.deleteFrom("orders").where("user_id", "=", user.id).execute()
+        await trx.deleteFrom("users").where("id", "=", user.id).execute()
+      })
+      throw new Error("Your account has been permanently deleted.")
+    }
+  }
+
   const sessionId = crypto.randomUUID()
   const accessToken = signAccessToken({ sub: user.id, sid: sessionId, email: user.email })
   const refreshToken = signRefreshToken({ sub: user.id, sid: sessionId, email: user.email })
