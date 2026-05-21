@@ -31,6 +31,8 @@ app.post("/auth/refresh", authHandlers.refresh)
 app.post("/auth/logout", requireAuth, authHandlers.logout)
 app.get("/auth/me", requireAuth, authHandlers.me)
 app.delete("/account", requireAuth, authHandlers.deleteAccount)
+app.patch("/auth/me", requireAuth, authHandlers.updateMe)
+app.patch("/auth/me/password", requireAuth, authHandlers.changePassword)
 
 app.get("/categories", categoryHandlers.list)
 app.get("/categories/:id", categoryHandlers.getById)

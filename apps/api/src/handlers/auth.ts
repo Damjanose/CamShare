@@ -17,6 +17,20 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 })
 
+const updateMeSchema = z
+  .object({
+    fullName: z.string().min(1).optional(),
+    avatarUrl: z.string().min(1).optional(),
+  })
+  .refine((d) => d.fullName !== undefined || d.avatarUrl !== undefined, {
+    message: "At least one field required",
+  })
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+})
+
 export const register = async (req: Request, res: Response) => {
   try {
     const input = registerSchema.parse(req.body)
@@ -74,6 +88,28 @@ export const deleteAccount = async (req: Request, res: Response) => {
   }
 }
 
+export const updateMe = async (req: Request, res: Response) => {
+  if (!req.auth) return res.status(401).json({ message: "Unauthorized" })
+  try {
+    const input = updateMeSchema.parse(req.body)
+    const user = await authService.updateMe(req.auth.userId, input)
+    return res.json(user)
+  } catch (error) {
+    return handleError(res, error)
+  }
+}
+
+export const changePassword = async (req: Request, res: Response) => {
+  if (!req.auth) return res.status(401).json({ message: "Unauthorized" })
+  try {
+    const input = changePasswordSchema.parse(req.body)
+    await authService.changePassword(req.auth.userId, input)
+    return res.status(204).send()
+  } catch (error) {
+    return handleError(res, error)
+  }
+}
+
 export const me = async (req: Request, res: Response) => {
   if (!req.auth) {
     return res.status(401).json({ message: "Unauthorized" })
@@ -94,6 +130,7 @@ const handleError = (res: Response, error: unknown) => {
       error.message === "Email already exists" ||
       error.message === "Invalid credentials" ||
       error.message === "Invalid refresh token" ||
+      error.message === "Invalid current password" ||
       error.message === "Your account has been permanently deleted."
     )
   ) {
