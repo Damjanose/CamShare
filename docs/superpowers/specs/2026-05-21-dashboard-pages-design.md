@@ -10,7 +10,7 @@
 CamShare's sidebar links to five routes. Only Dashboard has a page. This spec covers building the four missing pages and fixing one broken element on Dashboard.
 
 Pages in scope:
-- `/dashboard` — fix "View All" button
+- `/dashboard` — fix "View All" button + filter recent events
 - `/events` — Collections
 - `/shared` — Shared (events you joined as guest)
 - `/analytics` — Analytics (account-level stats)
@@ -32,31 +32,38 @@ All four pages derive their data by filtering the existing eventsStore.
 
 ### eventsStore additions
 
-Add a single new action to `apps/client/src/stores/eventsStore.ts`:
+Add a single new action to `apps/client/src/stores/eventsStore.ts`. Update **both** the `EventsState` TypeScript interface and the `create` implementation body:
 
 ```ts
-restoreEvent: async (id: string) => Promise<void>
+// In EventsState type:
+restoreEvent: (id: string) => Promise<void>
+
+// In create body (immutable spread-map — do NOT mutate the array in place):
+restoreEvent: async (id) => {
+  await apiClient.patch(`/events/${id}`, { isActive: true })
+  set({ events: get().events.map((e) => e.id === id ? { ...e, isActive: true } : e) })
+},
 ```
 
-Implementation: `PATCH /events/:id { isActive: true }`, then update the matching event in store state (`isActive: true`).
+If the API call throws, `set()` is never called — state stays unchanged and the error propagates to the calling component.
 
 ### Client-side filters
 
 | Page | Filter |
 |---|---|
 | Collections | `ownerId === user.id && isActive === true` |
-| Shared | `ownerId !== user.id` |
+| Shared | `ownerId !== user.id && isActive === true` |
 | Archive | `ownerId === user.id && isActive === false` |
-| Analytics | all owned events (`ownerId === user.id`) |
+| Analytics | `ownerId === user.id` (active and inactive — stats intentionally include archived events) |
 
 ---
 
 ## Routes
 
-Add to `App.tsx` inside `<AppShell>` (protected):
+Add to `App.tsx` inside `<AppShell>` (protected). The `/events` route **must be declared before all `/events/:eventId*` routes** (`/events/new`, `/events/:eventId`, `/events/:eventId/invite`) to prevent the dynamic segment from matching the bare `/events` path:
 
 ```
-/events     → CollectionsPage
+/events     → CollectionsPage      ← insert BEFORE /events/new and /events/:eventId*
 /shared     → SharedPage
 /analytics  → AnalyticsPage
 /archive    → ArchivePage
@@ -68,13 +75,18 @@ Add to `App.tsx` inside `<AppShell>` (protected):
 
 ### Dashboard fix
 
-Change the "View All" `<button>` (line ~98 in DashboardPage.tsx) to `<Link to="/events">`. The stat cards and recent-events grid stay unchanged. The "Recent Events" section shows only `ownerId === user.id && isActive === true` events (at most 3).
+Two changes to `DashboardPage.tsx`:
+
+1. Change the "View All" `<button>` to `<Link to="/events">`.
+2. Change `events.slice(0, 3)` to `events.filter(e => e.ownerId === user.id && e.isActive).slice(0, 3)` so the "Recent Events" grid shows only active owned events.
+
+The three StatCards (`Total Events`, `Total Memories`, `Active Guests`) continue to count **all events the user is a member of** (owned + guest, active + inactive). This is intentional — the stat cards represent the user's full network activity, not just events they created.
 
 ---
 
 ### Collections (`/events`)
 
-**Purpose:** Browse all events the user owns.
+**Purpose:** Browse all active events the user owns.
 
 **Layout:**
 1. Page header: title "Collections", subtitle, "Create Event" link button (top-right)
@@ -83,32 +95,32 @@ Change the "View All" `<button>` (line ~98 in DashboardPage.tsx) to `<Link to="/
 4. Empty state: illustrated placeholder + "Create your first event" CTA
 
 **Behaviour:**
-- Calls `fetchEvents()` on mount if store is empty
-- Filters: `ownerId === user.id && isActive`
+- Calls `fetchEvents()` on mount if `events.length === 0 && !loading`. Unlike DashboardPage (which fetches unconditionally on every mount), the new pages treat the store as a session cache — navigating between pages does not re-fetch. This is intentional.
+- Note: the server silently deletes events where `end_date < now` on every `GET /events` call. This is pre-existing API behaviour out of scope for this spec.
+- Filters: `ownerId === user.id && isActive === true`
 - Search: case-insensitive substring match on `event.title`
 - Sort options: by `createdAt` desc (Newest), `createdAt` asc (Oldest), `photoCount` desc (Most Photos)
 - Loading skeleton: 6 pulse cards in same grid
 
-**Components used:** `EventCard`, `StatCard`, `Icon`, `GlassPanel`
+**Components used:** `EventCard`, `Icon`, `GlassPanel`
 
 ---
 
 ### Shared (`/shared`)
 
-**Purpose:** Browse events the user joined as a guest.
+**Purpose:** Browse active events the user joined as a guest.
 
 **Layout:**
 1. Page header: title "Shared With Me"
 2. Event grid: same grid layout as Collections, uses `EventCard`
-3. Each card shows a small host-name byline — requires host name lookup
 
-**Host name concern:** The `Event` type includes `ownerId` (UUID) but no owner display name. Since we cannot look up owner names without extra API work, display "Shared event" as a static badge on each card instead. This keeps the page fully functional without new endpoints.
+**Host name:** The `Event` type includes `ownerId` (UUID) but no owner display name. Display a static "Shared event" badge on each card rather than looking up the owner — no extra API calls required.
 
 **Behaviour:**
-- Calls `fetchEvents()` on mount if store is empty
-- Filters: `ownerId !== user.id`
+- Calls `fetchEvents()` on mount if `events.length === 0 && !loading`
+- Filters: `ownerId !== user.id && isActive === true` (inactive guest events are excluded — the user cannot restore them)
 - Loading and empty states matching Collections pattern
-- Empty state: "You haven't been invited to any events yet." + explanation text
+- Empty state: "You haven't been invited to any events yet."
 
 ---
 
@@ -116,17 +128,21 @@ Change the "View All" `<button>` (line ~98 in DashboardPage.tsx) to `<Link to="/
 
 **Purpose:** Account-level overview of the user's photo-sharing activity.
 
-**Data source:** Computed client-side from eventsStore, filtered to owned events.
+**Data source:** Computed client-side from eventsStore, filtered to `ownerId === user.id` (active and inactive — archiving an event does not erase its history from stats).
 
 **Layout:**
 1. Page header: title "Analytics"
 2. Stat row (4 cards): Total Events, Total Photos, Total Guests, Avg Photos/Event
-3. "Top Events" section: table of owned events sorted by photoCount desc, showing rank, title, date, photos, guests
-4. "Activity" section: CSS bar chart — one bar per owned event, bar width proportional to photoCount relative to max
+3. "Top Events" section: owned events sorted by `photoCount` desc, showing rank, title, date, photos, guests
+4. "Activity" section: CSS bar chart — one bar per owned event, bar width proportional to `photoCount` relative to max
 
-**Bar chart implementation:** No external library. Each bar is a `div` with `width: (photoCount / maxPhotoCount * 100)%` and a gold gradient background. Labels show event title (truncated) and count.
+**Bar chart implementation:** No external library. Each bar is a `div` with:
+```
+width: maxPhotoCount > 0 ? `${(photoCount / maxPhotoCount * 100)}%` : '0%'
+```
+Gold gradient background. Labels show event title (truncated to ~30 chars) and count. Guard against `maxPhotoCount === 0` to avoid `NaN%` or `Infinity%`.
 
-**Empty state:** If no owned events, show a single illustrated placeholder card prompting to create an event.
+**Empty state:** If no owned events, show a placeholder card prompting to create an event.
 
 ---
 
@@ -137,15 +153,16 @@ Change the "View All" `<button>` (line ~98 in DashboardPage.tsx) to `<Link to="/
 **Layout:**
 1. Page header: title "Archive", subtitle
 2. Event grid: same grid as Collections
-3. Each EventCard gets a "Restore" overlay button — absolute-positioned at bottom of card, appears on hover
+3. Each EventCard gets a "Restore" overlay button — absolute-positioned, appears on hover
 
 **Restore interaction:**
-- Clicking "Restore" calls `restoreEvent(id)` on eventsStore
-- Optimistic: remove the card from the archive grid immediately
-- On error: re-add the card and show an inline error
-- After restore, the event reappears in Collections
+- The component maintains a local `restoringIds: Set<string>` state to track in-flight restores
+- Clicking "Restore" adds the id to `restoringIds` (shows spinner on button), calls `restoreEvent(id)`
+- On success: the event's `isActive` becomes `true` in the store, so the Archive filter removes it automatically — no additional local state change needed
+- On error: remove id from `restoringIds`, show an inline error message beneath the card
+- The `restoreEvent` store action does not mutate state on error, so no rollback is needed in the store
 
-**Empty state:** "Nothing here yet. Archived events will appear here." — no CTA since archiving is done from the event detail page.
+**Empty state:** "Nothing here yet. Archived events will appear here." — no CTA.
 
 ---
 
@@ -164,8 +181,8 @@ apps/client/src/pages/ArchivePage.tsx
 
 ```
 apps/client/src/stores/eventsStore.ts   — add restoreEvent action
-apps/client/src/App.tsx                 — add 4 routes
-apps/client/src/pages/DashboardPage.tsx — fix "View All" button + filter to active owned events
+apps/client/src/App.tsx                 — add 4 routes (before /events/:eventId)
+apps/client/src/pages/DashboardPage.tsx — fix "View All" link + filter recent events
 ```
 
 ---
@@ -177,3 +194,4 @@ apps/client/src/pages/DashboardPage.tsx — fix "View All" button + filter to ac
 - Skeleton loading states: `animate-pulse bg-surface-container-high rounded-3xl`
 - All pages wrapped in `<>` fragment (AppShell provides the outer padding/margin)
 - Match the gold/glassmorphism aesthetic of DashboardPage exactly
+- `EventCard` uses `coverImageUrl ?? ""` — this is a pre-existing behaviour, not changed by this spec
