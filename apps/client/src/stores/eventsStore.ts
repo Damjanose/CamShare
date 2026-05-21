@@ -11,6 +11,7 @@ type EventsState = {
   fetchEvents: () => Promise<void>
   getById: (id: string) => Event | undefined
   addEvent: (input: EventInput) => Promise<Event>
+  restoreEvent: (id: string) => Promise<void>
 }
 
 export const useEventsStore = create<EventsState>((set, get) => ({
@@ -40,5 +41,10 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     })
     set({ events: [event, ...get().events] })
     return event
+  },
+
+  restoreEvent: async (id) => {
+    await apiClient.patch(`/events/${id}`, { isActive: true })
+    set({ events: get().events.map((e) => e.id === id ? { ...e, isActive: true } : e) })
   },
 }))
