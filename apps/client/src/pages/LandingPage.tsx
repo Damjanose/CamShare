@@ -86,9 +86,9 @@ export const LandingPage = () => {
             >
               Create Event
             </Link>
-            <Button variant="ghost" size="lg">
+            <span className="inline-flex items-center gap-2 px-10 py-4 rounded-full font-label-md text-label-md text-muted-foreground border border-border">
               <Icon name="qr_code_scanner" /> Join Event (Scan QR)
-            </Button>
+            </span>
           </div>
           <div className="flex flex-wrap gap-4 mt-8">
             {[
