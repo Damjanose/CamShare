@@ -18,6 +18,8 @@ export const ProfilePage = () => {
   const [nameSuccess, setNameSuccess] = useState(false)
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const [avatarSuccess, setAvatarSuccess] = useState(false)
 
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
@@ -48,14 +50,16 @@ export const ProfilePage = () => {
   }
 
   const handleAvatarConfirm = async (url: string) => {
+    setAvatarError(null)
+    setAvatarSuccess(false)
     try {
       await apiClient.patch("/auth/me", { avatarUrl: url })
       updateUser({ avatarUrl: url })
       setAvatarFile(null)
-      setNameSuccess(true)
-      setTimeout(() => setNameSuccess(false), 3000)
+      setAvatarSuccess(true)
+      setTimeout(() => setAvatarSuccess(false), 3000)
     } catch (err) {
-      setNameError(err instanceof Error ? err.message : "Failed to save avatar")
+      setAvatarError(err instanceof Error ? err.message : "Failed to save avatar")
     }
   }
 
@@ -137,6 +141,17 @@ export const ProfilePage = () => {
             }}
           />
         </div>
+
+        {avatarError && (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-error/10 border border-error/20 text-error font-label-md text-sm">
+            {avatarError}
+          </div>
+        )}
+        {avatarSuccess && (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary font-label-md text-sm">
+            Avatar updated
+          </div>
+        )}
 
         <form onSubmit={handleNameSave}>
           <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">

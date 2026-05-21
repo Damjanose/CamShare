@@ -19,8 +19,8 @@ const refreshSchema = z.object({
 
 const updateMeSchema = z
   .object({
-    fullName: z.string().min(1).optional(),
-    avatarUrl: z.string().min(1).optional(),
+    fullName: z.string().min(1).max(200).optional(),
+    avatarUrl: z.string().url().optional(),
   })
   .refine((d) => d.fullName !== undefined || d.avatarUrl !== undefined, {
     message: "At least one field required",
@@ -124,13 +124,16 @@ const handleError = (res: Response, error: unknown) => {
     return res.status(400).json({ message: "Validation failed", issues: error.issues })
   }
 
+  if (error instanceof Error && error.message === "Invalid current password") {
+    return res.status(422).json({ message: error.message })
+  }
+
   if (
     error instanceof Error &&
     (
       error.message === "Email already exists" ||
       error.message === "Invalid credentials" ||
       error.message === "Invalid refresh token" ||
-      error.message === "Invalid current password" ||
       error.message === "Your account has been permanently deleted."
     )
   ) {

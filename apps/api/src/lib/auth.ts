@@ -164,7 +164,7 @@ export const changePassword = async (
   if (!valid) throw new Error("Invalid current password")
 
   const newHash = await bcrypt.hash(input.newPassword, 10)
-  await db.updateTable("users").set({ password_hash: newHash }).where("id", "=", userId).execute()
+  await db.updateTable("users").set({ password_hash: newHash, updated_at: new Date() }).where("id", "=", userId).execute()
 }
 
 export const refresh = async (refreshToken: string): Promise<AuthResponse> => {

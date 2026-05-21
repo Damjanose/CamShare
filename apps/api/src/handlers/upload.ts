@@ -15,9 +15,16 @@ const storage = multer.diskStorage({
   },
 })
 
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  cb(null, allowedMimeTypes.includes(file.mimetype))
+}
+
 export const uploadMiddleware = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter,
 }).single("file")
 
 export const handleUpload = (req: Request, res: Response) => {
