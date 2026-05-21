@@ -38,12 +38,12 @@ export const App = () => {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/events" element={<CollectionsPage />} />
-        <Route path="/shared" element={<SharedPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/archive" element={<ArchivePage />} />
         <Route path="/events/new" element={<CreateEventPage />} />
         <Route path="/events/:eventId" element={<EventGalleryPage />} />
         <Route path="/events/:eventId/invite" element={<QrInvitePage />} />
+        <Route path="/shared" element={<SharedPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/archive" element={<ArchivePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

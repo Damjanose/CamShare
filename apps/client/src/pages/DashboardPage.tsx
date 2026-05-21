@@ -20,6 +20,10 @@ export const DashboardPage = () => {
   const totalMemories = events.reduce((sum, e) => sum + e.photoCount, 0)
   const totalGuests = events.reduce((sum, e) => sum + e.guestCount, 0)
 
+  const recentEvents = events
+    .filter((e) => e.ownerId === user?.id && e.isActive)
+    .slice(0, 3)
+
   if (loading) {
     return (
       <>
@@ -68,6 +72,7 @@ export const DashboardPage = () => {
         </p>
       </header>
 
+      {/* Stats intentionally count all membership events — owned + guest, active + inactive */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
         <StatCard label="Total Events" value={events.length} />
         <StatCard
@@ -100,7 +105,7 @@ export const DashboardPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.filter(e => e.ownerId === user?.id && e.isActive).slice(0, 3).map((event) => (
+          {recentEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
