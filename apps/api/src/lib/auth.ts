@@ -5,7 +5,11 @@ import { hashToken, refreshExpiryDate, signAccessToken, signRefreshToken, verify
 import type { AuthResponse, PermissionName } from "@camshare/types"
 
 const mapUser = async (userId: string, email: string, isActive: boolean) => {
-  const details = await db.selectFrom("user_details").selectAll().where("user_id", "=", userId).executeTakeFirstOrThrow()
+  const details = await db
+    .selectFrom("user_details")
+    .selectAll()
+    .where("user_id", "=", userId)
+    .executeTakeFirstOrThrow()
   const permissionRows = await db
     .selectFrom("user_permissions as up")
     .innerJoin("permissions as p", "p.id", "up.permission_id")
@@ -18,6 +22,7 @@ const mapUser = async (userId: string, email: string, isActive: boolean) => {
     email,
     isActive,
     fullName: details.full_name,
+    avatarUrl: details.avatar_url ?? null,
     permissions: permissionRows.map((row) => row.name as PermissionName),
   }
 }
@@ -123,6 +128,43 @@ export const login = async (input: { email: string; password: string }, context:
 export const me = async (userId: string) => {
   const user = await db.selectFrom("users").select(["id", "email", "is_active"]).where("id", "=", userId).executeTakeFirstOrThrow()
   return mapUser(user.id, user.email, user.is_active)
+}
+
+export const updateMe = async (
+  userId: string,
+  input: { fullName?: string; avatarUrl?: string },
+) => {
+  const update: Partial<{ full_name: string; avatar_url: string; updated_at: Date }> = {
+    updated_at: new Date(),
+  }
+  if (input.fullName !== undefined) update.full_name = input.fullName
+  if (input.avatarUrl !== undefined) update.avatar_url = input.avatarUrl
+
+  await db.updateTable("user_details").set(update).where("user_id", "=", userId).execute()
+
+  const user = await db
+    .selectFrom("users")
+    .select(["id", "email", "is_active"])
+    .where("id", "=", userId)
+    .executeTakeFirstOrThrow()
+  return mapUser(user.id, user.email, user.is_active)
+}
+
+export const changePassword = async (
+  userId: string,
+  input: { currentPassword: string; newPassword: string },
+) => {
+  const user = await db
+    .selectFrom("users")
+    .select(["password_hash"])
+    .where("id", "=", userId)
+    .executeTakeFirstOrThrow()
+
+  const valid = await bcrypt.compare(input.currentPassword, user.password_hash)
+  if (!valid) throw new Error("Invalid current password")
+
+  const newHash = await bcrypt.hash(input.newPassword, 10)
+  await db.updateTable("users").set({ password_hash: newHash }).where("id", "=", userId).execute()
 }
 
 export const refresh = async (refreshToken: string): Promise<AuthResponse> => {
