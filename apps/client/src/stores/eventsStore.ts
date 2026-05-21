@@ -43,6 +43,7 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     return event
   },
 
+  // Pessimistic: store updates only after server confirms — error propagates to caller
   restoreEvent: async (id) => {
     await apiClient.patch(`/events/${id}`, { isActive: true })
     set({ events: get().events.map((e) => e.id === id ? { ...e, isActive: true } : e) })

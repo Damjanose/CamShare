@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 
 vi.mock("@/api/client", () => ({
   apiClient: {
@@ -31,6 +31,10 @@ describe("eventsStore.restoreEvent", () => {
   beforeEach(() => {
     useEventsStore.setState({ events: [mockEvent()], loading: false, error: null })
     vi.clearAllMocks()
+  })
+
+  afterEach(() => {
+    useEventsStore.setState({ events: [], loading: false, error: null })
   })
 
   it("sets isActive to true in store on success", async () => {
