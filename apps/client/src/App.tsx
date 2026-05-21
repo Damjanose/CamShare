@@ -12,6 +12,10 @@ import { QrInvitePage } from "@/pages/QrInvitePage"
 import { AboutPage } from "@/pages/AboutPage"
 import { PrivacyPage } from "@/pages/PrivacyPage"
 import { TermsPage } from "@/pages/TermsPage"
+import { CollectionsPage } from "@/pages/CollectionsPage"
+import { SharedPage } from "@/pages/SharedPage"
+import { AnalyticsPage } from "@/pages/AnalyticsPage"
+import { ArchivePage } from "@/pages/ArchivePage"
 
 export const App = () => {
   return (
@@ -33,6 +37,10 @@ export const App = () => {
         }
       >
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/events" element={<CollectionsPage />} />
+        <Route path="/shared" element={<SharedPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
+        <Route path="/archive" element={<ArchivePage />} />
         <Route path="/events/new" element={<CreateEventPage />} />
         <Route path="/events/:eventId" element={<EventGalleryPage />} />
         <Route path="/events/:eventId/invite" element={<QrInvitePage />} />

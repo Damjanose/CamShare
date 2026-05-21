@@ -91,16 +91,16 @@ export const DashboardPage = () => {
               Your latest shared narratives and celebrations.
             </p>
           </div>
-          <button
-            type="button"
+          <Link
+            to="/events"
             className="text-primary font-label-md flex items-center gap-1 hover:underline whitespace-nowrap"
           >
             View All <Icon name="arrow_forward" />
-          </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.slice(0, 3).map((event) => (
+          {events.filter(e => e.ownerId === user?.id && e.isActive).slice(0, 3).map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
