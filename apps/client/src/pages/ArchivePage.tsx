@@ -17,8 +17,8 @@ export const ArchivePage = () => {
 
   // session cache: only fetch when store is empty (navigating back doesn't re-fetch)
   useEffect(() => {
-    if (events.length === 0 && !loading) fetchEvents()
-  }, [events.length, loading, fetchEvents])
+    if (events.length === 0 && !loading && !error) fetchEvents()
+  }, [events.length, loading, error, fetchEvents])
 
   if (!user) return null
 
@@ -95,7 +95,7 @@ export const ArchivePage = () => {
               <div className="relative group">
                 <EventCard event={event} />
                 <div className="absolute inset-0 rounded-3xl bg-black/0 group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
-                <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
                   <button
                     type="button"
                     onClick={() => handleRestore(event.id)}
