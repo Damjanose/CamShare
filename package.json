@@ -12,5 +12,8 @@
     "front": "pnpm --filter @camshare/client dev --host",
     "backend": "pnpm --filter @camshare/api dev",
     "start-mobile": "pnpm --filter @camshare/mobile dev"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
   }
 }
