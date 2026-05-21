@@ -5,12 +5,13 @@ import { SidebarNav } from "./SidebarNav"
 import { TopBar } from "./TopBar"
 
 export const AppShell = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768)
+  const toggle = () => setSidebarOpen((o) => !o)
 
   return (
     <div className="min-h-screen bg-canvas-white text-on-surface">
-      <TopBar />
-      <SidebarNav isOpen={sidebarOpen} onToggle={() => setSidebarOpen((o) => !o)} />
+      <TopBar onMenuToggle={toggle} />
+      <SidebarNav isOpen={sidebarOpen} onToggle={toggle} />
       <main
         className={cn(
           "pt-32 px-margin-mobile md:px-margin-desktop pb-20 min-h-screen transition-all duration-300",

@@ -6,6 +6,7 @@ import AppleLogin from "react-apple-login"
 import { AuthShell } from "@/components/layout/AuthShell"
 import { Button } from "@/components/primitives/Button"
 import { FloatInput } from "@/components/primitives/FloatInput"
+import { PasswordInput } from "@/components/primitives/PasswordInput"
 import { useAuth } from "@/auth/AuthContext"
 import { useSocialAuth } from "@/auth/useSocialAuth"
 
@@ -55,9 +56,8 @@ export const LoginPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <FloatInput
+        <PasswordInput
           label="Password"
-          type="password"
           autoComplete="current-password"
           placeholder="••••••••"
           value={password}

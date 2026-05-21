@@ -4,7 +4,11 @@ import { Icon } from "@/components/primitives/Icon"
 import { useAuth } from "@/auth/AuthContext"
 import camShareLogo from "@/assets/camshare-logo.png"
 
-export const TopBar = () => {
+type TopBarProps = {
+  onMenuToggle?: () => void
+}
+
+export const TopBar = ({ onMenuToggle }: TopBarProps) => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -35,7 +39,17 @@ export const TopBar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20 bg-surface-glass border-b border-white/10 backdrop-blur-md shadow-sm">
-      <Link to="/dashboard" className="flex items-center gap-2">
+      {onMenuToggle && (
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="md:hidden text-primary hover:bg-surface-container rounded-full p-2 transition-colors mr-1"
+          aria-label="Open menu"
+        >
+          <Icon name="menu" />
+        </button>
+      )}
+      <Link to="/" className="flex items-center gap-2">
         <img src={camShareLogo} alt="CamShare" className="h-9 w-9 object-contain rounded-xl" />
         <span className="font-headline-md text-headline-md font-bold text-primary">CamShare</span>
       </Link>
@@ -63,7 +77,7 @@ export const TopBar = () => {
           </button>
 
           {notifOpen && (
-            <div className="absolute top-full right-0 mt-2 w-80 glass-panel rounded-2xl shadow-xl z-50 overflow-hidden">
+            <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-outline-variant/20">
               <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                 <span className="font-label-md text-label-md text-on-surface">Notifications</span>
                 <button
@@ -96,7 +110,7 @@ export const TopBar = () => {
           </button>
 
           {settingsOpen && (
-            <div className="absolute top-full right-0 mt-2 w-56 glass-panel rounded-2xl shadow-xl z-50 overflow-hidden">
+            <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl z-50 overflow-hidden border border-outline-variant/20">
               <Link
                 to="/terms"
                 onClick={() => setSettingsOpen(false)}

@@ -3,6 +3,7 @@ import { MarketingShell } from "@/components/layout/MarketingShell"
 import { Button } from "@/components/primitives/Button"
 import { GlassPanel } from "@/components/primitives/GlassPanel"
 import { Icon } from "@/components/primitives/Icon"
+import { useAuth } from "@/auth/AuthContext"
 
 const features = [
   {
@@ -63,6 +64,9 @@ const useCases = [
 ]
 
 export const LandingPage = () => {
+  const { user } = useAuth()
+  const createEventPath = user ? "/events/new" : "/register"
+
   return (
     <MarketingShell>
       {/* HERO */}
@@ -81,7 +85,7 @@ export const LandingPage = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
-              to="/register"
+              to={createEventPath}
               className="inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:-translate-y-0.5 px-10 py-4 text-label-md"
             >
               Create Event
@@ -126,7 +130,7 @@ export const LandingPage = () => {
               </div>
             </div>
           </div>
-          <GlassPanel className="absolute top-20 right-0 p-4 rounded-2xl shadow-xl animate-float-soft">
+          <GlassPanel className="absolute top-20 right-0 p-4 rounded-2xl shadow-xl animate-float-soft z-30">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                 <Icon name="add_a_photo" className="text-primary" />
@@ -374,10 +378,10 @@ export const LandingPage = () => {
             </p>
             <div className="flex flex-col md:flex-row justify-center gap-6">
               <Link
-                to="/register"
-                className="inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] px-12 py-5 text-label-md"
+                to={createEventPath}
+                className="inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:scale-[1.02] px-12 py-5 text-label-md"
               >
-                Create Event Free
+                {user ? "Create Event" : "Create Event Free"}
               </Link>
               <Button variant="ghost" size="lg" className="px-12 py-5">
                 Scan QR to try demo event

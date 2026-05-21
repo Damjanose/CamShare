@@ -52,7 +52,7 @@ export const DashboardPage = () => {
         <button
           type="button"
           onClick={() => fetchEvents()}
-          className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-all"
+          className="px-6 py-2 rounded-full bg-champagne-gold text-white font-label-md hover:scale-[1.02] transition-all"
         >
           Retry
         </button>

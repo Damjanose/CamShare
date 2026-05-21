@@ -66,7 +66,7 @@ export const EventGalleryPage = () => {
               <Icon name="qr_code" /> Share QR
             </Button>
           </Link>
-          <Button variant="primary">
+          <Button variant="gold">
             <Icon name="auto_fix_high" /> Highlight Media
           </Button>
         </div>

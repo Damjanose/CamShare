@@ -12,7 +12,7 @@ export const GalleryItem = ({ photo, onOpen }: GalleryItemProps) => {
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl cursor-zoom-in transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20"
+      className="group relative overflow-hidden rounded-2xl cursor-zoom-in transition-all duration-500 hover:shadow-2xl hover:shadow-champagne-gold/30"
       onClick={() => onOpen?.(photo)}
     >
       <img

@@ -2,6 +2,7 @@ import { type FormEvent, useRef, useState } from "react"
 import { GlassPanel } from "@/components/primitives/GlassPanel"
 import { Button } from "@/components/primitives/Button"
 import { Icon } from "@/components/primitives/Icon"
+import { PasswordInput } from "@/components/primitives/PasswordInput"
 import { useAuth } from "@/auth/AuthContext"
 import { useAuthStore } from "@/stores/authStore"
 import { apiClient } from "@/api/client"
@@ -176,7 +177,7 @@ export const ProfilePage = () => {
             </div>
           )}
 
-          <Button type="submit" variant="primary" disabled={nameLoading || !fullName.trim()}>
+          <Button type="submit" variant="gold" disabled={nameLoading || !fullName.trim()}>
             {nameLoading ? "Saving…" : "Save Changes"}
           </Button>
         </form>
@@ -190,38 +191,22 @@ export const ProfilePage = () => {
         </div>
 
         <form onSubmit={handlePasswordChange} className="space-y-6">
+          <PasswordInput
+            label="Current Password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            required
+          />
+          <PasswordInput
+            label="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+            minLength={8}
+          />
           <div>
-            <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-              Current Password
-            </label>
-            <input
-              type="password"
-              className="form-underline font-body-lg text-body-lg w-full"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-              New Password
-            </label>
-            <input
-              type="password"
-              className="form-underline font-body-lg text-body-lg w-full"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              minLength={8}
-            />
-          </div>
-          <div>
-            <label className="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest block mb-1">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              className="form-underline font-body-lg text-body-lg w-full"
+            <PasswordInput
+              label="Confirm New Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -244,7 +229,7 @@ export const ProfilePage = () => {
 
           <Button
             type="submit"
-            variant="primary"
+            variant="gold"
             disabled={
               passLoading ||
               passwordMismatch ||

@@ -143,7 +143,7 @@ export const AboutPage = () => {
             </p>
             <Link
               to="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] px-10 py-4 text-label-md"
+              className="inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:scale-[1.02] px-10 py-4 text-label-md"
             >
               Create Event Free
             </Link>

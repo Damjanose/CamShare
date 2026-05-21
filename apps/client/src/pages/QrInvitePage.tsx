@@ -74,7 +74,7 @@ export const QrInvitePage = () => {
           </Link>
           <button
             type="button"
-            className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+            className="px-6 py-2 rounded-full bg-champagne-gold text-white font-label-md text-label-md shadow-lg shadow-champagne-gold/30 hover:scale-[1.02] active:scale-95 transition-all"
           >
             Publish Live
           </button>

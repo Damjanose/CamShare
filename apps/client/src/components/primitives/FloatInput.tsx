@@ -37,7 +37,7 @@ export const FloatInput = forwardRef<HTMLInputElement, FloatInputProps>(
             )}
           />
           {endAdornment && (
-            <span className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">
+            <span className="absolute right-0 top-1/2 -translate-y-1/2 text-on-surface-variant">
               {endAdornment}
             </span>
           )}

@@ -118,7 +118,7 @@ export const SidebarNav = ({ isOpen, onToggle }: Props) => {
           to="/events/new"
           title={!isOpen ? "Create Event" : undefined}
           className={cn(
-            "mt-auto inline-flex items-center justify-center gap-2 rounded-xl font-label-md text-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]",
+            "mt-auto inline-flex items-center justify-center gap-2 rounded-xl font-label-md text-label-md whitespace-nowrap transition-all duration-300 active:scale-95 bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:scale-[1.02]",
             isOpen ? "py-4 px-4" : "md:py-3 md:px-3 py-4 px-4",
           )}
         >

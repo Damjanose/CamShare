@@ -13,7 +13,7 @@ const variantClasses: Record<Variant, string> = {
   gold:
     "bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:-translate-y-0.5",
   primary:
-    "bg-primary text-on-primary shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]",
+    "bg-champagne-gold text-white shadow-lg shadow-champagne-gold/30 hover:shadow-xl hover:shadow-champagne-gold/40 hover:-translate-y-0.5",
   ghost:
     "glass-panel text-primary border-primary/20 hover:bg-primary/5",
   outline:
@@ -35,8 +35,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...rest}
         className={cn(
           "inline-flex items-center justify-center gap-2 rounded-full font-label-md whitespace-nowrap transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
-          variantClasses[variant],
           sizeClasses[size],
+          variantClasses[variant],
           className,
         )}
       >

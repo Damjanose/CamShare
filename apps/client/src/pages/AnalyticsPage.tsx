@@ -51,7 +51,7 @@ export const AnalyticsPage = () => {
         <button
           type="button"
           onClick={() => fetchEvents()}
-          className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-all"
+          className="px-6 py-2 rounded-full bg-champagne-gold text-white font-label-md hover:scale-[1.02] transition-all"
         >
           Retry
         </button>
@@ -77,7 +77,7 @@ export const AnalyticsPage = () => {
           </div>
           <Link
             to="/events/new"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-transform"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-champagne-gold text-white font-label-md hover:scale-[1.02] transition-transform"
           >
             <Icon name="add_circle" /> Create Event
           </Link>
