@@ -114,7 +114,7 @@ export const TopBar = () => {
                 <Icon name="chevron_right" className="text-on-surface-variant text-body-md" />
               </Link>
               <Link
-                to="/dashboard"
+                to="/profile"
                 onClick={() => setSettingsOpen(false)}
                 className="flex items-center justify-between px-4 py-3 text-on-surface hover:bg-surface-container-high/50 transition-colors border-b border-white/10"
               >

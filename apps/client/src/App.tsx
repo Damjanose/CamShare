@@ -16,6 +16,7 @@ import { CollectionsPage } from "@/pages/CollectionsPage"
 import { SharedPage } from "@/pages/SharedPage"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { ArchivePage } from "@/pages/ArchivePage"
+import { ProfilePage } from "@/pages/ProfilePage"
 
 export const App = () => {
   return (
@@ -44,6 +45,7 @@ export const App = () => {
         <Route path="/shared" element={<SharedPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/archive" element={<ArchivePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
