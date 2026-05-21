@@ -1,6 +1,7 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
@@ -12,6 +13,7 @@ import { TextStyles } from '../constants/typography';
 import { GalleryItem } from '../data/gallery';
 import { channelsService } from '../services/channels';
 import { photosService } from '../services/photos';
+import { uploadPhoto } from '../services/upload';
 import type { EventPhoto } from '@camshare/types';
 
 const { width } = Dimensions.get('window');
@@ -56,9 +58,11 @@ type Props = {
 
 export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Props) {
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
   const eventId: string = route?.params?.eventId ?? '';
   const eventTitle: string = route?.params?.eventTitle ?? 'Gallery';
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: channels = [], isLoading: channelsLoading } = useQuery({
     queryKey: ['events', eventId, 'channels'],
@@ -79,6 +83,37 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
     .map(photoToItem);
 
   const [leftCol, rightCol] = buildColumns(allPhotos);
+
+  const handleUpload = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Please allow photo library access to upload photos.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: 'images',
+      quality: 0.8,
+      allowsEditing: false,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    const channel = channels[0];
+    if (!channel) return;
+
+    const asset = result.assets[0];
+    setIsUploading(true);
+    try {
+      await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channel.id);
+      queryClient.invalidateQueries({ queryKey: ['events', eventId, 'channels', channel.id, 'photos'] });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong';
+      Alert.alert('Upload failed', msg);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -129,6 +164,17 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
           </View>
         </ScrollView>
       )}
+
+      <TouchableOpacity
+        style={[styles.fab, (isUploading || channels.length === 0) && styles.fabDisabled]}
+        onPress={handleUpload}
+        disabled={isUploading || channels.length === 0}
+        activeOpacity={0.8}
+      >
+        {isUploading
+          ? <ActivityIndicator color={Colors.surface} size="small" />
+          : <Text style={styles.fabIcon}>+</Text>}
+      </TouchableOpacity>
 
       <LightboxModal item={lightboxItem} onClose={() => setLightboxItem(null)} />
 
@@ -194,5 +240,30 @@ const styles = StyleSheet.create({
   emptyText: {
     ...TextStyles.bodyMd,
     color: Colors.onSurfaceVariant,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 100,
+    right: Spacing.marginMain,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  fabDisabled: {
+    opacity: 0.5,
+  },
+  fabIcon: {
+    color: Colors.surface,
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: '300',
   },
 });
