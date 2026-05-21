@@ -7,7 +7,7 @@ const REFRESH_KEY = "camshare_refresh_token"
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://10.81.202.106:3001"
 
 type ApiAuthResponse = {
-  user: { id: string; fullName: string; email: string }
+  user: { id: string; fullName: string; email: string; avatarUrl: string | null }
   tokens: { accessToken: string; refreshToken: string }
 }
 
@@ -15,7 +15,7 @@ const toWebUser = (u: ApiAuthResponse["user"]): User => ({
   id: u.id,
   fullName: u.fullName,
   email: u.email,
-  avatarUrl: null,
+  avatarUrl: u.avatarUrl,
   tier: "Free",
 })
 
@@ -45,6 +45,7 @@ type AuthState = {
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
   logout: () => void
+  updateUser: (patch: Partial<User>) => void
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -99,5 +100,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     clearTokens()
     persistUser(null)
     set({ user: null, accessToken: null })
+  },
+  updateUser: (patch) => {
+    set((s) => {
+      if (!s.user) return s
+      const updated = { ...s.user, ...patch }
+      persistUser(updated)
+      return { user: updated }
+    })
   },
 }))
