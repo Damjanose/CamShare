@@ -1,0 +1,1 @@
+ALTER TABLE user_details ADD COLUMN IF NOT EXISTS avatar_url TEXT;

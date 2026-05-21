@@ -15,6 +15,7 @@ export interface UsersTable {
 export interface UserDetailsTable {
   user_id: string
   full_name: string
+  avatar_url: string | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
 }
