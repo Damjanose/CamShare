@@ -13,14 +13,15 @@ export const CollectionsPage = () => {
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
   const error = useEventsStore((s) => s.error)
+  const initialized = useEventsStore((s) => s.initialized)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
   const [search, setSearch] = useState("")
   const [sort, setSort] = useState<SortKey>("newest")
 
   useEffect(() => {
-    if (events.length === 0 && !loading && !error) fetchEvents()
-  }, [events.length, loading, error, fetchEvents])
+    if (!initialized && !loading && !error) fetchEvents()
+  }, [initialized, loading, error, fetchEvents])
 
   const owned = events.filter((e) => e.ownerId === user?.id && e.isActive)
 

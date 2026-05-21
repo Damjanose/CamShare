@@ -9,16 +9,17 @@ export const ArchivePage = () => {
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
   const error = useEventsStore((s) => s.error)
+  const initialized = useEventsStore((s) => s.initialized)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
   const restoreEvent = useEventsStore((s) => s.restoreEvent)
 
   const [restoringIds, setRestoringIds] = useState<Set<string>>(new Set())
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // session cache: only fetch when store is empty (navigating back doesn't re-fetch)
+  // session cache: fetch once on first visit, skip on subsequent navigations
   useEffect(() => {
-    if (events.length === 0 && !loading && !error) fetchEvents()
-  }, [events.length, loading, error, fetchEvents])
+    if (!initialized && !loading && !error) fetchEvents()
+  }, [initialized, loading, error, fetchEvents])
 
   if (!user) return null
 

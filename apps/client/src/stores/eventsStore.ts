@@ -8,6 +8,7 @@ type EventsState = {
   events: Event[]
   loading: boolean
   error: string | null
+  initialized: boolean
   fetchEvents: () => Promise<void>
   getById: (id: string) => Event | undefined
   addEvent: (input: EventInput) => Promise<Event>
@@ -18,12 +19,13 @@ export const useEventsStore = create<EventsState>((set, get) => ({
   events: [],
   loading: false,
   error: null,
+  initialized: false,
 
   fetchEvents: async () => {
     set({ loading: true, error: null })
     try {
       const events = await apiClient.get<Event[]>("/events")
-      set({ events, loading: false })
+      set({ events, loading: false, initialized: true })
     } catch {
       set({ loading: false, error: "Failed to load events" })
     }

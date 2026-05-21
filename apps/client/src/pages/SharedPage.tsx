@@ -9,11 +9,12 @@ export const SharedPage = () => {
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
   const error = useEventsStore((s) => s.error)
+  const initialized = useEventsStore((s) => s.initialized)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
   useEffect(() => {
-    if (events.length === 0 && !loading && !error) fetchEvents()
-  }, [events.length, loading, error, fetchEvents])
+    if (!initialized && !loading && !error) fetchEvents()
+  }, [initialized, loading, error, fetchEvents])
 
   if (!user) return null
 

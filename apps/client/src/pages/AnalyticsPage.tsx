@@ -13,12 +13,13 @@ export const AnalyticsPage = () => {
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
   const error = useEventsStore((s) => s.error)
+  const initialized = useEventsStore((s) => s.initialized)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
-  // session cache: only fetch when store is empty (navigating back doesn't re-fetch)
+  // session cache: fetch once on first visit, skip on subsequent navigations
   useEffect(() => {
-    if (events.length === 0 && !loading && !error) fetchEvents()
-  }, [events.length, loading, error, fetchEvents])
+    if (!initialized && !loading && !error) fetchEvents()
+  }, [initialized, loading, error, fetchEvents])
 
   const owned = events.filter((e) => e.ownerId === user?.id)
   const totalPhotos = owned.reduce((s, e) => s + e.photoCount, 0)

@@ -29,12 +29,12 @@ const mockEvent = (overrides = {}) => ({
 
 describe("eventsStore.restoreEvent", () => {
   beforeEach(() => {
-    useEventsStore.setState({ events: [mockEvent()], loading: false, error: null })
+    useEventsStore.setState({ events: [mockEvent()], loading: false, error: null, initialized: true })
     vi.clearAllMocks()
   })
 
   afterEach(() => {
-    useEventsStore.setState({ events: [], loading: false, error: null })
+    useEventsStore.setState({ events: [], loading: false, error: null, initialized: false })
   })
 
   it("sets isActive to true in store on success", async () => {
