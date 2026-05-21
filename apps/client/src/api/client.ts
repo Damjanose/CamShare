@@ -60,9 +60,33 @@ const doRequest = async <T>(
   return res.json() as Promise<T>
 }
 
+const doUpload = async <T>(path: string, formData: FormData, retried = false): Promise<T> => {
+  const headers: Record<string, string> = {}
+  if (_accessToken) headers["Authorization"] = `Bearer ${_accessToken}`
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: formData,
+  })
+
+  if (res.status === 401 && !retried) {
+    const refreshed = await tryRefresh()
+    if (refreshed) return doUpload(path, formData, true)
+  }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { message?: string }).message ?? `HTTP ${res.status}`)
+  }
+
+  return res.json() as Promise<T>
+}
+
 export const apiClient = {
   get: <T>(path: string) => doRequest<T>("GET", path),
   post: <T>(path: string, body?: unknown) => doRequest<T>("POST", path, body),
   patch: <T>(path: string, body?: unknown) => doRequest<T>("PATCH", path, body),
   delete: <T>(path: string) => doRequest<T>("DELETE", path),
+  upload: <T>(path: string, formData: FormData) => doUpload<T>(path, formData),
 }
