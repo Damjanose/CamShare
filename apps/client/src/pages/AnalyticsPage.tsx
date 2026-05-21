@@ -17,8 +17,8 @@ export const AnalyticsPage = () => {
 
   // session cache: only fetch when store is empty (navigating back doesn't re-fetch)
   useEffect(() => {
-    if (events.length === 0 && !loading) fetchEvents()
-  }, [events.length, loading, fetchEvents])
+    if (events.length === 0 && !loading && !error) fetchEvents()
+  }, [events.length, loading, error, fetchEvents])
 
   const owned = events.filter((e) => e.ownerId === user?.id)
   const totalPhotos = owned.reduce((s, e) => s + e.photoCount, 0)

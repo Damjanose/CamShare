@@ -8,11 +8,12 @@ export const SharedPage = () => {
   const { user } = useAuth()
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
+  const error = useEventsStore((s) => s.error)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
   useEffect(() => {
-    if (events.length === 0 && !loading) fetchEvents()
-  }, [events.length, loading, fetchEvents])
+    if (events.length === 0 && !loading && !error) fetchEvents()
+  }, [events.length, loading, error, fetchEvents])
 
   if (!user) return null
 
@@ -31,6 +32,21 @@ export const SharedPage = () => {
           ))}
         </div>
       </>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-6">
+        <p className="font-body-lg text-on-surface-variant">{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchEvents()}
+          className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-all"
+        >
+          Retry
+        </button>
+      </div>
     )
   }
 

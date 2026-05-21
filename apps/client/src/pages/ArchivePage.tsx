@@ -95,7 +95,7 @@ export const ArchivePage = () => {
               <div className="relative group">
                 <EventCard event={event} />
                 <div className="absolute inset-0 rounded-3xl bg-black/0 group-hover:bg-black/20 transition-colors duration-300 pointer-events-none" />
-                <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-6 inset-x-0 flex justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <button
                     type="button"
                     onClick={() => handleRestore(event.id)}
