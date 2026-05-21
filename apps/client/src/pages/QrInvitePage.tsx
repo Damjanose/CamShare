@@ -82,21 +82,15 @@ export const QrInvitePage = () => {
       </header>
 
       <div className="flex gap-10 border-b border-outline-variant/30 mb-12 overflow-x-auto hide-scrollbar">
-        {["Event Details", "Gallery Design", "Guest List", "QR Invite", "Settings"].map(
-          (tab, index) => (
-            <button
-              key={tab}
-              type="button"
-              className={`pb-4 font-label-md text-label-md whitespace-nowrap transition-colors ${
-                index === 3
-                  ? "text-primary border-b-2 border-primary font-bold"
-                  : "text-on-surface-variant hover:text-primary"
-              }`}
-            >
-              {tab}
-            </button>
-          ),
-        )}
+        <Link
+          to={`/events/${event.id}`}
+          className="pb-4 font-label-md text-label-md whitespace-nowrap text-on-surface-variant hover:text-primary transition-colors"
+        >
+          Gallery
+        </Link>
+        <span className="pb-4 font-label-md text-label-md whitespace-nowrap text-primary border-b-2 border-primary font-bold">
+          QR Invite
+        </span>
       </div>
 
       <div className="grid grid-cols-12 gap-12">

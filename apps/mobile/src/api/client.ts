@@ -26,6 +26,7 @@ export const apiClient = axios.create({
 const refreshClient = axios.create({
   baseURL: ENV.apiUrl,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
 });
 
 // Exported so services/auth.ts can call refresh without going through the interceptor
