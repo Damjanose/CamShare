@@ -24,6 +24,26 @@ Add a `/profile` route inside the authenticated `AppShell` where users can updat
 
 ---
 
+## Shared Types (`packages/types/src/index.ts`)
+
+The canonical `User` type must be extended to include `avatarUrl` and `tier`:
+
+```ts
+export type User = {
+  id: string
+  email: string
+  isActive: boolean
+  fullName: string
+  avatarUrl: string | null   // add
+  tier: "Free" | "Premium Member"  // add
+  permissions: PermissionName[]
+}
+```
+
+This is required for `authStore.updateUser(patch: Partial<User>)` to accept `avatarUrl` without a type error.
+
+---
+
 ## Backend
 
 ### Migration: `006_user_avatar.sql`
@@ -36,10 +56,16 @@ ALTER TABLE user_details ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 
 **Auth:** `requireAuth`  
 **Body:** `{ fullName?: string; avatarUrl?: string }` (at least one field required)  
-**Response:** updated user object  
+**Body validation:** `fullName` must be a non-empty string if present; `avatarUrl` must be a non-empty string if present (no further URL format validation required — the value always comes from the trusted `POST /upload` response)  
+**Response:** updated user object (from updated `mapUser()` — see note below)  
 **Handler:** `authHandlers.updateMe`  
 **Lib:** `authService.updateMe(userId, { fullName, avatarUrl })`  
 **DB:** `UPDATE user_details SET full_name = ..., avatar_url = ..., updated_at = NOW() WHERE user_id = $userId`
+
+> **`mapUser` must be updated** to also `select("user_details.avatar_url")` and include `avatarUrl: details.avatar_url ?? null` in the returned object. This affects `GET /auth/me`, `PATCH /auth/me`, and all `AuthResponse` returns (login, register, refresh).  
+> **`Kysely UserDetailsTable`** in `apps/api/src/lib/db.ts` must have `avatar_url: string | null` added to match the migration.  
+> **`toWebUser` in `authStore`** must be updated to read `avatarUrl` from the API response. The local `ApiAuthResponse` user shape must also include `avatarUrl: string | null` so TypeScript compiles correctly.  
+> **`tier`** has no backend source and no DB column. It remains a client-only field. `toWebUser` keeps `tier: "Free"` hardcoded; the shared `User` type still includes it for future use. `mapUser` does not need to return `tier`.
 
 ### `PATCH /auth/me/password`
 
@@ -126,6 +152,8 @@ updateUser: (patch: Partial<User>) => void
 | `apps/api/src/index.ts` | Register `PATCH /auth/me` and `PATCH /auth/me/password` |
 | `apps/client/src/pages/ProfilePage.tsx` | Create |
 | `apps/client/src/components/profile/AvatarPreviewModal.tsx` | Create |
-| `apps/client/src/stores/authStore.ts` | Add `updateUser` action |
+| `packages/types/src/index.ts` | Add `avatarUrl`, `tier` to `User` type |
+| `apps/api/src/lib/db.ts` | Add `avatar_url: string \| null` to `UserDetailsTable` interface |
+| `apps/client/src/stores/authStore.ts` | Add `updateUser` action; update `ApiAuthResponse` user shape to include `avatarUrl`; fix `toWebUser` to read `avatarUrl` from API response (keep `tier: "Free"` hardcoded) |
 | `apps/client/src/App.tsx` | Add `/profile` route |
 | `apps/client/src/components/layout/TopBar.tsx` | Fix "Profile Settings" link to `/profile` |
