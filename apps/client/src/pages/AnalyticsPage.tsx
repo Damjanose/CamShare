@@ -12,8 +12,10 @@ export const AnalyticsPage = () => {
   const { user } = useAuth()
   const events = useEventsStore((s) => s.events)
   const loading = useEventsStore((s) => s.loading)
+  const error = useEventsStore((s) => s.error)
   const fetchEvents = useEventsStore((s) => s.fetchEvents)
 
+  // session cache: only fetch when store is empty (navigating back doesn't re-fetch)
   useEffect(() => {
     if (events.length === 0 && !loading) fetchEvents()
   }, [events.length, loading, fetchEvents])
@@ -38,6 +40,21 @@ export const AnalyticsPage = () => {
           ))}
         </div>
       </>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-6">
+        <p className="font-body-lg text-on-surface-variant">{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchEvents()}
+          className="px-6 py-2 rounded-full bg-primary text-on-primary font-label-md hover:scale-[1.02] transition-all"
+        >
+          Retry
+        </button>
+      </div>
     )
   }
 
@@ -94,11 +111,11 @@ export const AnalyticsPage = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-outline-variant/30">
-                <th className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption">#</th>
-                <th className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption">Event</th>
-                <th className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption hidden md:table-cell">Date</th>
-                <th className="text-right px-6 py-4 font-label-md text-on-surface-variant text-caption">Photos</th>
-                <th className="text-right px-6 py-4 font-label-md text-on-surface-variant text-caption hidden sm:table-cell">Guests</th>
+                <th scope="col" className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption">#</th>
+                <th scope="col" className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption">Event</th>
+                <th scope="col" className="text-left px-6 py-4 font-label-md text-on-surface-variant text-caption hidden md:table-cell">Date</th>
+                <th scope="col" className="text-right px-6 py-4 font-label-md text-on-surface-variant text-caption">Photos</th>
+                <th scope="col" className="text-right px-6 py-4 font-label-md text-on-surface-variant text-caption hidden sm:table-cell">Guests</th>
               </tr>
             </thead>
             <tbody>
