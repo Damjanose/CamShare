@@ -17,6 +17,8 @@ export type Event = {
   isActive: boolean
   guestCount: number
   photoCount: number
+  maxPhotosPerUser?: number | null
+  maxFileSizeMb?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -38,4 +40,29 @@ export type Invite = {
   eventId: string
   code: string
   url: string
+}
+
+export type EventChannel = {
+  id: string
+  eventId: string
+  name: string
+  description: string | null
+  sortOrder: number
+  createdAt: string
+}
+
+export type EventPhoto = {
+  id: string
+  channelId: string
+  uploaderId: string
+  url: string
+  caption: string | null
+  createdAt: string
+}
+
+export type EventMemberWithName = {
+  eventId: string
+  userId: string
+  joinedAt: string
+  fullName: string
 }

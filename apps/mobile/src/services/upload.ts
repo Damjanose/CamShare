@@ -19,7 +19,7 @@ export async function uploadPhoto(
     name: `upload_${Date.now()}.${ext}`,
   } as unknown as Blob);
 
-  const { data } = await apiClient.post<{ url: string }>('/upload', formData, {
+  const { data } = await apiClient.post<{ url: string }>(`/upload?eventId=${eventId}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 

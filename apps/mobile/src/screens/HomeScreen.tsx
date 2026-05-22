@@ -32,11 +32,21 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
   const pastEvents = events.filter((e) => !e.isActive);
 
   function handleEventPress(event: Event) {
-    navigation.navigate('Gallery', { eventId: event.id, eventTitle: event.title });
+    navigation.navigate('Gallery', {
+      eventId: event.id,
+      eventTitle: event.title,
+      maxPhotosPerUser: event.maxPhotosPerUser ?? null,
+      maxFileSizeMb: event.maxFileSizeMb ?? null,
+    });
   }
 
   function handleMemoryPress(event: Event) {
-    navigation.navigate('Gallery', { eventId: event.id, eventTitle: event.title });
+    navigation.navigate('Gallery', {
+      eventId: event.id,
+      eventTitle: event.title,
+      maxPhotosPerUser: event.maxPhotosPerUser ?? null,
+      maxFileSizeMb: event.maxFileSizeMb ?? null,
+    });
   }
 
   return (

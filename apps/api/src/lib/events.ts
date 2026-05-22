@@ -222,9 +222,11 @@ export const joinEvent = async (token: string, userId: string): Promise<Event | 
   return event
 }
 
-export const listMembers = async (eventId: string, userId: string): Promise<EventMemberWithName[] | null> => {
-  const member = await isMember(eventId, userId)
-  if (!member) return null
+export const listMembers = async (eventId: string, userId: string, isAdmin = false): Promise<EventMemberWithName[] | null> => {
+  if (!isAdmin) {
+    const member = await isMember(eventId, userId)
+    if (!member) return null
+  }
 
   const rows = await db
     .selectFrom("event_members")

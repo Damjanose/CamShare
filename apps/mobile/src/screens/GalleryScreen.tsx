@@ -11,6 +11,7 @@ import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
 import { GalleryItem } from '../data/gallery';
+import { useAuth } from '../context/AuthContext';
 import { channelsService } from '../services/channels';
 import { photosService } from '../services/photos';
 import { uploadPhoto } from '../services/upload';
@@ -59,8 +60,11 @@ type Props = {
 export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Props) {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const eventId: string = route?.params?.eventId ?? '';
   const eventTitle: string = route?.params?.eventTitle ?? 'Gallery';
+  const maxPhotosPerUser: number | null = route?.params?.maxPhotosPerUser ?? null;
+  const maxFileSizeMb: number | null = route?.params?.maxFileSizeMb ?? null;
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -78,13 +82,18 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
   });
 
   const photosLoading = channelsLoading || photoQueries.some((q) => q.isLoading);
-  const allPhotos: GalleryItem[] = photoQueries
-    .flatMap((q) => q.data ?? [])
-    .map(photoToItem);
 
+  // Compute upload count from raw EventPhoto[] before mapping (GalleryItem lacks uploaderId)
+  const rawPhotos: EventPhoto[] = photoQueries.flatMap((q) => q.data ?? []);
+  const myUploadCount = rawPhotos.filter((p) => p.uploaderId === user?.id).length;
+  const limitReached = maxPhotosPerUser !== null && myUploadCount >= maxPhotosPerUser;
+
+  const allPhotos: GalleryItem[] = rawPhotos.map(photoToItem);
   const [leftCol, rightCol] = buildColumns(allPhotos);
 
   const handleUpload = async () => {
+    if (limitReached) return;
+
     const channel = channels[0];
     if (!channel) {
       Alert.alert('No album', 'This event has no photo album yet. Contact the event organiser.');
@@ -100,6 +109,17 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
     if (result.canceled || !result.assets[0]) return;
 
     const asset = result.assets[0];
+
+    // Client-side pre-flight size check (fileSize may be undefined on Android)
+    if (
+      asset.fileSize !== undefined &&
+      maxFileSizeMb !== null &&
+      asset.fileSize > maxFileSizeMb * 1024 * 1024
+    ) {
+      Alert.alert('File too large', `This photo exceeds the ${maxFileSizeMb} MB limit for this event.`);
+      return;
+    }
+
     setIsUploading(true);
     try {
       await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channel.id);
@@ -163,20 +183,31 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
       )}
 
       {!!eventId && (
-        <TouchableOpacity
+        <View
           style={[
-            styles.fab,
+            styles.fabWrap,
             { bottom: Math.max(insets.bottom, Spacing.navBottom) + Spacing.navHeight + 16 },
-            isUploading && styles.fabDisabled,
           ]}
-          onPress={handleUpload}
-          disabled={isUploading}
-          activeOpacity={0.8}
         >
-          {isUploading
-            ? <ActivityIndicator color={Colors.surface} size="small" />
-            : <Text style={styles.fabIcon}>+</Text>}
-        </TouchableOpacity>
+          {maxPhotosPerUser !== null && (
+            <Text style={styles.uploadCounter}>
+              {limitReached ? 'Limit reached' : `${myUploadCount} / ${maxPhotosPerUser} uploads`}
+            </Text>
+          )}
+          <TouchableOpacity
+            style={[
+              styles.fab,
+              (isUploading || limitReached) && styles.fabDisabled,
+            ]}
+            onPress={handleUpload}
+            disabled={isUploading || limitReached}
+            activeOpacity={0.8}
+          >
+            {isUploading
+              ? <ActivityIndicator color={Colors.surface} size="small" />
+              : <Text style={styles.fabIcon}>+</Text>}
+          </TouchableOpacity>
+        </View>
       )}
 
       <LightboxModal item={lightboxItem} onClose={() => setLightboxItem(null)} />
@@ -244,9 +275,18 @@ const styles = StyleSheet.create({
     ...TextStyles.bodyMd,
     color: Colors.onSurfaceVariant,
   },
-  fab: {
+  fabWrap: {
     position: 'absolute',
     right: Spacing.marginMain,
+    alignItems: 'center',
+    gap: 6,
+  },
+  uploadCounter: {
+    ...TextStyles.labelSm,
+    color: Colors.onSurfaceVariant,
+    fontSize: 11,
+  },
+  fab: {
     width: 52,
     height: 52,
     borderRadius: 26,

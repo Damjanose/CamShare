@@ -22,7 +22,9 @@ export const CreateEventPage = () => {
   const [autoApprove, setAutoApprove] = useState(false)
   const [hiRes, setHiRes] = useState(true)
   const [liveSlideshow, setLiveSlideshow] = useState(false)
+  const [photoLimitEnabled, setPhotoLimitEnabled] = useState(true)
   const [photoLimit, setPhotoLimit] = useState(50)
+  const [fileSizeLimitEnabled, setFileSizeLimitEnabled] = useState(true)
   const [fileSize, setFileSize] = useState(25)
 
   const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +49,8 @@ export const CreateEventPage = () => {
         eventDate: date || null,
         endDate: endDate || null,
         coverImageUrl: coverPreview ?? DEFAULT_COVER,
+        maxPhotosPerUser: photoLimitEnabled ? photoLimit : undefined,
+        maxFileSizeMb: fileSizeLimitEnabled ? fileSize : undefined,
       })
       navigate(`/events/${created.id}/invite`)
     } finally {
@@ -214,37 +218,57 @@ export const CreateEventPage = () => {
           </div>
           <div className="space-y-8">
             <div>
-              <div className="flex justify-between mb-4">
-                <label className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
-                  Photos per Guest
-                </label>
-                <span className="text-primary font-bold">{photoLimit}</span>
-              </div>
-              <input
-                type="range"
-                min={10}
-                max={200}
-                value={photoLimit}
-                onChange={(e) => setPhotoLimit(Number(e.target.value))}
-                className="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
+              <ToggleRow
+                title="Enable photo limit"
+                description="Restrict how many photos each guest can upload."
+                checked={photoLimitEnabled}
+                onChange={setPhotoLimitEnabled}
               />
+              {photoLimitEnabled && (
+                <div className="mt-4">
+                  <div className="flex justify-between mb-2">
+                    <label className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
+                      Photos per Guest
+                    </label>
+                    <span className="text-primary font-bold">{photoLimit}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={200}
+                    value={photoLimit}
+                    onChange={(e) => setPhotoLimit(Number(e.target.value))}
+                    className="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
+              )}
             </div>
             <div>
-              <div className="flex justify-between mb-4">
-                <label className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
-                  Max File Size
-                </label>
-                <span className="text-primary font-bold">{fileSize} MB</span>
-              </div>
-              <input
-                type="range"
-                min={5}
-                max={100}
-                step={5}
-                value={fileSize}
-                onChange={(e) => setFileSize(Number(e.target.value))}
-                className="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
+              <ToggleRow
+                title="Enable file size limit"
+                description="Cap the maximum size of each uploaded photo."
+                checked={fileSizeLimitEnabled}
+                onChange={setFileSizeLimitEnabled}
               />
+              {fileSizeLimitEnabled && (
+                <div className="mt-4">
+                  <div className="flex justify-between mb-2">
+                    <label className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
+                      Max File Size
+                    </label>
+                    <span className="text-primary font-bold">{fileSize} MB</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={5}
+                    max={100}
+                    step={5}
+                    value={fileSize}
+                    onChange={(e) => setFileSize(Number(e.target.value))}
+                    className="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
+              )}
             </div>
             <div className="pt-4 p-4 rounded-xl bg-secondary-container/20 border border-secondary-container/30">
               <div className="flex gap-3">

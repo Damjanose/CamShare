@@ -92,7 +92,8 @@ export const join = async (req: Request, res: Response) => {
 
 export const getMembers = async (req: Request, res: Response) => {
   if (!req.auth) return res.status(401).json({ message: "Unauthorized" })
-  const members = await events.listMembers(req.params.eventId, req.auth.userId)
+  const isAdmin = req.auth.permissions.includes("admin")
+  const members = await events.listMembers(req.params.eventId, req.auth.userId, isAdmin)
   if (!members) return res.status(403).json({ message: "Forbidden" })
   return res.json(members)
 }

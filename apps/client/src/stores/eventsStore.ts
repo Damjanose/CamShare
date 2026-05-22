@@ -40,6 +40,8 @@ export const useEventsStore = create<EventsState>((set, get) => ({
       eventDate: input.eventDate || undefined,
       endDate: input.endDate || undefined,
       coverImageUrl: input.coverImageUrl || undefined,
+      maxPhotosPerUser: input.maxPhotosPerUser ?? undefined,
+      maxFileSizeMb: input.maxFileSizeMb ?? undefined,
     })
     set({ events: [event, ...get().events] })
     return event

@@ -1,22 +1,12 @@
 import { useMemo, useState } from "react"
 import { Link, Navigate, useParams } from "react-router-dom"
-import { GalleryItem } from "@/components/event/GalleryItem"
-import { LightboxModal } from "@/components/event/LightboxModal"
-import { MasonryGrid } from "@/components/primitives/MasonryGrid"
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query"
+import type { EventPhoto, EventChannel, EventMemberWithName } from "@/types/domain"
 import { Button } from "@/components/primitives/Button"
 import { Icon } from "@/components/primitives/Icon"
+import { MasonryGrid } from "@/components/primitives/MasonryGrid"
 import { useEventsStore } from "@/stores/eventsStore"
-import { usePhotosStore } from "@/stores/photosStore"
-import type { Photo } from "@/types/domain"
-
-type Filter = "all" | "recent" | "favorites" | "video"
-
-const tabs: { id: Filter; label: string }[] = [
-  { id: "all", label: "Gallery" },
-  { id: "recent", label: "Recent" },
-  { id: "favorites", label: "Favorites" },
-  { id: "video", label: "Video" },
-]
+import { apiClient } from "@/api/client"
 
 const formatDate = (iso: string): string => {
   const d = new Date(iso)
@@ -26,27 +16,60 @@ const formatDate = (iso: string): string => {
 export const EventGalleryPage = () => {
   const { eventId } = useParams<{ eventId: string }>()
   const event = useEventsStore((s) => s.events.find((e) => e.id === eventId))
-  const allPhotos = usePhotosStore((s) => s.photos)
-  const photos = eventId ? allPhotos.filter((p) => p.eventId === eventId) : []
-  const [filter, setFilter] = useState<Filter>("all")
-  const [lightboxPhoto, setLightboxPhoto] = useState<Photo | null>(null)
+  const qc = useQueryClient()
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
-  const filteredPhotos = useMemo(() => {
-    switch (filter) {
-      case "favorites":
-        return photos.filter((p) => p.favorited)
-      case "recent":
-        return [...photos].sort(
-          (a, b) => new Date(b.takenAt).getTime() - new Date(a.takenAt).getTime(),
-        )
-      case "video":
-        return photos.filter((p) => p.isVideo)
-      default:
-        return photos
+  const channelsQuery = useQuery({
+    queryKey: ["event-channels", eventId],
+    queryFn: () => apiClient.get<EventChannel[]>(`/events/${eventId}/channels`),
+    enabled: !!eventId,
+  })
+
+  const channels = channelsQuery.data ?? []
+
+  const photoQueries = useQueries({
+    queries: channels.map((ch) => ({
+      queryKey: ["event-channel-photos", ch.id],
+      queryFn: () => apiClient.get<EventPhoto[]>(`/events/${eventId}/channels/${ch.id}/photos`),
+    })),
+  })
+
+  const membersQuery = useQuery({
+    queryKey: ["event-members", eventId],
+    queryFn: () => apiClient.get<EventMemberWithName[]>(`/events/${eventId}/members`),
+    enabled: !!eventId,
+  })
+
+  const members = membersQuery.data ?? []
+
+  const deleteMutation = useMutation({
+    mutationFn: ({ channelId, photoId }: { channelId: string; photoId: string }) =>
+      apiClient.delete(`/events/${eventId}/channels/${channelId}/photos/${photoId}`),
+    onSuccess: (_data, { channelId }) => {
+      qc.invalidateQueries({ queryKey: ["event-channel-photos", channelId] })
+    },
+  })
+
+  const allPhotos: EventPhoto[] = photoQueries.flatMap((q) => q.data ?? [])
+
+  const groups = useMemo(() => {
+    const nameMap = new Map(members.map((m) => [m.userId, m.fullName]))
+    const byUploader = new Map<string, EventPhoto[]>()
+    for (const photo of allPhotos) {
+      const existing = byUploader.get(photo.uploaderId) ?? []
+      existing.push(photo)
+      byUploader.set(photo.uploaderId, existing)
     }
-  }, [filter, photos])
+    return Array.from(byUploader.entries()).map(([uploaderId, photos]) => ({
+      uploaderId,
+      name: nameMap.get(uploaderId) ?? "Unknown Guest",
+      photos,
+    }))
+  }, [allPhotos, members])
 
   if (!event) return <Navigate to="/dashboard" replace />
+
+  const loading = channelsQuery.isLoading || membersQuery.isLoading
 
   return (
     <div className="max-w-container-max mx-auto">
@@ -66,49 +89,24 @@ export const EventGalleryPage = () => {
               <Icon name="qr_code" /> Share QR
             </Button>
           </Link>
-          <Button variant="gold">
-            <Icon name="auto_fix_high" /> Highlight Media
-          </Button>
         </div>
       </section>
 
-      <section className="flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant/30 mb-10 gap-4">
-        <nav className="flex gap-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setFilter(tab.id)}
-              className={`pb-4 font-label-md text-label-md transition-all ${
-                filter === tab.id
-                  ? "border-b-2 border-primary text-primary font-bold"
-                  : "text-on-surface-variant hover:text-primary"
-              }`}
-            >
-              {tab.label}
-              {tab.id === "all" && (
-                <span className="ml-1 text-caption opacity-70">({photos.length})</span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="flex items-center gap-6 pb-4">
-          <button
-            type="button"
-            className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md"
-          >
-            <Icon name="download" /> Download All
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-all font-label-md text-label-md"
-          >
-            <Icon name="grid_view" /> Layout
+      {deleteError && (
+        <div className="mb-6 p-4 rounded-xl bg-surface-container border border-outline-variant/40 flex items-center gap-3 text-error">
+          <Icon name="error" />
+          <span className="font-body-md flex-grow">{deleteError}</span>
+          <button type="button" onClick={() => setDeleteError(null)} aria-label="Dismiss">
+            <Icon name="close" />
           </button>
         </div>
-      </section>
+      )}
 
-      {filteredPhotos.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-24">
+          <p className="text-on-surface-variant font-body-md">Loading gallery…</p>
+        </div>
+      ) : allPhotos.length === 0 ? (
         <div className="text-center py-24 border-2 border-dashed border-outline-variant/40 rounded-3xl">
           <Icon name="image_search" className="text-5xl text-primary mb-4 block" />
           <p className="font-headline-md text-on-surface mb-2">No memories yet</p>
@@ -117,14 +115,76 @@ export const EventGalleryPage = () => {
           </p>
         </div>
       ) : (
-        <MasonryGrid>
-          {filteredPhotos.map((photo) => (
-            <GalleryItem key={photo.id} photo={photo} onOpen={setLightboxPhoto} />
+        <div className="space-y-16">
+          {groups.map(({ uploaderId, name, photos }) => (
+            <section key={uploaderId}>
+              <h2 className="font-headline-md text-headline-md text-on-surface mb-6">
+                {name}
+                <span className="text-on-surface-variant font-body-md ml-2">
+                  ({photos.length} {photos.length === 1 ? "photo" : "photos"})
+                </span>
+              </h2>
+              <MasonryGrid>
+                {photos.map((photo) => (
+                  <PhotoTile
+                    key={photo.id}
+                    photo={photo}
+                    deleting={
+                      deleteMutation.isPending &&
+                      deleteMutation.variables?.photoId === photo.id
+                    }
+                    onDelete={async () => {
+                      setDeleteError(null)
+                      try {
+                        await deleteMutation.mutateAsync({
+                          channelId: photo.channelId,
+                          photoId: photo.id,
+                        })
+                      } catch (err) {
+                        setDeleteError(
+                          err instanceof Error ? err.message : "Failed to delete photo",
+                        )
+                      }
+                    }}
+                  />
+                ))}
+              </MasonryGrid>
+            </section>
           ))}
-        </MasonryGrid>
+        </div>
       )}
-
-      <LightboxModal photo={lightboxPhoto} onClose={() => setLightboxPhoto(null)} />
     </div>
   )
 }
+
+const PhotoTile = ({
+  photo,
+  deleting,
+  onDelete,
+}: {
+  photo: EventPhoto
+  deleting: boolean
+  onDelete: () => void
+}) => (
+  <div className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:shadow-2xl hover:shadow-champagne-gold/30">
+    <img
+      src={photo.url}
+      alt={photo.caption ?? ""}
+      className="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
+    />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">
+      {photo.caption && (
+        <p className="text-white font-caption text-xs line-clamp-2">{photo.caption}</p>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={onDelete}
+      disabled={deleting}
+      className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 hover:bg-red-600/80 transition-all disabled:cursor-not-allowed"
+      aria-label="Delete photo"
+    >
+      <Icon name={deleting ? "hourglass_empty" : "delete"} className="text-sm" />
+    </button>
+  </div>
+)
