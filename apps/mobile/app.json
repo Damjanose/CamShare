@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.camshare"
+      "bundleIdentifier": "com.damjano.camshare"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,8 +29,10 @@
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.POST_NOTIFICATIONS"
-      ]
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.damjano.camshare"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -49,6 +51,12 @@
           "photosPermission": "CamShare needs access to your photos to upload memories to events."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4b1def76-d974-409e-91a7-0be8950aec8f"
+      }
+    },
+    "owner": "damjanoda"
   }
 }
