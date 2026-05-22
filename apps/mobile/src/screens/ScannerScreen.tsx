@@ -162,6 +162,7 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
       <CameraView
         style={StyleSheet.absoluteFill}
         facing="back"
+        mode="picture"
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
         onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
       />
