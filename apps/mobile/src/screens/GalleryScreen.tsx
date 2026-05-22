@@ -85,22 +85,19 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
   const [leftCol, rightCol] = buildColumns(allPhotos);
 
   const handleUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow photo library access to upload photos.');
+    const channel = channels[0];
+    if (!channel) {
+      Alert.alert('No album', 'This event has no photo album yet. Contact the event organiser.');
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: ['images', 'videos'],
       quality: 0.8,
       allowsEditing: false,
     });
 
     if (result.canceled || !result.assets[0]) return;
-
-    const channel = channels[0];
-    if (!channel) return;
 
     const asset = result.assets[0];
     setIsUploading(true);
@@ -165,16 +162,22 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
         </ScrollView>
       )}
 
-      <TouchableOpacity
-        style={[styles.fab, (isUploading || channels.length === 0) && styles.fabDisabled]}
-        onPress={handleUpload}
-        disabled={isUploading || channels.length === 0}
-        activeOpacity={0.8}
-      >
-        {isUploading
-          ? <ActivityIndicator color={Colors.surface} size="small" />
-          : <Text style={styles.fabIcon}>+</Text>}
-      </TouchableOpacity>
+      {!!eventId && (
+        <TouchableOpacity
+          style={[
+            styles.fab,
+            { bottom: Math.max(insets.bottom, Spacing.navBottom) + Spacing.navHeight + 16 },
+            isUploading && styles.fabDisabled,
+          ]}
+          onPress={handleUpload}
+          disabled={isUploading}
+          activeOpacity={0.8}
+        >
+          {isUploading
+            ? <ActivityIndicator color={Colors.surface} size="small" />
+            : <Text style={styles.fabIcon}>+</Text>}
+        </TouchableOpacity>
+      )}
 
       <LightboxModal item={lightboxItem} onClose={() => setLightboxItem(null)} />
 
@@ -243,7 +246,6 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: 100,
     right: Spacing.marginMain,
     width: 52,
     height: 52,

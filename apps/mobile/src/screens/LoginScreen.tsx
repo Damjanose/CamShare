@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
+  Linking,
   StyleSheet,
   Text,
   TextInput,
@@ -9,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Yup from 'yup';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
 import { Snackbar } from '../components/primitives/Snackbar';
 import { Colors } from '../constants/colors';
@@ -17,22 +21,38 @@ import { TextStyles } from '../constants/typography';
 import { useAuth } from '../context/AuthContext';
 import { GALLERY_ITEMS } from '../data/gallery';
 
+const loginSchema = Yup.object({
+  email: Yup.string()
+    .email('Enter a valid email address')
+    .required('Email is required'),
+  password: Yup.string().required('Password is required'),
+});
+
 type Props = { navigation?: any };
 
 export function LoginScreen({ navigation }: Props) {
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleEmailLogin = async () => {
-    try {
-      await login({ email, password });
-    } catch (e: any) {
-      setError(e?.response?.data?.message ?? e.message);
-    }
+  const formik = useFormik({
+    initialValues: { email: '', password: '' },
+    validationSchema: loginSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        await login(values);
+      } catch (e: any) {
+        setServerError(e?.response?.data?.message ?? e.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
+
+  const changeAndClear = (field: 'email' | 'password') => (text: string) => {
+    formik.setFieldTouched(field, false, false);
+    formik.handleChange(field)(text);
   };
 
   return (
@@ -51,48 +71,69 @@ export function LoginScreen({ navigation }: Props) {
       </View>
 
       {/* CTA section */}
-      <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
-        {/* Primary: email + password card */}
-        <View style={styles.inputCard}>
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor={Colors.onSurfaceVariant}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-          />
-          <View style={styles.inputSeparator} />
-          <View style={styles.inputRow}>
+      <View style={[styles.ctaSection, { paddingTop: 32, paddingBottom: insets.bottom + 32 }]}>
+        {/* Email field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, formik.touched.email && !!formik.errors.email && styles.inputCardError]}>
             <TextInput
-              placeholder="Password"
+              placeholder="Email"
               placeholderTextColor={Colors.onSurfaceVariant}
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-              style={styles.inputFlex}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={formik.values.email}
+              onChangeText={changeAndClear('email')}
+              onBlur={formik.handleBlur('email')}
+              style={styles.input}
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword((v) => !v)}
-              activeOpacity={0.7}
-              style={styles.eyeButton}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={18}
-                color={Colors.onSurfaceVariant}
-              />
-            </TouchableOpacity>
           </View>
+          {formik.touched.email && formik.errors.email && (
+            <Text style={styles.fieldError}>{formik.errors.email}</Text>
+          )}
+        </View>
+
+        {/* Password field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, formik.touched.password && !!formik.errors.password && styles.inputCardError]}>
+            <View style={styles.inputRow}>
+              <TextInput
+                placeholder="Password"
+                placeholderTextColor={Colors.onSurfaceVariant}
+                secureTextEntry={!showPassword}
+                value={formik.values.password}
+                onChangeText={changeAndClear('password')}
+                onBlur={formik.handleBlur('password')}
+                style={styles.inputFlex}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((v) => !v)}
+                activeOpacity={0.7}
+                style={styles.eyeButton}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={18}
+                  color={Colors.onSurfaceVariant}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {formik.touched.password && formik.errors.password && (
+            <Text style={styles.fieldError}>{formik.errors.password}</Text>
+          )}
         </View>
 
         <TouchableOpacity
-          onPress={handleEmailLogin}
+          onPress={() => formik.handleSubmit()}
           activeOpacity={0.85}
-          style={styles.signInButton}
+          disabled={formik.isSubmitting}
+          style={[styles.signInButton, formik.isSubmitting && styles.signInButtonDisabled]}
         >
-          <Text style={styles.signInLabel}>Sign In</Text>
+          {formik.isSubmitting && (
+            <ActivityIndicator size="small" color={Colors.onPrimary} style={styles.spinner} />
+          )}
+          <Text style={styles.signInLabel}>
+            {formik.isSubmitting ? 'Signing in…' : 'Sign In'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation?.navigate('Register')} activeOpacity={0.7}>
@@ -108,7 +149,7 @@ export function LoginScreen({ navigation }: Props) {
 
         <View style={styles.socialRow}>
           <TouchableOpacity
-            onPress={() => setError('Google sign-in is coming soon.')}
+            onPress={() => setServerError('Google sign-in is coming soon.')}
             activeOpacity={0.8}
             style={styles.socialButton}
           >
@@ -117,7 +158,7 @@ export function LoginScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => setError('Apple sign-in is coming soon.')}
+            onPress={() => setServerError('Apple sign-in is coming soon.')}
             activeOpacity={0.8}
             style={styles.socialButton}
           >
@@ -127,7 +168,15 @@ export function LoginScreen({ navigation }: Props) {
         </View>
 
         <Text style={styles.terms}>
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL('https://camshare.app/terms')}>
+            Terms of Service
+          </Text>
+          {' '}and{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL('https://camshare.app/privacy')}>
+            Privacy Policy
+          </Text>
+          .
         </Text>
 
         {/* Decorative photo strip */}
@@ -147,7 +196,7 @@ export function LoginScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <Snackbar message={error} onDismiss={() => setError(null)} />
+      <Snackbar message={serverError} onDismiss={() => setServerError(null)} />
     </View>
   );
 }
@@ -198,7 +247,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
-  // Input card groups both fields
+  fieldGroup: {
+    width: '100%',
+    gap: 6,
+  },
   inputCard: {
     width: '100%',
     backgroundColor: Colors.glassSurface,
@@ -206,6 +258,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.outlineVariant,
     borderRadius: 16,
     overflow: 'hidden',
+  },
+  inputCardError: {
+    borderColor: Colors.error,
   },
   input: {
     color: Colors.onSurface,
@@ -231,19 +286,25 @@ const styles = StyleSheet.create({
     height: 52,
     justifyContent: 'center',
   },
-  inputSeparator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.outlineVariant,
-    marginHorizontal: 18,
+  fieldError: {
+    ...TextStyles.labelSm,
+    color: Colors.error,
+    paddingLeft: 4,
   },
-  // Primary sign-in button
   signInButton: {
     width: '100%',
     height: Spacing.buttonHeight,
     backgroundColor: Colors.primary,
     borderRadius: Spacing.pillRadius,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  signInButtonDisabled: {
+    opacity: 0.5,
+  },
+  spinner: {
+    marginRight: 8,
   },
   signInLabel: {
     ...TextStyles.labelMd,
@@ -256,7 +317,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     opacity: 0.85,
   },
-  // Optional divider
   optionalRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -276,7 +336,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
-  // Social buttons — small, side by side
   socialRow: {
     flexDirection: 'row',
     gap: 10,
@@ -305,6 +364,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     paddingHorizontal: 8,
     lineHeight: 18,
+  },
+  termsLink: {
+    color: Colors.primary,
+    opacity: 1,
+    textDecorationLine: 'underline',
   },
   glassStrip: {
     flexDirection: 'row',

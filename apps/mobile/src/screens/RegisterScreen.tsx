@@ -1,6 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
+  Linking,
   StyleSheet,
   Text,
   TextInput,
@@ -8,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Yup from 'yup';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
 import { Snackbar } from '../components/primitives/Snackbar';
 import { Colors } from '../constants/colors';
@@ -15,44 +19,49 @@ import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
 import { useAuth } from '../context/AuthContext';
 
+const registerSchema = Yup.object({
+  fullName: Yup.string().required('Full name is required'),
+  email: Yup.string()
+    .email('Enter a valid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(8, 'Password must be at least 8 characters')
+    .required('Password is required'),
+  confirm: Yup.string()
+    .oneOf([Yup.ref('password')], 'Passwords do not match')
+    .required('Please confirm your password'),
+});
+
 type Props = { navigation?: any };
 
 export function RegisterScreen({ navigation }: Props) {
   const { register } = useAuth();
   const insets = useSafeAreaInsets();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const passwordMismatch = confirm.length > 0 && password !== confirm;
+  const formik = useFormik({
+    initialValues: { fullName: '', email: '', password: '', confirm: '' },
+    validationSchema: registerSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        await register({ fullName: values.fullName.trim(), email: values.email, password: values.password });
+      } catch (e: any) {
+        setServerError(e?.response?.data?.message ?? e.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
 
-  const handleRegister = async () => {
-    if (!fullName.trim()) {
-      setError('Please enter your full name.');
-      return;
-    }
-    if (password !== confirm) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
-      return;
-    }
-    try {
-      setLoading(true);
-      await register({ fullName: fullName.trim(), email, password });
-    } catch (e: any) {
-      setError(e?.response?.data?.message ?? e.message);
-    } finally {
-      setLoading(false);
-    }
+  const changeAndClear = (field: 'fullName' | 'email' | 'password' | 'confirm') => (text: string) => {
+    formik.setFieldTouched(field, false, false);
+    formik.handleChange(field)(text);
   };
+
+  const passwordMismatch =
+    formik.touched.confirm && !!formik.errors.confirm;
 
   return (
     <View style={styles.root}>
@@ -80,83 +89,116 @@ export function RegisterScreen({ navigation }: Props) {
 
       {/* Form */}
       <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
-        <View style={styles.inputCard}>
-          <TextInput
-            placeholder="Full Name"
-            placeholderTextColor={Colors.onSurfaceVariant}
-            autoCapitalize="words"
-            value={fullName}
-            onChangeText={setFullName}
-            style={styles.input}
-          />
-          <View style={styles.inputSeparator} />
-          <TextInput
-            placeholder="Email"
-            placeholderTextColor={Colors.onSurfaceVariant}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-          />
-          <View style={styles.inputSeparator} />
-          <View style={styles.inputRow}>
+        {/* Full Name field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, formik.touched.fullName && !!formik.errors.fullName && styles.inputCardError]}>
             <TextInput
-              placeholder="Password"
+              placeholder="Full Name"
               placeholderTextColor={Colors.onSurfaceVariant}
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={setPassword}
-              style={styles.inputFlex}
+              autoCapitalize="words"
+              value={formik.values.fullName}
+              onChangeText={changeAndClear('fullName')}
+              onBlur={formik.handleBlur('fullName')}
+              style={styles.input}
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword((v) => !v)}
-              activeOpacity={0.7}
-              style={styles.eyeButton}
-            >
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                size={18}
-                color={Colors.onSurfaceVariant}
-              />
-            </TouchableOpacity>
           </View>
-          <View style={[styles.inputSeparator, passwordMismatch && styles.inputSeparatorError]} />
-          <View style={styles.inputRow}>
-            <TextInput
-              placeholder="Confirm Password"
-              placeholderTextColor={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
-              secureTextEntry={!showConfirm}
-              value={confirm}
-              onChangeText={setConfirm}
-              style={[styles.inputFlex, passwordMismatch && styles.inputError]}
-            />
-            <TouchableOpacity
-              onPress={() => setShowConfirm((v) => !v)}
-              activeOpacity={0.7}
-              style={styles.eyeButton}
-            >
-              <Ionicons
-                name={showConfirm ? 'eye-off-outline' : 'eye-outline'}
-                size={18}
-                color={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
-              />
-            </TouchableOpacity>
-          </View>
+          {formik.touched.fullName && formik.errors.fullName && (
+            <Text style={styles.fieldError}>{formik.errors.fullName}</Text>
+          )}
         </View>
 
-        {passwordMismatch && (
-          <Text style={styles.mismatchError}>Passwords do not match</Text>
-        )}
+        {/* Email field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, formik.touched.email && !!formik.errors.email && styles.inputCardError]}>
+            <TextInput
+              placeholder="Email"
+              placeholderTextColor={Colors.onSurfaceVariant}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={formik.values.email}
+              onChangeText={changeAndClear('email')}
+              onBlur={formik.handleBlur('email')}
+              style={styles.input}
+            />
+          </View>
+          {formik.touched.email && formik.errors.email && (
+            <Text style={styles.fieldError}>{formik.errors.email}</Text>
+          )}
+        </View>
+
+        {/* Password field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, formik.touched.password && !!formik.errors.password && styles.inputCardError]}>
+            <View style={styles.inputRow}>
+              <TextInput
+                placeholder="Password"
+                placeholderTextColor={Colors.onSurfaceVariant}
+                secureTextEntry={!showPassword}
+                value={formik.values.password}
+                onChangeText={changeAndClear('password')}
+                onBlur={formik.handleBlur('password')}
+                style={styles.inputFlex}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword((v) => !v)}
+                activeOpacity={0.7}
+                style={styles.eyeButton}
+              >
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={18}
+                  color={Colors.onSurfaceVariant}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {formik.touched.password && formik.errors.password && (
+            <Text style={styles.fieldError}>{formik.errors.password}</Text>
+          )}
+        </View>
+
+        {/* Confirm Password field */}
+        <View style={styles.fieldGroup}>
+          <View style={[styles.inputCard, passwordMismatch && styles.inputCardError]}>
+            <View style={styles.inputRow}>
+              <TextInput
+                placeholder="Confirm Password"
+                placeholderTextColor={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
+                secureTextEntry={!showConfirm}
+                value={formik.values.confirm}
+                onChangeText={changeAndClear('confirm')}
+                onBlur={formik.handleBlur('confirm')}
+                style={[styles.inputFlex, passwordMismatch && styles.inputError]}
+              />
+              <TouchableOpacity
+                onPress={() => setShowConfirm((v) => !v)}
+                activeOpacity={0.7}
+                style={styles.eyeButton}
+              >
+                <Ionicons
+                  name={showConfirm ? 'eye-off-outline' : 'eye-outline'}
+                  size={18}
+                  color={passwordMismatch ? Colors.error : Colors.onSurfaceVariant}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          {passwordMismatch && (
+            <Text style={styles.fieldError}>{formik.errors.confirm}</Text>
+          )}
+        </View>
 
         <TouchableOpacity
-          onPress={handleRegister}
+          onPress={() => formik.handleSubmit()}
           activeOpacity={0.85}
-          disabled={loading}
-          style={[styles.createButton, loading && styles.createButtonDisabled]}
+          disabled={formik.isSubmitting}
+          style={[styles.createButton, formik.isSubmitting && styles.createButtonDisabled]}
         >
+          {formik.isSubmitting && (
+            <ActivityIndicator size="small" color={Colors.onPrimary} style={styles.spinner} />
+          )}
           <Text style={styles.createLabel}>
-            {loading ? 'Creating…' : 'Create Account'}
+            {formik.isSubmitting ? 'Creating…' : 'Create Account'}
           </Text>
         </TouchableOpacity>
 
@@ -165,11 +207,19 @@ export function RegisterScreen({ navigation }: Props) {
         </TouchableOpacity>
 
         <Text style={styles.terms}>
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL('https://camshare.app/terms')}>
+            Terms of Service
+          </Text>
+          {' '}and{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL('https://camshare.app/privacy')}>
+            Privacy Policy
+          </Text>
+          .
         </Text>
       </View>
 
-      <Snackbar message={error} onDismiss={() => setError(null)} />
+      <Snackbar message={serverError} onDismiss={() => setServerError(null)} />
     </View>
   );
 }
@@ -226,6 +276,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
   },
+  fieldGroup: {
+    width: '100%',
+    gap: 6,
+  },
   inputCard: {
     width: '100%',
     backgroundColor: Colors.glassSurface,
@@ -233,6 +287,9 @@ const styles = StyleSheet.create({
     borderColor: Colors.outlineVariant,
     borderRadius: 16,
     overflow: 'hidden',
+  },
+  inputCardError: {
+    borderColor: Colors.error,
   },
   input: {
     color: Colors.onSurface,
@@ -261,19 +318,9 @@ const styles = StyleSheet.create({
     height: 52,
     justifyContent: 'center',
   },
-  inputSeparator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.outlineVariant,
-    marginHorizontal: 18,
-  },
-  inputSeparatorError: {
-    backgroundColor: Colors.error,
-    opacity: 0.5,
-  },
-  mismatchError: {
+  fieldError: {
     ...TextStyles.labelSm,
     color: Colors.error,
-    alignSelf: 'flex-start',
     paddingLeft: 4,
   },
   createButton: {
@@ -281,11 +328,15 @@ const styles = StyleSheet.create({
     height: Spacing.buttonHeight,
     backgroundColor: Colors.primary,
     borderRadius: Spacing.pillRadius,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   createButtonDisabled: {
     opacity: 0.5,
+  },
+  spinner: {
+    marginRight: 8,
   },
   createLabel: {
     ...TextStyles.labelMd,
@@ -305,5 +356,10 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     paddingHorizontal: 8,
     lineHeight: 18,
+  },
+  termsLink: {
+    color: Colors.primary,
+    opacity: 1,
+    textDecorationLine: 'underline',
   },
 });
