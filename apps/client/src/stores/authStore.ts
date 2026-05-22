@@ -4,7 +4,7 @@ import { apiClient, setTokens, clearTokens } from "@/api/client"
 
 const STORAGE_KEY = "aeterna_session_user"
 const REFRESH_KEY = "camshare_refresh_token"
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://10.81.202.106:3001"
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3001"
 
 type ApiAuthResponse = {
   user: { id: string; fullName: string; email: string; avatarUrl: string | null }
