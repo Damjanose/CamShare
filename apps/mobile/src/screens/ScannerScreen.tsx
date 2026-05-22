@@ -193,12 +193,23 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
           <GlassCard style={styles.resultCard}>
             <Text style={styles.resultLabel}>JOINED</Text>
             <Text style={styles.resultText}>{joinMutation.data.title}</Text>
+            {(joinMutation.data.maxPhotosPerUser !== null || joinMutation.data.maxFileSizeMb !== null) && (
+              <Text style={styles.eventParams}>
+                {[
+                  joinMutation.data.maxPhotosPerUser !== null && `Max ${joinMutation.data.maxPhotosPerUser} photos`,
+                  joinMutation.data.maxFileSizeMb !== null && `Max ${joinMutation.data.maxFileSizeMb} MB/file`,
+                ].filter(Boolean).join(' · ')}
+              </Text>
+            )}
             <GradientButton
               label="Go to Gallery"
               onPress={() =>
                 navigation.navigate('Gallery', {
                   eventId: joinMutation.data.id,
                   eventTitle: joinMutation.data.title,
+                  maxPhotosPerUser: joinMutation.data.maxPhotosPerUser ?? null,
+                  maxFileSizeMb: joinMutation.data.maxFileSizeMb ?? null,
+                  channelId: joinMutation.data.defaultChannelId ?? null,
                 })
               }
               style={{ marginTop: 4, marginBottom: 8 }}
@@ -305,6 +316,11 @@ const styles = StyleSheet.create({
   scanAgainText: {
     ...TextStyles.labelMd,
     color: Colors.secondary,
+  },
+  eventParams: {
+    ...TextStyles.labelSm,
+    color: Colors.onSurfaceVariant,
+    marginBottom: 12,
   },
   errorText: {
     ...TextStyles.bodyMd,

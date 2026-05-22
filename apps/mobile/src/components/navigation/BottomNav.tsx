@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/colors';
 import { Spacing } from '../../constants/spacing';
 
-export type NavTab = 'Home' | 'Gallery' | 'Scanner' | 'Favorites' | 'Profile';
+export type NavTab = 'Events' | 'Scanner' | 'Profile';
 
 type NavItem = {
   key: NavTab;
@@ -16,10 +16,8 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { key: 'Home', iconActive: 'sparkles', iconInactive: 'sparkles-outline' },
-  { key: 'Gallery', iconActive: 'calendar', iconInactive: 'calendar-outline' },
+  { key: 'Events', iconActive: 'sparkles', iconInactive: 'sparkles-outline' },
   { key: 'Scanner', iconActive: 'qr-code', iconInactive: 'qr-code-outline', isCenter: true },
-  { key: 'Favorites', iconActive: 'heart', iconInactive: 'heart-outline' },
   { key: 'Profile', iconActive: 'person', iconInactive: 'person-outline' },
 ];
 
@@ -35,7 +33,6 @@ export function BottomNav({ active, onPress }: Props) {
 
   return (
     <View style={[styles.wrapper, { bottom: bottomOffset }]}>
-      {/* Pill — overflow:hidden clips only itself */}
       <BlurView
         intensity={40}
         tint="dark"
@@ -47,7 +44,6 @@ export function BottomNav({ active, onPress }: Props) {
             const isActive = active === item.key;
 
             if (item.isCenter) {
-              // Placeholder that reserves space in the row
               return <View key={item.key} style={styles.centerPlaceholder} />;
             }
 
@@ -69,7 +65,6 @@ export function BottomNav({ active, onPress }: Props) {
         </View>
       </BlurView>
 
-      {/* Center button: sibling of BlurView, not clipped by its overflow:hidden */}
       <TouchableOpacity
         onPress={() => onPress('Scanner')}
         activeOpacity={0.85}

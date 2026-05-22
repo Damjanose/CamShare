@@ -1,18 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
 import { EventCard } from '../components/ui/EventCard';
-import { PastMemoryCard } from '../components/ui/PastMemoryCard';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
 import { eventsService } from '../services/events';
 import type { Event } from '@camshare/types';
-
-const { width } = Dimensions.get('window');
-const MEMORY_CARD_SIZE = (width - Spacing.marginMain * 2 - Spacing.gutter) / 2;
 
 type Props = {
   navigation: any;
@@ -28,8 +24,13 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
     queryFn: eventsService.list,
   });
 
-  const activeEvents = events.filter((e) => e.isActive);
-  const pastEvents = events.filter((e) => !e.isActive);
+  // Sort by eventDate descending; events with no date go last
+  const sorted = [...events].sort((a, b) => {
+    if (!a.eventDate && !b.eventDate) return 0;
+    if (!a.eventDate) return 1;
+    if (!b.eventDate) return -1;
+    return new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime();
+  });
 
   function handleEventPress(event: Event) {
     navigation.navigate('Gallery', {
@@ -37,15 +38,7 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
       eventTitle: event.title,
       maxPhotosPerUser: event.maxPhotosPerUser ?? null,
       maxFileSizeMb: event.maxFileSizeMb ?? null,
-    });
-  }
-
-  function handleMemoryPress(event: Event) {
-    navigation.navigate('Gallery', {
-      eventId: event.id,
-      eventTitle: event.title,
-      maxPhotosPerUser: event.maxPhotosPerUser ?? null,
-      maxFileSizeMb: event.maxFileSizeMb ?? null,
+      channelId: event.defaultChannelId ?? null,
     });
   }
 
@@ -60,7 +53,6 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.eyebrow}>YOUR EVENTS</Text>
@@ -70,29 +62,19 @@ export function HomeScreen({ navigation, activeTab, onTabPress }: Props) {
 
         {isLoading ? (
           <ActivityIndicator color={Colors.primary} style={{ marginTop: 40 }} />
+        ) : sorted.length === 0 ? (
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No events yet.</Text>
+            <Text style={styles.emptyHint}>Scan a QR code to join one.</Text>
+          </View>
         ) : (
-          <>
-            {/* Active events */}
-            <Text style={styles.sectionLabel}>UPCOMING</Text>
-            <View style={styles.eventList}>
-              {activeEvents.map((event) => (
-                <EventCard key={event.id} event={event} onPress={handleEventPress} />
-              ))}
-            </View>
-
-            {/* Past memories */}
-            <Text style={[styles.sectionLabel, { marginTop: Spacing.stackLg }]}>MEMORIES</Text>
-            <View style={styles.memoriesGrid}>
-              {pastEvents.map((event) => (
-                <PastMemoryCard
-                  key={event.id}
-                  event={event}
-                  onPress={handleMemoryPress}
-                  size={MEMORY_CARD_SIZE}
-                />
-              ))}
-            </View>
-          </>
+          <View style={styles.eventList}>
+            {sorted.map((event) => (
+              <TouchableOpacity key={event.id} onPress={() => handleEventPress(event)} activeOpacity={0.85}>
+                <EventCard event={event} onPress={handleEventPress} />
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
       </ScrollView>
 
@@ -125,18 +107,20 @@ const styles = StyleSheet.create({
     ...TextStyles.headlineLg,
     color: Colors.onSurface,
   },
-  sectionLabel: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
-    letterSpacing: 2.5,
-    marginBottom: Spacing.stackSm,
-  },
   eventList: {
     gap: Spacing.gutter,
   },
-  memoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.gutter,
+  empty: {
+    marginTop: 60,
+    alignItems: 'center',
+    gap: 8,
+  },
+  emptyText: {
+    ...TextStyles.bodyMd,
+    color: Colors.onSurface,
+  },
+  emptyHint: {
+    ...TextStyles.labelMd,
+    color: Colors.onSurfaceVariant,
   },
 });

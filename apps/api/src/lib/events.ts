@@ -20,6 +20,7 @@ const mapEvent = (row: {
   max_file_size_mb?: number | null
   guest_count?: string | null
   photo_count?: string | null
+  default_channel_id?: string | null
 }): Event => ({
   id: row.id,
   ownerId: row.owner_id,
@@ -33,6 +34,7 @@ const mapEvent = (row: {
   photoCount: Number(row.photo_count ?? 0),
   maxPhotosPerUser: row.max_photos_per_user ?? null,
   maxFileSizeMb: row.max_file_size_mb ?? null,
+  defaultChannelId: row.default_channel_id ?? null,
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
 })
@@ -53,6 +55,13 @@ const fetchWithCounts = (eventId: string) =>
         .whereRef("event_channels.event_id", "=", "events.id")
         .select(eb.fn.countAll<string>().as("c"))
         .as("photo_count"),
+      eb
+        .selectFrom("event_channels")
+        .whereRef("event_channels.event_id", "=", "events.id")
+        .orderBy("event_channels.sort_order asc")
+        .select("event_channels.id")
+        .limit(1)
+        .as("default_channel_id"),
     ])
     .where("events.id", "=", eventId)
     .executeTakeFirst()
@@ -68,7 +77,7 @@ const isMember = async (eventId: string, userId: string): Promise<boolean> => {
 }
 
 export const createEvent = async (ownerId: string, input: CreateEventInput): Promise<Event> => {
-  const event = await db.transaction().execute(async (trx) => {
+  const { event, channelId } = await db.transaction().execute(async (trx) => {
     const row = await trx
       .insertInto("events")
       .values({
@@ -86,10 +95,16 @@ export const createEvent = async (ownerId: string, input: CreateEventInput): Pro
 
     await trx.insertInto("event_members").values({ event_id: row.id, user_id: ownerId }).execute()
 
-    return row
+    const channel = await trx
+      .insertInto("event_channels")
+      .values({ event_id: row.id, name: "main", sort_order: 0 })
+      .returning("id")
+      .executeTakeFirstOrThrow()
+
+    return { event: row, channelId: channel.id }
   })
 
-  return mapEvent({ ...event, guest_count: "1", photo_count: "0" })
+  return mapEvent({ ...event, guest_count: "1", photo_count: "0", default_channel_id: channelId })
 }
 
 export const listMyEvents = async (userId: string): Promise<Event[]> => {
@@ -117,6 +132,13 @@ export const listMyEvents = async (userId: string): Promise<Event[]> => {
         .whereRef("event_channels.event_id", "=", "events.id")
         .select(eb.fn.countAll<string>().as("c"))
         .as("photo_count"),
+      eb
+        .selectFrom("event_channels")
+        .whereRef("event_channels.event_id", "=", "events.id")
+        .orderBy("event_channels.sort_order asc")
+        .select("event_channels.id")
+        .limit(1)
+        .as("default_channel_id"),
     ])
     .orderBy("events.created_at desc")
     .execute()
@@ -235,6 +257,7 @@ export const listMembers = async (eventId: string, userId: string, isAdmin = fal
       "event_members.event_id",
       "event_members.user_id",
       "event_members.joined_at",
+      "event_members.submitted_at",
       "user_details.full_name",
     ])
     .where("event_members.event_id", "=", eventId)
@@ -245,6 +268,7 @@ export const listMembers = async (eventId: string, userId: string, isAdmin = fal
     eventId: r.event_id,
     userId: r.user_id,
     joinedAt: iso(r.joined_at),
+    submittedAt: r.submitted_at ? iso(r.submitted_at) : null,
     fullName: r.full_name,
   }))
 }

@@ -150,6 +150,7 @@ export interface EventMembersTable {
   event_id: string
   user_id: string
   joined_at: Generated<Date>
+  submitted_at: Date | null
 }
 
 export interface EventChannelsTable {
@@ -167,6 +168,7 @@ export interface EventPhotosTable {
   uploader_id: string
   url: string
   caption: string | null
+  is_final: Generated<boolean>
   created_at: Generated<Date>
 }
 

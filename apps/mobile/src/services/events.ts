@@ -1,8 +1,8 @@
-// apps/mobile/src/services/events.ts
 import { apiClient } from '../api/client';
 import type {
   Event,
   EventMember,
+  EventMemberWithName,
   CreateEventInput,
   UpdateEventInput,
   JoinEventInput,
@@ -32,5 +32,8 @@ export const eventsService = {
     apiClient.post<{ token: string }>(`/events/${id}/join-token`).then((r) => r.data),
 
   getMembers: (id: string) =>
-    apiClient.get<EventMember[]>(`/events/${id}/members`).then((r) => r.data),
+    apiClient.get<EventMemberWithName[]>(`/events/${id}/members`).then((r) => r.data),
+
+  submit: (eventId: string) =>
+    apiClient.post<EventMember>(`/events/${eventId}/submit`).then((r) => r.data),
 };
