@@ -37,7 +37,8 @@ export const add = async (req: Request, res: Response) => {
 
 export const remove = async (req: Request, res: Response) => {
   if (!req.auth) return res.status(401).json({ message: "Unauthorized" })
-  const ok = await photos.deletePhoto(req.params.photoId, req.auth.userId)
+  const isAdmin = req.auth.permissions.includes("admin")
+  const ok = await photos.deletePhoto(req.params.photoId, req.auth.userId, isAdmin)
   if (!ok) return res.status(404).json({ message: "Photo not found" })
   return res.status(204).send()
 }

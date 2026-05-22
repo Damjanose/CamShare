@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto"
-import type { Event, EventMember, CreateEventInput, UpdateEventInput } from "@camshare/types"
+import type { Event, EventMember, EventMemberWithName, CreateEventInput, UpdateEventInput } from "@camshare/types"
 import { db } from "./db.js"
 import { emitToEvent, emitToUser } from "../realtime.js"
 
@@ -222,20 +222,27 @@ export const joinEvent = async (token: string, userId: string): Promise<Event | 
   return event
 }
 
-export const listMembers = async (eventId: string, userId: string): Promise<EventMember[] | null> => {
+export const listMembers = async (eventId: string, userId: string): Promise<EventMemberWithName[] | null> => {
   const member = await isMember(eventId, userId)
   if (!member) return null
 
   const rows = await db
     .selectFrom("event_members")
-    .selectAll()
-    .where("event_id", "=", eventId)
-    .orderBy("joined_at asc")
+    .innerJoin("user_details", "user_details.user_id", "event_members.user_id")
+    .select([
+      "event_members.event_id",
+      "event_members.user_id",
+      "event_members.joined_at",
+      "user_details.full_name",
+    ])
+    .where("event_members.event_id", "=", eventId)
+    .orderBy("event_members.joined_at asc")
     .execute()
 
   return rows.map((r) => ({
     eventId: r.event_id,
     userId: r.user_id,
     joinedAt: iso(r.joined_at),
+    fullName: r.full_name,
   }))
 }

@@ -101,7 +101,7 @@ export const addPhoto = async (channelId: string, userId: string, input: AddPhot
   return photo
 }
 
-export const deletePhoto = async (photoId: string, userId: string): Promise<boolean> => {
+export const deletePhoto = async (photoId: string, userId: string, isAdmin = false): Promise<boolean> => {
   const photo = await db.selectFrom("event_photos").selectAll().where("id", "=", photoId).executeTakeFirst()
   if (!photo) return false
 
@@ -110,12 +110,12 @@ export const deletePhoto = async (photoId: string, userId: string): Promise<bool
 
   const isUploader = photo.uploader_id === userId
   let isOwner = false
-  if (!isUploader) {
+  if (!isUploader && !isAdmin) {
     const event = await db.selectFrom("events").select("owner_id").where("id", "=", eventId).executeTakeFirst()
     isOwner = !!event && event.owner_id === userId
   }
 
-  if (!isUploader && !isOwner) return false
+  if (!isUploader && !isOwner && !isAdmin) return false
 
   await db.deleteFrom("event_photos").where("id", "=", photoId).execute()
   emitToEvent(eventId, "event:photo_deleted", { photoId, channelId: photo.channel_id })
