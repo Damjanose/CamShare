@@ -24,6 +24,7 @@ import { useAuth } from '../context/AuthContext';
 import { eventsService } from '../services/events';
 import { photosService } from '../services/photos';
 import { uploadPhoto } from '../services/upload';
+import { ENV } from '../config/env';
 import type { EventPhoto } from '@camshare/types';
 
 const { width } = Dimensions.get('window');
@@ -43,8 +44,22 @@ function buildColumns(photos: EventPhoto[]): [EventPhoto[], EventPhoto[]] {
   return [left, right];
 }
 
+// Rebase photo URL onto the configured API host so localhost URLs work on physical devices
+function resolvePhotoUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const api = new URL(ENV.apiUrl);
+    parsed.protocol = api.protocol;
+    parsed.hostname = api.hostname;
+    parsed.port = api.port;
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 function photoToGalleryItem(photo: EventPhoto): GalleryItem {
-  return { id: photo.id, uri: photo.url, aspectRatio: 1, caption: photo.caption ?? undefined };
+  return { id: photo.id, uri: resolvePhotoUrl(photo.url), aspectRatio: 1, caption: photo.caption ?? undefined };
 }
 
 type Props = {
@@ -120,31 +135,46 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
   const handleUpload = async () => {
     if (limitReached || isSubmitted || !channelId) return;
 
+    const remaining =
+      maxPhotosPerUser !== null ? Math.max(0, maxPhotosPerUser - myUploadCount) : undefined;
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
       quality: 0.8,
       allowsEditing: false,
+      allowsMultipleSelection: true,
+      ...(remaining !== undefined && { selectionLimit: remaining }),
     });
 
-    if (result.canceled || !result.assets[0]) return;
-    const asset = result.assets[0];
+    if (result.canceled || result.assets.length === 0) return;
 
-    if (
-      asset.fileSize !== undefined &&
-      maxFileSizeMb !== null &&
-      asset.fileSize > maxFileSizeMb * 1024 * 1024
-    ) {
-      Alert.alert('File too large', `This photo exceeds the ${maxFileSizeMb} MB limit.`);
-      return;
+    if (maxFileSizeMb !== null) {
+      const oversized = result.assets.find(
+        (a) => a.fileSize !== undefined && a.fileSize > maxFileSizeMb * 1024 * 1024,
+      );
+      if (oversized) {
+        Alert.alert('File too large', `One or more photos exceed the ${maxFileSizeMb} MB limit.`);
+        return;
+      }
     }
 
     setIsUploading(true);
+    let failCount = 0;
     try {
-      await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channelId);
+      for (const asset of result.assets) {
+        try {
+          await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channelId);
+        } catch {
+          failCount++;
+        }
+      }
       queryClient.invalidateQueries({ queryKey: photosQueryKey });
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Something went wrong';
-      Alert.alert('Upload failed', msg);
+      if (failCount > 0) {
+        Alert.alert(
+          'Some uploads failed',
+          `${failCount} photo${failCount > 1 ? 's' : ''} could not be uploaded.`,
+        );
+      }
     } finally {
       setIsUploading(false);
     }
@@ -157,7 +187,7 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
         onPress={() => setLightboxItem(photoToGalleryItem(photo))}
         style={[styles.tile, { width: COL_WIDTH, height: COL_WIDTH }]}
       >
-        <Image source={{ uri: photo.url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+        <Image source={{ uri: resolvePhotoUrl(photo.url) }} style={StyleSheet.absoluteFill} resizeMode="cover" />
 
         {/* is_final checkmark badge */}
         <TouchableOpacity

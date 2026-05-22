@@ -46,3 +46,4 @@ pnpm-lock.yaml
 
 # Git worktrees
 .worktrees/
+apps/api/uploads/*

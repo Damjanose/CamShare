@@ -24,10 +24,10 @@ export const EventGalleryPage = () => {
   const channelId = event?.defaultChannelId ?? null
 
   const photosQuery = useQuery({
-    queryKey: ["event-submitted-photos", eventId, channelId],
+    queryKey: ["event-all-photos", eventId, channelId],
     queryFn: () =>
       apiClient.get<EventPhoto[]>(
-        `/events/${eventId}/channels/${channelId}/photos?submittedOnly=true`,
+        `/events/${eventId}/channels/${channelId}/photos`,
       ),
     enabled: !!eventId && !!channelId,
   })
@@ -156,9 +156,9 @@ export const EventGalleryPage = () => {
           ) : allPhotos.length === 0 ? (
             <div className="text-center py-24 border-2 border-dashed border-outline-variant/40 rounded-3xl">
               <Icon name="image_search" className="text-5xl text-primary mb-4 block" />
-              <p className="font-headline-md text-on-surface mb-2">No submissions yet</p>
+              <p className="font-headline-md text-on-surface mb-2">No photos yet</p>
               <p className="text-on-surface-variant">
-                Guests submit their photos via the mobile app. Check back soon.
+                Guests upload their photos via the mobile app. Check back soon.
               </p>
             </div>
           ) : (
@@ -288,6 +288,13 @@ const SelectablePhotoTile = ({
     >
       {selected && <Icon name="check" className="text-on-primary !text-sm" />}
     </div>
+
+    {/* Guest's pick badge */}
+    {photo.isFinal && (
+      <div className="absolute top-3 left-3 flex items-center gap-1 bg-primary/90 text-on-primary rounded-full px-2 py-0.5 text-[10px] font-label-md">
+        <Icon name="star" className="!text-[10px]" /> Pick
+      </div>
+    )}
 
     {/* Caption */}
     {photo.caption && (
