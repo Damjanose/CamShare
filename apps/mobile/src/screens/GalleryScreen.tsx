@@ -1,18 +1,27 @@
-import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomNav, NavTab } from '../components/navigation/BottomNav';
 import { AtmosphericBackground } from '../components/primitives/AtmosphericBackground';
-import { GalleryItem as GalleryItemComponent } from '../components/ui/GalleryItem';
 import { LightboxModal } from '../components/ui/LightboxModal';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
 import { GalleryItem } from '../data/gallery';
 import { useAuth } from '../context/AuthContext';
-import { channelsService } from '../services/channels';
+import { eventsService } from '../services/events';
 import { photosService } from '../services/photos';
 import { uploadPhoto } from '../services/upload';
 import type { EventPhoto } from '@camshare/types';
@@ -21,33 +30,21 @@ const { width } = Dimensions.get('window');
 const COL_GAP = 10;
 const COL_WIDTH = (width - Spacing.marginMain * 2 - COL_GAP) / 2;
 
-/** Distribute items into two columns using greedy column-height balancing */
-function buildColumns(items: GalleryItem[]): [GalleryItem[], GalleryItem[]] {
-  const left: GalleryItem[] = [];
-  const right: GalleryItem[] = [];
+function buildColumns(photos: EventPhoto[]): [EventPhoto[], EventPhoto[]] {
+  const left: EventPhoto[] = [];
+  const right: EventPhoto[] = [];
   let leftH = 0;
   let rightH = 0;
-
-  for (const item of items) {
-    const h = COL_WIDTH / item.aspectRatio + COL_GAP;
-    if (leftH <= rightH) {
-      left.push(item);
-      leftH += h;
-    } else {
-      right.push(item);
-      rightH += h;
-    }
+  for (const photo of photos) {
+    const h = COL_WIDTH + COL_GAP;
+    if (leftH <= rightH) { left.push(photo); leftH += h; }
+    else { right.push(photo); rightH += h; }
   }
   return [left, right];
 }
 
-function photoToItem(photo: EventPhoto): GalleryItem {
-  return {
-    id: photo.id,
-    uri: photo.url,
-    aspectRatio: 1,
-    caption: photo.caption ?? undefined,
-  };
+function photoToGalleryItem(photo: EventPhoto): GalleryItem {
+  return { id: photo.id, uri: photo.url, aspectRatio: 1, caption: photo.caption ?? undefined };
 }
 
 type Props = {
@@ -61,44 +58,67 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+
   const eventId: string = route?.params?.eventId ?? '';
   const eventTitle: string = route?.params?.eventTitle ?? 'Gallery';
   const maxPhotosPerUser: number | null = route?.params?.maxPhotosPerUser ?? null;
   const maxFileSizeMb: number | null = route?.params?.maxFileSizeMb ?? null;
+  const channelId: string | null = route?.params?.channelId ?? null;
+
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const { data: channels = [], isLoading: channelsLoading } = useQuery({
-    queryKey: ['events', eventId, 'channels'],
-    queryFn: () => channelsService.list(eventId),
+  const photosQueryKey = ['events', eventId, 'photos', 'mine', channelId];
+
+  const { data: photos = [], isLoading: photosLoading } = useQuery({
+    queryKey: photosQueryKey,
+    queryFn: () => photosService.list(eventId, channelId!, { uploaderId: user?.id }),
+    enabled: !!eventId && !!channelId && !!user?.id,
+  });
+
+  const { data: members = [] } = useQuery({
+    queryKey: ['events', eventId, 'members'],
+    queryFn: () => eventsService.getMembers(eventId),
     enabled: !!eventId,
   });
 
-  const photoQueries = useQueries({
-    queries: channels.map((channel) => ({
-      queryKey: ['events', eventId, 'channels', channel.id, 'photos'],
-      queryFn: () => photosService.list(eventId, channel.id),
-    })),
+  const myMember = members.find((m) => m.userId === user?.id);
+  const isSubmitted = !!myMember?.submittedAt;
+
+  const finalMutation = useMutation({
+    mutationFn: ({ photoId, isFinal }: { photoId: string; isFinal: boolean }) =>
+      photosService.setFinal(eventId, channelId!, photoId, isFinal),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: photosQueryKey }),
   });
 
-  const photosLoading = channelsLoading || photoQueries.some((q) => q.isLoading);
+  const submitMutation = useMutation({
+    mutationFn: () => eventsService.submit(eventId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events', eventId, 'members'] });
+    },
+  });
 
-  // Compute upload count from raw EventPhoto[] before mapping (GalleryItem lacks uploaderId)
-  const rawPhotos: EventPhoto[] = photoQueries.flatMap((q) => q.data ?? []);
-  const myUploadCount = rawPhotos.filter((p) => p.uploaderId === user?.id).length;
+  function handleSubmit() {
+    Alert.alert(
+      'Submit your photos?',
+      'You cannot change your selection after submitting.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Submit',
+          style: 'default',
+          onPress: () => submitMutation.mutate(),
+        },
+      ],
+    );
+  }
+
+  const myUploadCount = photos.length;
   const limitReached = maxPhotosPerUser !== null && myUploadCount >= maxPhotosPerUser;
-
-  const allPhotos: GalleryItem[] = rawPhotos.map(photoToItem);
-  const [leftCol, rightCol] = buildColumns(allPhotos);
+  const [leftCol, rightCol] = buildColumns(photos);
 
   const handleUpload = async () => {
-    if (limitReached) return;
-
-    const channel = channels[0];
-    if (!channel) {
-      Alert.alert('No album', 'This event has no photo album yet. Contact the event organiser.');
-      return;
-    }
+    if (limitReached || isSubmitted || !channelId) return;
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images', 'videos'],
@@ -107,23 +127,21 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
     });
 
     if (result.canceled || !result.assets[0]) return;
-
     const asset = result.assets[0];
 
-    // Client-side pre-flight size check (fileSize may be undefined on Android)
     if (
       asset.fileSize !== undefined &&
       maxFileSizeMb !== null &&
       asset.fileSize > maxFileSizeMb * 1024 * 1024
     ) {
-      Alert.alert('File too large', `This photo exceeds the ${maxFileSizeMb} MB limit for this event.`);
+      Alert.alert('File too large', `This photo exceeds the ${maxFileSizeMb} MB limit.`);
       return;
     }
 
     setIsUploading(true);
     try {
-      await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channel.id);
-      queryClient.invalidateQueries({ queryKey: ['events', eventId, 'channels', channel.id, 'photos'] });
+      await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channelId);
+      queryClient.invalidateQueries({ queryKey: photosQueryKey });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Something went wrong';
       Alert.alert('Upload failed', msg);
@@ -132,73 +150,123 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
     }
   };
 
+  const renderPhotoTile = (photo: EventPhoto) => (
+    <View key={photo.id} style={{ marginBottom: COL_GAP }}>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => setLightboxItem(photoToGalleryItem(photo))}
+        style={[styles.tile, { width: COL_WIDTH, height: COL_WIDTH }]}
+      >
+        <Image source={{ uri: photo.url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+
+        {/* is_final checkmark badge */}
+        <TouchableOpacity
+          style={[styles.checkBadge, photo.isFinal && styles.checkBadgeActive]}
+          onPress={() => {
+            if (!isSubmitted) {
+              finalMutation.mutate({ photoId: photo.id, isFinal: !photo.isFinal });
+            }
+          }}
+          disabled={isSubmitted || finalMutation.isPending}
+          hitSlop={8}
+        >
+          <Text style={styles.checkIcon}>{photo.isFinal ? '✓' : '○'}</Text>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <View style={styles.root}>
       <AtmosphericBackground />
 
-      {/* Back button + title */}
+      {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + 16 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
         <View style={styles.titleWrap}>
-          <Text style={styles.eyebrow}>GALLERY</Text>
+          <Text style={styles.eyebrow}>MY PHOTOS</Text>
           <Text style={styles.title} numberOfLines={1}>{eventTitle}</Text>
         </View>
+        {!isSubmitted ? (
+          <TouchableOpacity
+            style={styles.submitBtn}
+            onPress={handleSubmit}
+            disabled={submitMutation.isPending || photos.length === 0}
+          >
+            {submitMutation.isPending
+              ? <ActivityIndicator size="small" color={Colors.surface} />
+              : <Text style={styles.submitBtnText}>Submit</Text>}
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.submittedBadge}>
+            <Text style={styles.submittedBadgeText}>✓ Sent</Text>
+          </View>
+        )}
       </View>
+
+      {/* Event params banner */}
+      {(maxPhotosPerUser !== null || maxFileSizeMb !== null) && (
+        <View style={styles.paramsBanner}>
+          {maxPhotosPerUser !== null && (
+            <Text style={styles.paramsText}>Max {maxPhotosPerUser} photos</Text>
+          )}
+          {maxPhotosPerUser !== null && maxFileSizeMb !== null && (
+            <Text style={styles.paramsDot}>·</Text>
+          )}
+          {maxFileSizeMb !== null && (
+            <Text style={styles.paramsText}>Max {maxFileSizeMb} MB per file</Text>
+          )}
+        </View>
+      )}
+
+      {isSubmitted && (
+        <View style={styles.submittedBanner}>
+          <Text style={styles.submittedBannerText}>
+            Your selection has been submitted and is now locked.
+          </Text>
+        </View>
+      )}
 
       {photosLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.primary} size="large" />
         </View>
-      ) : allPhotos.length === 0 ? (
+      ) : !channelId ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>No photos yet</Text>
+          <Text style={styles.emptyText}>Event not yet set up. Try again shortly.</Text>
+        </View>
+      ) : photos.length === 0 ? (
+        <View style={styles.centered}>
+          <Text style={styles.emptyText}>No photos yet — tap + to upload</Text>
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={[
-            styles.content,
-            { paddingTop: 16, paddingBottom: 120 },
-          ]}
+          contentContainerStyle={[styles.content, { paddingTop: 12, paddingBottom: 120 }]}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.grid}>
             <View style={[styles.column, { width: COL_WIDTH }]}>
-              {leftCol.map((item) => (
-                <View key={item.id} style={{ marginBottom: COL_GAP }}>
-                  <GalleryItemComponent item={item} width={COL_WIDTH} onPress={setLightboxItem} />
-                </View>
-              ))}
+              {leftCol.map(renderPhotoTile)}
             </View>
             <View style={[styles.column, { width: COL_WIDTH }]}>
-              {rightCol.map((item) => (
-                <View key={item.id} style={{ marginBottom: COL_GAP }}>
-                  <GalleryItemComponent item={item} width={COL_WIDTH} onPress={setLightboxItem} />
-                </View>
-              ))}
+              {rightCol.map(renderPhotoTile)}
             </View>
           </View>
         </ScrollView>
       )}
 
-      {!!eventId && (
-        <View
-          style={[
-            styles.fabWrap,
-            { bottom: Math.max(insets.bottom, Spacing.navBottom) + Spacing.navHeight + 16 },
-          ]}
-        >
+      {/* Upload FAB */}
+      {!!eventId && !isSubmitted && (
+        <View style={[styles.fabWrap, { bottom: Math.max(insets.bottom, Spacing.navBottom) + Spacing.navHeight + 16 }]}>
           {maxPhotosPerUser !== null && (
             <Text style={styles.uploadCounter}>
-              {limitReached ? 'Limit reached' : `${myUploadCount} / ${maxPhotosPerUser} uploads`}
+              {limitReached ? 'Limit reached' : `${myUploadCount} / ${maxPhotosPerUser}`}
             </Text>
           )}
           <TouchableOpacity
-            style={[
-              styles.fab,
-              (isUploading || limitReached) && styles.fabDisabled,
-            ]}
+            style={[styles.fab, (isUploading || limitReached) && styles.fabDisabled]}
             onPress={handleUpload}
             disabled={isUploading || limitReached}
             activeOpacity={0.8}
@@ -211,22 +279,18 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
       )}
 
       <LightboxModal item={lightboxItem} onClose={() => setLightboxItem(null)} />
-
       <BottomNav active={activeTab} onPress={onTabPress} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.surface,
-  },
+  root: { flex: 1, backgroundColor: Colors.surface },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.marginMain,
-    paddingBottom: 16,
+    paddingBottom: 12,
     gap: 12,
   },
   backBtn: {
@@ -239,41 +303,78 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
   },
-  backIcon: {
-    color: Colors.onSurface,
-    fontSize: 24,
-    lineHeight: 28,
+  backIcon: { color: Colors.onSurface, fontSize: 24, lineHeight: 28 },
+  titleWrap: { flex: 1 },
+  eyebrow: { ...TextStyles.labelSm, color: Colors.primary, letterSpacing: 3 },
+  title: { ...TextStyles.headlineLgMobile, color: Colors.onSurface },
+  submitBtn: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    minWidth: 70,
+    alignItems: 'center',
   },
-  titleWrap: {
-    flex: 1,
+  submitBtnText: { ...TextStyles.labelMd, color: Colors.onPrimary },
+  submittedBadge: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
-  eyebrow: {
-    ...TextStyles.labelSm,
-    color: Colors.primary,
-    letterSpacing: 3,
-  },
-  title: {
-    ...TextStyles.headlineLgMobile,
-    color: Colors.onSurface,
-  },
-  content: {
-    paddingHorizontal: Spacing.marginMain,
-  },
-  grid: {
+  submittedBadgeText: { ...TextStyles.labelSm, color: Colors.onSurfaceVariant },
+  paramsBanner: {
     flexDirection: 'row',
-    gap: COL_GAP,
+    gap: 6,
+    paddingHorizontal: Spacing.marginMain,
+    paddingBottom: 10,
+    alignItems: 'center',
   },
-  column: {
-    flexDirection: 'column',
+  paramsText: { ...TextStyles.labelSm, color: Colors.onSurfaceVariant },
+  paramsDot: { ...TextStyles.labelSm, color: Colors.onSurfaceVariant },
+  submittedBanner: {
+    marginHorizontal: Spacing.marginMain,
+    marginBottom: 10,
+    backgroundColor: 'rgba(242,202,80,0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(242,202,80,0.3)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
-  centered: {
-    flex: 1,
+  submittedBannerText: { ...TextStyles.labelSm, color: Colors.primary, textAlign: 'center' },
+  content: { paddingHorizontal: Spacing.marginMain },
+  grid: { flexDirection: 'row', gap: COL_GAP },
+  column: { flexDirection: 'column' },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { ...TextStyles.bodyMd, color: Colors.onSurfaceVariant },
+  tile: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: Colors.surfaceContainerHigh,
+  },
+  checkBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
-  emptyText: {
-    ...TextStyles.bodyMd,
-    color: Colors.onSurfaceVariant,
+  checkBadgeActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  checkIcon: {
+    color: Colors.onSurface,
+    fontSize: 13,
+    fontWeight: '700',
   },
   fabWrap: {
     position: 'absolute',
@@ -281,11 +382,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  uploadCounter: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
-    fontSize: 11,
-  },
+  uploadCounter: { ...TextStyles.labelSm, color: Colors.onSurfaceVariant, fontSize: 11 },
   fab: {
     width: 52,
     height: 52,
@@ -299,13 +396,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  fabDisabled: {
-    opacity: 0.5,
-  },
-  fabIcon: {
-    color: Colors.surface,
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: '300',
-  },
+  fabDisabled: { opacity: 0.5 },
+  fabIcon: { color: Colors.surface, fontSize: 28, lineHeight: 32, fontWeight: '300' },
 });

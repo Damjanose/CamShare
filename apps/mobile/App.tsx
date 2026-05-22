@@ -37,26 +37,17 @@ const queryClient = new QueryClient();
 
 /** Authenticated screen stack — manages tab state centrally */
 function MainNavigator() {
-  const [activeTab, setActiveTab] = useState<NavTab>('Home');
+  const [activeTab, setActiveTab] = useState<NavTab>('Events');
 
   const handleTabPress = useCallback((tab: NavTab, navigation: any) => {
     if (tab === 'Scanner') {
       navigation.navigate('Scanner');
       return;
     }
-    if (tab === 'Gallery') {
-      navigation.navigate('Gallery', { eventTitle: 'All Photos' });
-      return;
-    }
     if (tab === 'Profile') {
       navigation.navigate('Profile');
       return;
     }
-    if (tab === 'Home') {
-      navigation.navigate('Home');
-      return;
-    }
-    // Favorites — placeholder
     navigation.navigate('Home');
   }, []);
 

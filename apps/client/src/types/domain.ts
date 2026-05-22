@@ -19,6 +19,7 @@ export type Event = {
   photoCount: number
   maxPhotosPerUser?: number | null
   maxFileSizeMb?: number | null
+  defaultChannelId: string | null
   createdAt: string
   updatedAt: string
 }
@@ -57,6 +58,7 @@ export type EventPhoto = {
   uploaderId: string
   url: string
   caption: string | null
+  isFinal: boolean
   createdAt: string
 }
 
@@ -64,5 +66,6 @@ export type EventMemberWithName = {
   eventId: string
   userId: string
   joinedAt: string
+  submittedAt: string | null
   fullName: string
 }

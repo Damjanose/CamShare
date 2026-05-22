@@ -2,7 +2,7 @@ import { create } from "zustand"
 import type { Event } from "@/types/domain"
 import { apiClient } from "@/api/client"
 
-type EventInput = Omit<Event, "id" | "guestCount" | "photoCount" | "ownerId" | "createdAt" | "updatedAt" | "isActive">
+type EventInput = Omit<Event, "id" | "guestCount" | "photoCount" | "ownerId" | "createdAt" | "updatedAt" | "isActive" | "defaultChannelId">
 
 type EventsState = {
   events: Event[]

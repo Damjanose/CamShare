@@ -81,6 +81,9 @@ app.delete("/events/:eventId/channels/:channelId", requireAuth, eventChannelHand
 app.get("/events/:eventId/channels/:channelId/photos", requireAuth, eventPhotoHandlers.list)
 app.post("/events/:eventId/channels/:channelId/photos", requireAuth, eventPhotoHandlers.add)
 app.delete("/events/:eventId/channels/:channelId/photos/:photoId", requireAuth, eventPhotoHandlers.remove)
+app.patch("/events/:eventId/channels/:channelId/photos/:photoId/final", requireAuth, eventPhotoHandlers.setFinal)
+app.post("/events/:eventId/submit", requireAuth, eventPhotoHandlers.submit)
+app.post("/events/:eventId/download", requireAuth, eventPhotoHandlers.download)
 
 const httpServer = createServer(app)
 attachSocket(httpServer)
