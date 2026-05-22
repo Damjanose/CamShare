@@ -66,7 +66,11 @@ export const addPhoto = async (channelId: string, userId: string, input: AddPhot
     .where("id", "=", eventId)
     .executeTakeFirst()
 
-  if (eventRow?.max_photos_per_user !== null && eventRow?.max_photos_per_user !== undefined) {
+  if (!eventRow) return null
+
+  // Count check and insert below are not atomic — a small race window exists
+  // for concurrent uploads by the same user. Acceptable for current use case.
+  if (eventRow.max_photos_per_user !== null) {
     const countRow = await db
       .selectFrom("event_photos")
       .innerJoin("event_channels", "event_channels.id", "event_photos.channel_id")
