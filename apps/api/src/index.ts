@@ -61,7 +61,7 @@ app.get("/notifications", requireAuth, notificationHandlers.list)
 app.patch("/notifications/:id/read", requireAuth, notificationHandlers.markRead)
 app.post("/notifications/read-all", requireAuth, notificationHandlers.markAllRead)
 
-app.post("/upload", requireAuth, uploadHandlers.uploadMiddleware, uploadHandlers.handleUpload)
+app.post("/upload", requireAuth, uploadHandlers.eventUploadMiddleware, uploadHandlers.handleUpload)
 
 // Events — POST /events/join must come before GET /events/:eventId
 app.post("/events", requireAuth, eventHandlers.create)
