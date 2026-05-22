@@ -181,6 +181,8 @@ export type Event = {
   isActive: boolean
   guestCount: number
   photoCount: number
+  maxPhotosPerUser: number | null
+  maxFileSizeMb: number | null
   createdAt: string
   updatedAt: string
 }
@@ -209,12 +211,16 @@ export type EventMember = {
   joinedAt: string
 }
 
+export type EventMemberWithName = EventMember & { fullName: string }
+
 export type CreateEventInput = {
   title: string
   description?: string
   eventDate?: string
   endDate?: string
   coverImageUrl?: string
+  maxPhotosPerUser?: number
+  maxFileSizeMb?: number
 }
 
 export type UpdateEventInput = Partial<CreateEventInput & { isActive: boolean }>

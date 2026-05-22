@@ -132,6 +132,8 @@ export interface EventsTable {
   end_date: Date | null
   cover_image_url: string | null
   is_active: Generated<boolean>
+  max_photos_per_user: number | null
+  max_file_size_mb: number | null
   created_at: Generated<Date>
   updated_at: Generated<Date>
 }
