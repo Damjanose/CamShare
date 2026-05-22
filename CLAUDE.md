@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Jewellery e-commerce monorepo with a React (Vite) client, Express + TypeScript API, PostgreSQL (via Kysely ORM), and Socket.IO for realtime order/notification updates.
+CamShare — event photo-sharing monorepo with a React (Vite) client, Express + TypeScript API, PostgreSQL (via Kysely ORM), and Socket.IO for realtime updates.
 
 **Package manager: pnpm 10+**
 
@@ -21,19 +21,19 @@ pnpm typecheck        # typecheck all workspaces
 
 ### API only (`apps/api`)
 ```bash
-pnpm --filter @jewellery/api dev          # tsx watch src/index.ts
-pnpm --filter @jewellery/api build        # tsc compile
-pnpm --filter @jewellery/api typecheck
-pnpm --filter @jewellery/api db:migrate   # run SQL migrations
-pnpm --filter @jewellery/api db:seed      # seed default data (admin user etc.)
+pnpm --filter @camshare/api dev          # tsx watch src/index.ts
+pnpm --filter @camshare/api build        # tsc compile
+pnpm --filter @camshare/api typecheck
+pnpm --filter @camshare/api db:migrate   # run SQL migrations
+pnpm --filter @camshare/api db:seed      # seed default data (admin user etc.)
 ```
 
 ### Client only (`apps/client`)
 ```bash
-pnpm --filter @jewellery/client dev       # vite dev server
-pnpm --filter @jewellery/client build     # tsc + vite build
-pnpm --filter @jewellery/client test      # vitest run
-pnpm --filter @jewellery/client typecheck
+pnpm --filter @camshare/client dev       # vite dev server
+pnpm --filter @camshare/client build     # tsc + vite build
+pnpm --filter @camshare/client test      # vitest run
+pnpm --filter @camshare/client typecheck
 ```
 
 ### Database
