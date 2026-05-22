@@ -16,6 +16,8 @@ const mapEvent = (row: {
   is_active: boolean
   created_at: Date
   updated_at: Date
+  max_photos_per_user?: number | null
+  max_file_size_mb?: number | null
   guest_count?: string | null
   photo_count?: string | null
 }): Event => ({
@@ -29,6 +31,8 @@ const mapEvent = (row: {
   isActive: row.is_active,
   guestCount: Number(row.guest_count ?? 0),
   photoCount: Number(row.photo_count ?? 0),
+  maxPhotosPerUser: row.max_photos_per_user ?? null,
+  maxFileSizeMb: row.max_file_size_mb ?? null,
   createdAt: iso(row.created_at),
   updatedAt: iso(row.updated_at),
 })
@@ -74,6 +78,8 @@ export const createEvent = async (ownerId: string, input: CreateEventInput): Pro
         event_date: input.eventDate ? new Date(input.eventDate) : null,
         end_date: input.endDate ? new Date(input.endDate) : null,
         cover_image_url: input.coverImageUrl ?? null,
+        max_photos_per_user: input.maxPhotosPerUser ?? null,
+        max_file_size_mb: input.maxFileSizeMb ?? null,
       })
       .returningAll()
       .executeTakeFirstOrThrow()
@@ -147,6 +153,8 @@ export const updateEvent = async (
       ...(input.endDate !== undefined && { end_date: input.endDate ? new Date(input.endDate) : null }),
       ...(input.coverImageUrl !== undefined && { cover_image_url: input.coverImageUrl }),
       ...(input.isActive !== undefined && { is_active: input.isActive }),
+      ...(input.maxPhotosPerUser !== undefined && { max_photos_per_user: input.maxPhotosPerUser }),
+      ...(input.maxFileSizeMb !== undefined && { max_file_size_mb: input.maxFileSizeMb }),
       updated_at: new Date(),
     })
     .where("id", "=", eventId)

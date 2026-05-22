@@ -8,6 +8,8 @@ const createSchema = z.object({
   eventDate: z.string().optional(),
   endDate: z.string().optional(),
   coverImageUrl: z.string().url().optional(),
+  maxPhotosPerUser: z.number().int().positive().optional(),
+  maxFileSizeMb: z.number().int().positive().optional(),
 })
 
 const updateSchema = createSchema.partial().extend({
