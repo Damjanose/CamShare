@@ -35,17 +35,21 @@ export const eventUploadMiddleware: RequestHandler = async (req, res, next) => {
   let limitBytes = 10 * 1024 * 1024 // default 10 MB
 
   if (eventId) {
-    const event = await db
-      .selectFrom("events")
-      .select("max_file_size_mb")
-      .where("id", "=", eventId)
-      .executeTakeFirst()
+    try {
+      const event = await db
+        .selectFrom("events")
+        .select("max_file_size_mb")
+        .where("id", "=", eventId)
+        .executeTakeFirst()
 
-    if (event !== undefined) {
-      // null means unlimited — use 100 MB ceiling
-      limitBytes = event.max_file_size_mb !== null
-        ? event.max_file_size_mb * 1024 * 1024
-        : 100 * 1024 * 1024
+      if (event !== undefined) {
+        // null means unlimited — use 100 MB ceiling
+        limitBytes = event.max_file_size_mb !== null
+          ? event.max_file_size_mb * 1024 * 1024
+          : 100 * 1024 * 1024
+      }
+    } catch (err) {
+      return next(err)
     }
   }
 
