@@ -52,12 +52,33 @@ export const listPhotos = async (channelId: string, userId: string): Promise<Eve
   return rows.map(mapPhoto)
 }
 
-export const addPhoto = async (channelId: string, userId: string, input: AddPhotoInput): Promise<EventPhoto | null> => {
+export const addPhoto = async (channelId: string, userId: string, input: AddPhotoInput): Promise<EventPhoto | null | "LIMIT_REACHED"> => {
   const eventId = await getChannelEventId(channelId)
   if (!eventId) return null
 
   const member = await isMember(eventId, userId)
   if (!member) return null
+
+  // Check per-user photo limit
+  const eventRow = await db
+    .selectFrom("events")
+    .select("max_photos_per_user")
+    .where("id", "=", eventId)
+    .executeTakeFirst()
+
+  if (eventRow?.max_photos_per_user !== null && eventRow?.max_photos_per_user !== undefined) {
+    const countRow = await db
+      .selectFrom("event_photos")
+      .innerJoin("event_channels", "event_channels.id", "event_photos.channel_id")
+      .select(db.fn.countAll<string>().as("cnt"))
+      .where("event_channels.event_id", "=", eventId)
+      .where("event_photos.uploader_id", "=", userId)
+      .executeTakeFirstOrThrow()
+
+    if (Number(countRow.cnt) >= eventRow.max_photos_per_user) {
+      return "LIMIT_REACHED"
+    }
+  }
 
   const row = await db
     .insertInto("event_photos")

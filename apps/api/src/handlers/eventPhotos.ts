@@ -27,6 +27,7 @@ export const add = async (req: Request, res: Response) => {
   try {
     const input = addSchema.parse(req.body)
     const photo = await photos.addPhoto(req.params.channelId, req.auth.userId, input)
+    if (photo === "LIMIT_REACHED") return res.status(429).json({ message: "Upload limit reached" })
     if (!photo) return res.status(403).json({ message: "Forbidden" })
     return res.status(201).json(photo)
   } catch (error) {
