@@ -43,3 +43,6 @@ apps/mobile/ios/
 # Coverage
 coverage/
 pnpm-lock.yaml
+
+# Git worktrees
+.worktrees/
