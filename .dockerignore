@@ -1,0 +1,16 @@
+.git
+.worktrees
+node_modules
+.pnpm-store
+*.log
+.DS_Store
+certbot
+
+# Exclude mobile source but keep its package.json (needed by pnpm workspace)
+apps/mobile
+!apps/mobile/package.json
+
+# Build outputs (built fresh inside Docker)
+apps/*/dist
+apps/*/build
+packages/*/dist
