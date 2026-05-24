@@ -10,14 +10,6 @@ type SidebarItem = {
   end?: boolean
 }
 
-const items: SidebarItem[] = [
-  { to: "/dashboard", label: "Memories", icon: "auto_awesome", end: true },
-  { to: "/events", label: "Collections", icon: "collections" },
-  { to: "/shared", label: "Shared", icon: "group" },
-  { to: "/analytics", label: "Analytics", icon: "analytics" },
-  { to: "/archive", label: "Archive", icon: "inventory_2" },
-]
-
 type Props = {
   isOpen: boolean
   onToggle: () => void
@@ -25,6 +17,15 @@ type Props = {
 
 export const SidebarNav = ({ isOpen, onToggle }: Props) => {
   const { user } = useAuth()
+
+  const items: SidebarItem[] = [
+    { to: "/dashboard", label: "Memories", icon: "auto_awesome", end: true },
+    { to: "/events", label: "Collections", icon: "collections" },
+    { to: "/shared", label: "Shared", icon: "group" },
+    { to: "/analytics", label: "Analytics", icon: "analytics" },
+    { to: "/archive", label: "Archive", icon: "inventory_2" },
+    ...(user?.isAdmin ? [{ to: "/admin/users", label: "Users", icon: "person_search" }] : []),
+  ]
 
   return (
     <>

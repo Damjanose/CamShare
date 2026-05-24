@@ -19,6 +19,7 @@ const mockUser = (): User => ({
   email: "alice@example.com",
   avatarUrl: null,
   tier: "Free",
+  isAdmin: false,
 })
 
 describe("authStore.updateUser", () => {
@@ -52,5 +53,43 @@ describe("authStore.updateUser", () => {
     useAuthStore.setState({ user: null })
     useAuthStore.getState().updateUser({ fullName: "Ghost" })
     expect(useAuthStore.getState().user).toBeNull()
+  })
+
+  it("preserves isAdmin across updateUser patch", () => {
+    useAuthStore.setState({ user: { ...mockUser(), isAdmin: true } })
+    useAuthStore.getState().updateUser({ fullName: "Bob" })
+    expect(useAuthStore.getState().user?.isAdmin).toBe(true)
+  })
+
+})
+
+describe("toWebUser via login", () => {
+  beforeEach(async () => {
+    const { apiClient } = await import("@/api/client")
+    vi.mocked(apiClient.post).mockResolvedValue({
+      user: { id: "u1", fullName: "Alice", email: "a@b.com", avatarUrl: null, permissions: [] },
+      tokens: { accessToken: "at", refreshToken: "rt" },
+    })
+    useAuthStore.setState({ user: null, accessToken: null, sessionReady: false })
+  })
+
+  afterEach(() => {
+    useAuthStore.setState({ user: null, accessToken: null, sessionReady: false })
+    localStorage.clear()
+  })
+
+  it("sets isAdmin false when permissions does not include admin", async () => {
+    await useAuthStore.getState().login("a@b.com", "pw")
+    expect(useAuthStore.getState().user?.isAdmin).toBe(false)
+  })
+
+  it("sets isAdmin true when permissions includes admin", async () => {
+    const { apiClient } = await import("@/api/client")
+    vi.mocked(apiClient.post).mockResolvedValueOnce({
+      user: { id: "u1", fullName: "Alice", email: "a@b.com", avatarUrl: null, permissions: ["admin"] },
+      tokens: { accessToken: "at", refreshToken: "rt" },
+    })
+    await useAuthStore.getState().login("a@b.com", "pw")
+    expect(useAuthStore.getState().user?.isAdmin).toBe(true)
   })
 })

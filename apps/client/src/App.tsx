@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { ScrollToTop } from "@/components/ScrollToTop"
 import { AppShell } from "@/components/layout/AppShell"
 import { ProtectedRoute } from "@/auth/ProtectedRoute"
+import { AdminRoute } from "@/auth/AdminRoute"
+import { UsersPage } from "@/pages/UsersPage"
 import { LandingPage } from "@/pages/LandingPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { RegisterPage } from "@/pages/RegisterPage"
@@ -46,6 +48,7 @@ export const App = () => {
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/archive" element={<ArchivePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/admin/users" element={<AdminRoute><UsersPage /></AdminRoute>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

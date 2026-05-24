@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { User } from "@/types/domain"
+import type { PermissionName } from "@camshare/types"
 import { apiClient, setTokens, clearTokens } from "@/api/client"
 
 const STORAGE_KEY = "aeterna_session_user"
@@ -7,7 +8,13 @@ const REFRESH_KEY = "camshare_refresh_token"
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3001"
 
 type ApiAuthResponse = {
-  user: { id: string; fullName: string; email: string; avatarUrl: string | null }
+  user: {
+    id: string
+    fullName: string
+    email: string
+    avatarUrl: string | null
+    permissions: PermissionName[]
+  }
   tokens: { accessToken: string; refreshToken: string }
 }
 
@@ -17,6 +24,7 @@ const toWebUser = (u: ApiAuthResponse["user"]): User => ({
   email: u.email,
   avatarUrl: u.avatarUrl,
   tier: "Free",
+  isAdmin: u.permissions.includes("admin"),
 })
 
 const loadUser = (): User | null => {
@@ -50,7 +58,7 @@ type AuthState = {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: loadUser(),
+  user: loadUser(), // stale isAdmin is safe: AuthProvider blocks renders until sessionReady (bootstrap overwrites this)
   accessToken: null,
   sessionReady: false,
   bootstrap: async () => {

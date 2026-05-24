@@ -4,6 +4,7 @@ export type User = {
   email: string
   avatarUrl: string | null
   tier: "Free" | "Premium Member"
+  isAdmin: boolean
 }
 
 export type Event = {
