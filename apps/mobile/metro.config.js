@@ -6,7 +6,11 @@ const monorepoRoot = path.resolve(projectRoot, '../..');
 
 const config = getDefaultConfig(projectRoot);
 
-// Allow Metro to follow pnpm symlinks that resolve into the monorepo root's node_modules
 config.watchFolders = [projectRoot, monorepoRoot];
+
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(monorepoRoot, 'node_modules'),
+];
 
 module.exports = config;

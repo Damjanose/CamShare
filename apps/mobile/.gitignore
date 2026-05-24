@@ -38,6 +38,9 @@ yarn-error.*
 # Google Play credentials
 google-play-service-account.json
 
+# App Store Connect API key
+asc-api-key.p8
+
 # typescript
 *.tsbuildinfo
 

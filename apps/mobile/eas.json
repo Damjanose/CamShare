@@ -41,9 +41,11 @@
         "track": "internal"
       },
       "ios": {
-        "appleId": "gpskosove@gmail.com",
+        "appleTeamId": "R72R8C56GK",
         "ascAppId": "6772641876",
-        "appleTeamId": "R72R8C56GK"
+        "ascApiKeyPath": "./asc-api-key.p8",
+        "ascApiKeyIssuerId": "5da0a6a2-b466-4baf-9a1d-1d5cef51ab3e",
+        "ascApiKeyId": "P8G7R9G63H"
       }
     }
   }
