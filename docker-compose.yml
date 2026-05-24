@@ -19,34 +19,11 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       NODE_ENV: production
       PORT: 3001
+    ports:
+      - "3001:3001"
     depends_on:
       - postgres
     restart: unless-stopped
-
-  nginx:
-    build:
-      context: .
-      dockerfile: nginx/Dockerfile
-      args:
-        VITE_API_URL: https://camshare.uplisoft.com/api
-        VITE_SOCKET_URL: https://camshare.uplisoft.com
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - api
-    restart: unless-stopped
-
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    # Auto-renew every 12 hours
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   pgdata:
