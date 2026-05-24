@@ -76,12 +76,17 @@ export const logout = async (req: Request, res: Response) => {
   return res.status(204).send()
 }
 
+const deleteAccountSchema = z.object({
+  password: z.string().min(1),
+})
+
 export const deleteAccount = async (req: Request, res: Response) => {
   if (!req.auth) {
     return res.status(401).json({ message: "Unauthorized" })
   }
   try {
-    await authService.deleteAccount(req.auth.userId)
+    const { password } = deleteAccountSchema.parse(req.body)
+    await authService.deleteAccount(req.auth.userId, password)
     return res.status(204).send()
   } catch (error) {
     return handleError(res, error)
@@ -125,6 +130,10 @@ const handleError = (res: Response, error: unknown) => {
   }
 
   if (error instanceof Error && error.message === "Invalid current password") {
+    return res.status(422).json({ message: error.message })
+  }
+
+  if (error instanceof Error && error.message === "Invalid password") {
     return res.status(422).json({ message: error.message })
   }
 

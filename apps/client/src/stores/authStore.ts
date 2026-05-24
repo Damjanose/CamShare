@@ -45,6 +45,7 @@ type AuthState = {
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
   logout: () => void
+  deleteAccount: (password: string) => Promise<void>
   updateUser: (patch: Partial<User>) => void
 }
 
@@ -97,6 +98,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     return user
   },
   logout: () => {
+    clearTokens()
+    persistUser(null)
+    set({ user: null, accessToken: null })
+  },
+  deleteAccount: async (password) => {
+    await apiClient.delete("/account", { password })
     clearTokens()
     persistUser(null)
     set({ user: null, accessToken: null })

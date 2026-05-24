@@ -208,7 +208,16 @@ export const logout = async (sessionId: string) => {
   await db.updateTable("auth_sessions").set({ revoked_at: new Date() }).where("id", "=", sessionId).execute()
 }
 
-export const deleteAccount = async (userId: string) => {
+export const deleteAccount = async (userId: string, password: string) => {
+  const user = await db
+    .selectFrom("users")
+    .select("password_hash")
+    .where("id", "=", userId)
+    .executeTakeFirstOrThrow()
+
+  const valid = await bcrypt.compare(password, user.password_hash)
+  if (!valid) throw new Error("Invalid password")
+
   await db.updateTable("users").set({ deleted_at: new Date() }).where("id", "=", userId).execute()
   await db
     .updateTable("auth_sessions")

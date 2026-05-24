@@ -17,6 +17,7 @@ import { SharedPage } from "@/pages/SharedPage"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { ArchivePage } from "@/pages/ArchivePage"
 import { ProfilePage } from "@/pages/ProfilePage"
+import { DeleteAccountPage } from "@/pages/DeleteAccountPage"
 
 export const App = () => {
   return (
@@ -46,6 +47,7 @@ export const App = () => {
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/archive" element={<ArchivePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/account/delete" element={<DeleteAccountPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

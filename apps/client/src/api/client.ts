@@ -87,6 +87,6 @@ export const apiClient = {
   get: <T>(path: string) => doRequest<T>("GET", path),
   post: <T>(path: string, body?: unknown) => doRequest<T>("POST", path, body),
   patch: <T>(path: string, body?: unknown) => doRequest<T>("PATCH", path, body),
-  delete: <T>(path: string) => doRequest<T>("DELETE", path),
+  delete: <T>(path: string, body?: unknown) => doRequest<T>("DELETE", path, body),
   upload: <T>(path: string, formData: FormData) => doUpload<T>(path, formData),
 }

@@ -1,4 +1,5 @@
 import { type FormEvent, useRef, useState } from "react"
+import { Link } from "react-router-dom"
 import { GlassPanel } from "@/components/primitives/GlassPanel"
 import { Button } from "@/components/primitives/Button"
 import { Icon } from "@/components/primitives/Icon"
@@ -241,6 +242,25 @@ export const ProfilePage = () => {
             {passLoading ? "Updating…" : "Change Password"}
           </Button>
         </form>
+      </GlassPanel>
+
+      {/* Danger Zone */}
+      <GlassPanel className="p-8 mt-6 border border-error/20">
+        <div className="flex items-center gap-3 mb-4 text-error">
+          <Icon name="warning" />
+          <h2 className="font-headline-md text-headline-md">Danger Zone</h2>
+        </div>
+        <p className="font-body-md text-body-md text-on-surface-variant mb-6">
+          Deleting your account will deactivate it immediately. You have 30 days to log back in and
+          recover it before it is permanently removed.
+        </p>
+        <Link to="/account/delete">
+          <Button
+            className="bg-error text-on-error shadow-lg shadow-error/30 hover:shadow-xl hover:shadow-error/40"
+          >
+            Delete Account
+          </Button>
+        </Link>
       </GlassPanel>
 
       <AvatarPreviewModal
