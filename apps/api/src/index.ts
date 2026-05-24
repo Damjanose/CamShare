@@ -13,6 +13,7 @@ import * as eventHandlers from "./handlers/events.js"
 import * as eventChannelHandlers from "./handlers/eventChannels.js"
 import * as eventPhotoHandlers from "./handlers/eventPhotos.js"
 import * as uploadHandlers from "./handlers/upload.js"
+import * as adminHandlers from "./handlers/admin.js"
 import { requireAuth, requirePermission } from "./middleware/auth.js"
 import { attachSocket } from "./socketServer.js"
 
@@ -60,6 +61,8 @@ app.patch("/orders/:id/status", requireAuth, requirePermission("order.write"), o
 app.get("/notifications", requireAuth, notificationHandlers.list)
 app.patch("/notifications/:id/read", requireAuth, notificationHandlers.markRead)
 app.post("/notifications/read-all", requireAuth, notificationHandlers.markAllRead)
+
+app.get("/admin/users", requireAuth, requirePermission("admin"), adminHandlers.listUsers)
 
 app.post("/upload", requireAuth, uploadHandlers.eventUploadMiddleware, uploadHandlers.handleUpload)
 
