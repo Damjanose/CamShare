@@ -28,6 +28,9 @@
       },
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
       }
     }
   },
@@ -36,6 +39,11 @@
       "android": {
         "serviceAccountKeyPath": "./google-play-service-account.json",
         "track": "internal"
+      },
+      "ios": {
+        "appleId": "gpskosove@gmail.com",
+        "ascAppId": "6772641876",
+        "appleTeamId": "R72R8C56GK"
       }
     }
   }

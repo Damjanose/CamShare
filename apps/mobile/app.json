@@ -15,7 +15,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.damjano.camshare"
+      "bundleIdentifier": "com.damjano.camshare",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "CamShare needs microphone access to record video memories at events.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
