@@ -1,5 +1,5 @@
 import { type FormEvent, useRef, useState } from "react"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { GlassPanel } from "@/components/primitives/GlassPanel"
 import { Button } from "@/components/primitives/Button"
 import { Icon } from "@/components/primitives/Icon"
@@ -10,8 +10,10 @@ import { apiClient } from "@/api/client"
 import { AvatarPreviewModal } from "@/components/profile/AvatarPreviewModal"
 
 export const ProfilePage = () => {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const updateUser = useAuthStore((s) => s.updateUser)
+  const deleteAccount = useAuthStore((s) => s.deleteAccount)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [fullName, setFullName] = useState(user?.fullName ?? "")
@@ -29,6 +31,11 @@ export const ProfilePage = () => {
   const [passLoading, setPassLoading] = useState(false)
   const [passError, setPassError] = useState<string | null>(null)
   const [passSuccess, setPassSuccess] = useState(false)
+
+  const [deleteExpanded, setDeleteExpanded] = useState(false)
+  const [deletePassword, setDeletePassword] = useState("")
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const passwordMismatch =
     newPassword.length > 0 && confirmPassword.length > 0 && newPassword !== confirmPassword
@@ -82,6 +89,20 @@ export const ProfilePage = () => {
       setPassError(err instanceof Error ? err.message : "Something went wrong")
     } finally {
       setPassLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!deletePassword) return
+    setDeleteLoading(true)
+    setDeleteError(null)
+    try {
+      await deleteAccount(deletePassword)
+      navigate("/", { replace: true })
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Something went wrong")
+      setDeleteLoading(false)
     }
   }
 
@@ -254,13 +275,72 @@ export const ProfilePage = () => {
           Deleting your account will deactivate it immediately. You have 30 days to log back in and
           recover it before it is permanently removed.
         </p>
-        <Link to="/account/delete">
+
+        {!deleteExpanded ? (
           <Button
+            type="button"
+            onClick={() => setDeleteExpanded(true)}
             className="bg-error text-on-error shadow-lg shadow-error/30 hover:shadow-xl hover:shadow-error/40"
           >
             Delete Account
           </Button>
-        </Link>
+        ) : (
+          <>
+            <ul className="space-y-3 mb-8">
+              {[
+                "Your account will be deactivated immediately and you will be logged out.",
+                "You have 30 days to log back in and reactivate your account — everything will be restored.",
+                "If you do not log in within 30 days, your account and all associated data will be permanently deleted.",
+                "Permanent deletion cannot be undone.",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <Icon name="info" className="text-base text-on-surface-variant mt-0.5 shrink-0" />
+                  <span className="font-body-md text-body-md text-on-surface-variant">{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="h-px bg-outline-variant/40 mb-8" />
+
+            <form onSubmit={handleDeleteAccount} className="space-y-6">
+              <div>
+                <p className="font-label-md text-label-md text-on-surface-variant mb-4">
+                  Enter your password to confirm you want to delete your account.
+                </p>
+                <PasswordInput
+                  label="Current Password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+
+              {deleteError && (
+                <div className="px-4 py-3 rounded-xl bg-error/10 border border-error/20 text-error font-label-md text-sm">
+                  {deleteError}
+                </div>
+              )}
+
+              <div className="flex items-center gap-4">
+                <Button
+                  type="submit"
+                  disabled={deleteLoading || !deletePassword}
+                  className="bg-error text-on-error shadow-lg shadow-error/30 hover:shadow-xl hover:shadow-error/40"
+                >
+                  {deleteLoading ? "Deleting…" : "Delete My Account"}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => { setDeleteExpanded(false); setDeletePassword(""); setDeleteError(null) }}
+                  className="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </>
+        )}
       </GlassPanel>
 
       <AvatarPreviewModal
