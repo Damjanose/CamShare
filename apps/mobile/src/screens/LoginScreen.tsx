@@ -141,7 +141,7 @@ export function LoginScreen({ navigation }: Props) {
         </TouchableOpacity>
 
         {/* Optional social login */}
-        <View style={styles.optionalRow}>
+        {/* <View style={styles.optionalRow}>
           <View style={styles.dividerLine} />
           <Text style={styles.optionalLabel}>optional</Text>
           <View style={styles.dividerLine} />
@@ -165,7 +165,7 @@ export function LoginScreen({ navigation }: Props) {
             <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
             <Text style={styles.socialLabel}>Apple</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <Text style={styles.terms}>
           By continuing, you agree to our{' '}
