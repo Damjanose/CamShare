@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.damjano.camshare",
       "infoPlist": {
+        "NSCameraUsageDescription": "CamShare needs camera access to scan event QR codes.",
         "NSMicrophoneUsageDescription": "CamShare needs microphone access to record video memories at events.",
         "ITSAppUsesNonExemptEncryption": false
       }

@@ -55,12 +55,12 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
   };
 
   const settings: SettingRow[] = [
-    { label: 'Notifications', value: 'On' },
-    { label: 'Download Quality', value: 'High Res' },
-    { label: 'Privacy', value: 'Private' },
-    { label: 'Help & Support' },
-    { label: 'Sign Out', onPress: logout, destructive: true },
+    // { label: 'Notifications', value: 'On' },
+    // { label: 'Download Quality', value: 'High Res' },
+    // { label: 'Privacy', value: 'Private' },
+    // { label: 'Help & Support' },
     { label: 'Delete Account', onPress: handleDeleteAccount, destructive: true },
+    { label: 'Sign Out', onPress: logout, destructive: true },
   ];
 
   const legalRows: SettingRow[] = [
@@ -111,7 +111,28 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
         </View>
 
         {/* Settings list */}
-        <Text style={styles.sectionLabel}>SETTINGS</Text>
+        <Text style={styles.sectionLabel}>LEGAL</Text>
+        <GlassCard padding={0} style={styles.settingsCard}>
+         {legalRows.map((row, i) => (
+            <TouchableOpacity
+              key={row.label}
+              onPress={row.onPress}
+              activeOpacity={0.7}
+              style={[
+                styles.settingRow,
+                i < legalRows.length - 1 && styles.settingBorder,
+              ]}
+            >
+              <Text style={styles.settingLabel}>{row.label}</Text>
+              <Text style={styles.chevron}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </GlassCard>
+
+
+
+        {/* Legal & About */}
+        <Text style={[styles.sectionLabel, { marginTop: 24 }]}>Account</Text>
         <GlassCard padding={0} style={styles.settingsCard}>
           {settings.map((row, i) => {
             const isDeleteRow = row.label === 'Delete Account';
@@ -138,25 +159,6 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
             </TouchableOpacity>
             );
           })}
-        </GlassCard>
-
-        {/* Legal & About */}
-        <Text style={[styles.sectionLabel, { marginTop: 24 }]}>LEGAL</Text>
-        <GlassCard padding={0} style={styles.settingsCard}>
-          {legalRows.map((row, i) => (
-            <TouchableOpacity
-              key={row.label}
-              onPress={row.onPress}
-              activeOpacity={0.7}
-              style={[
-                styles.settingRow,
-                i < legalRows.length - 1 && styles.settingBorder,
-              ]}
-            >
-              <Text style={styles.settingLabel}>{row.label}</Text>
-              <Text style={styles.chevron}>›</Text>
-            </TouchableOpacity>
-          ))}
         </GlassCard>
       </ScrollView>
 

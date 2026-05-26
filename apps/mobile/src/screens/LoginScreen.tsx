@@ -4,7 +4,10 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -58,6 +61,16 @@ export function LoginScreen({ navigation }: Props) {
   return (
     <View style={styles.root}>
       <AtmosphericBackground />
+
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
 
       {/* Brand cluster */}
       <View style={[styles.brandCluster, { paddingTop: insets.top + 40 }]}>
@@ -196,6 +209,9 @@ export function LoginScreen({ navigation }: Props) {
         </View>
       </View>
 
+        </ScrollView>
+      </KeyboardAvoidingView>
+
       <Snackbar message={serverError} onDismiss={() => setServerError(null)} />
     </View>
   );
@@ -205,6 +221,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.surface,
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   brandCluster: {
     flex: 1,

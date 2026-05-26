@@ -3,7 +3,10 @@ import { useFormik } from 'formik';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Linking,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -76,19 +79,28 @@ export function RegisterScreen({ navigation }: Props) {
         <Ionicons name="arrow-back" size={20} color={Colors.onSurfaceVariant} />
       </TouchableOpacity>
 
-      {/* Brand cluster */}
-      <View style={[styles.brandCluster, { paddingTop: insets.top + 64 }]}>
-        <View style={styles.sparkleBadge}>
-          <Text style={styles.sparkle}>✦</Text>
-        </View>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>
-          Join and start preserving your event memories.
-        </Text>
-      </View>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Brand cluster */}
+          <View style={[styles.brandCluster, { paddingTop: insets.top + 64 }]}>
+            <View style={styles.sparkleBadge}>
+              <Text style={styles.sparkle}>✦</Text>
+            </View>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>
+              Join and start preserving your event memories.
+            </Text>
+          </View>
 
-      {/* Form */}
-      <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
+          {/* Form */}
+          <View style={[styles.ctaSection, { paddingBottom: insets.bottom + 32 }]}>
         {/* Full Name field */}
         <View style={styles.fieldGroup}>
           <View style={[styles.inputCard, formik.touched.fullName && !!formik.errors.fullName && styles.inputCardError]}>
@@ -217,7 +229,9 @@ export function RegisterScreen({ navigation }: Props) {
           </Text>
           .
         </Text>
-      </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <Snackbar message={serverError} onDismiss={() => setServerError(null)} />
     </View>
@@ -228,6 +242,12 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.surface,
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   backButton: {
     position: 'absolute',

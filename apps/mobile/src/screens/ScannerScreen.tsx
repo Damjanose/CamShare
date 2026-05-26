@@ -42,8 +42,15 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
 
   const joinMutation = useMutation<Event, Error, string>({
     mutationFn: (token) => eventsService.join({ token }),
-    onSuccess: () => {
+    onSuccess: (event) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
+      navigation.navigate('Gallery', {
+        eventId: event.id,
+        eventTitle: event.title,
+        maxPhotosPerUser: event.maxPhotosPerUser ?? null,
+        maxFileSizeMb: event.maxFileSizeMb ?? null,
+        channelId: event.defaultChannelId ?? null,
+      });
     },
   });
 
@@ -162,7 +169,6 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
       <CameraView
         style={StyleSheet.absoluteFill}
         facing="back"
-        mode="picture"
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
         onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
       />
@@ -190,38 +196,7 @@ export function ScannerScreen({ navigation, activeTab, onTabPress }: Props) {
           </GlassCard>
         )}
 
-        {joinMutation.isSuccess && (
-          <GlassCard style={styles.resultCard}>
-            <Text style={styles.resultLabel}>JOINED</Text>
-            <Text style={styles.resultText}>{joinMutation.data.title}</Text>
-            {(joinMutation.data.maxPhotosPerUser !== null || joinMutation.data.maxFileSizeMb !== null) && (
-              <Text style={styles.eventParams}>
-                {[
-                  joinMutation.data.maxPhotosPerUser !== null && `Max ${joinMutation.data.maxPhotosPerUser} photos`,
-                  joinMutation.data.maxFileSizeMb !== null && `Max ${joinMutation.data.maxFileSizeMb} MB/file`,
-                ].filter(Boolean).join(' · ')}
-              </Text>
-            )}
-            <GradientButton
-              label="Go to Gallery"
-              onPress={() =>
-                navigation.navigate('Gallery', {
-                  eventId: joinMutation.data.id,
-                  eventTitle: joinMutation.data.title,
-                  maxPhotosPerUser: joinMutation.data.maxPhotosPerUser ?? null,
-                  maxFileSizeMb: joinMutation.data.maxFileSizeMb ?? null,
-                  channelId: joinMutation.data.defaultChannelId ?? null,
-                })
-              }
-              style={{ marginTop: 4, marginBottom: 8 }}
-            />
-            <TouchableOpacity onPress={reset} style={styles.scanAgainBtn}>
-              <Text style={styles.scanAgainText}>Scan Another</Text>
-            </TouchableOpacity>
-          </GlassCard>
-        )}
-
-        {joinMutation.isError && (
+{joinMutation.isError && (
           <GlassCard style={styles.resultCard}>
             <Text style={styles.resultLabel}>FAILED TO JOIN</Text>
             <Text style={styles.errorText}>
@@ -318,12 +293,7 @@ const styles = StyleSheet.create({
     ...TextStyles.labelMd,
     color: Colors.secondary,
   },
-  eventParams: {
-    ...TextStyles.labelSm,
-    color: Colors.onSurfaceVariant,
-    marginBottom: 12,
-  },
-  errorText: {
+errorText: {
     ...TextStyles.bodyMd,
     color: Colors.onSurfaceVariant,
     marginBottom: 12,
