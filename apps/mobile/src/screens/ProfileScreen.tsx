@@ -90,7 +90,7 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
           <Text style={styles.email}>{user?.email ?? ''}</Text>
 
           {/* Stats row */}
-          <GlassCard style={styles.statsCard} padding={16}>
+          {/* <GlassCard style={styles.statsCard} padding={16}>
             <View style={styles.statsRow}>
               <View style={styles.stat}>
                 <Text style={styles.statValue}>12</Text>
@@ -107,7 +107,7 @@ export function ProfileScreen({ activeTab, onTabPress }: Props) {
                 <Text style={styles.statLabel}>Albums</Text>
               </View>
             </View>
-          </GlassCard>
+          </GlassCard> */}
         </View>
 
         {/* Settings list */}
