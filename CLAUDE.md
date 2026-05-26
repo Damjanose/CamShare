@@ -94,3 +94,22 @@ Single source of truth for all domain types: `User`, `Product`, `Category`, `Ord
 2. Socket authenticates via JWT in handshake, joins `user:<id>` room server-side.
 3. On order status change or new notification, API calls `emitToUser(userId, event, payload)`.
 4. Client receives event, calls `onInvalidate()` to refetch React Query queries and pings `notificationStore`.
+
+## Debug shortcuts
+
+Start here when something breaks — skips full codebase exploration.
+
+| Symptom | Files to open first |
+|---------|---------------------|
+| Auth / JWT broken | `apps/api/src/middleware/auth.ts`, `apps/client/src/types/auth-context.tsx` |
+| Login or refresh failing | `apps/api/src/lib/auth.ts`, `apps/client/src/stores/authStore.ts` |
+| Photo upload failing | `apps/api/src/handlers/upload.ts`, `apps/api/src/handlers/eventPhotos.ts`, `apps/api/src/lib/eventPhotos.ts` |
+| Upload limit not enforced | `apps/api/src/handlers/upload.ts` (eventUploadMiddleware), `apps/mobile/src/screens/GalleryScreen.tsx` |
+| Events not loading / wrong data | `apps/api/src/lib/events.ts`, `apps/client/src/stores/eventsStore.ts` |
+| Socket events not firing | `apps/api/src/realtime.ts`, `apps/client/src/lib/socket.ts` |
+| Mobile API call failing | `apps/mobile/src/api/client.ts` (axios singleton + refresh interceptor) |
+| Admin page not showing / access denied | `apps/client/src/stores/authStore.ts` (`toWebUser` + `isAdmin`), `apps/client/src/auth/AdminRoute.tsx` |
+| DB migration needed | `db/migrations/` — run `pnpm --filter @camshare/api db:migrate` |
+| Permissions wrong | `apps/api/src/middleware/auth.ts` (`requirePermission`), `packages/types/src/index.ts` (`PermissionName`) |
+
+**Session history:** `docs/SESSIONS.md` — one-line index of every feature session with links to file-change summaries.

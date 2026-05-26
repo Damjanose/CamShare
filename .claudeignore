@@ -37,3 +37,16 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Design prototypes — reference only, not code
+docs/frontend-design/**/*.html
+docs/frontend-design/**/*.png
+
+# Superpowers plans — long files, use docs/SESSIONS.md instead
+docs/superpowers/
+
+# Git worktrees
+.worktrees/
+
+# Root planning files
+plan.md
