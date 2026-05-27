@@ -47,3 +47,4 @@ asc-api-key.p8
 # generated native folders
 /ios
 /android
+google-play-service-account.json
