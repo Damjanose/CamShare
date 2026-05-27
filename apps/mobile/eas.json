@@ -32,9 +32,29 @@
       "ios": {
         "buildConfiguration": "Release"
       }
+    },
+    "ios-production": {
+      "pnpm": "10.0.0",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://camshare.uplisoft.com/api",
+        "EXPO_PUBLIC_SOCKET_URL": "https://camshare.uplisoft.com"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
+      },
+      "distribution": "store"
     }
   },
   "submit": {
+    "ios-production": {
+      "ios": {
+        "appleTeamId": "R72R8C56GK",
+        "ascAppId": "6772641876",
+        "ascApiKeyPath": "./asc-api-key.p8",
+        "ascApiKeyIssuerId": "5da0a6a2-b466-4baf-9a1d-1d5cef51ab3e",
+        "ascApiKeyId": "P8G7R9G63H"
+      }
+    },
     "production": {
       "android": {
         "serviceAccountKeyPath": "./google-play-service-account.json",
