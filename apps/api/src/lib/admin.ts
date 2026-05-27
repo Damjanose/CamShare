@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs"
 import { db } from "./db.js"
 
 const iso = (d: Date) => d.toISOString()
@@ -24,4 +25,22 @@ export const listUsers = async (): Promise<AdminUserDto[]> => {
     email: row.email,
     createdAt: iso(row.created_at),
   }))
+}
+
+export const setUserPassword = async (userId: string, newPassword: string): Promise<void> => {
+  const exists = await db.selectFrom("users").select("id").where("id", "=", userId).where("deleted_at", "is", null).executeTakeFirst()
+  if (!exists) throw new Error("User not found")
+
+  const hash = await bcrypt.hash(newPassword, 10)
+  await db.updateTable("users").set({ password_hash: hash, updated_at: new Date() }).where("id", "=", userId).execute()
+}
+
+export const deleteUser = async (userId: string): Promise<void> => {
+  const exists = await db.selectFrom("users").select("id").where("id", "=", userId).executeTakeFirst()
+  if (!exists) throw new Error("User not found")
+
+  await db.transaction().execute(async (trx) => {
+    await trx.deleteFrom("orders").where("user_id", "=", userId).execute()
+    await trx.deleteFrom("users").where("id", "=", userId).execute()
+  })
 }

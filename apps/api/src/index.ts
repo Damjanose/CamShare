@@ -63,6 +63,8 @@ app.patch("/notifications/:id/read", requireAuth, notificationHandlers.markRead)
 app.post("/notifications/read-all", requireAuth, notificationHandlers.markAllRead)
 
 app.get("/admin/users", requireAuth, requirePermission("admin"), adminHandlers.listUsers)
+app.delete("/admin/users/:id", requireAuth, requirePermission("admin"), adminHandlers.deleteUser)
+app.patch("/admin/users/:id/password", requireAuth, requirePermission("admin"), adminHandlers.setUserPassword)
 
 app.post("/upload", requireAuth, uploadHandlers.eventUploadMiddleware, uploadHandlers.handleUpload)
 
