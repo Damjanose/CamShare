@@ -119,16 +119,51 @@ eas build --platform all --profile production --auto-submit
 
 ## Versioning
 
-`eas.json` sets `"appVersionSource": "remote"` — version numbers are managed on the EAS dashboard, not in `app.json`.
+`eas.json` sets `"appVersionSource": "remote"` — build-level version numbers (`versionCode` on Android, `buildNumber` on iOS) are managed on EAS servers, not in `app.json`. Do **not** add `versionCode` or `buildNumber` to `app.json`.
 
-To bump the version before a release:
+The **marketing version** (`1.0.2`, shown to users) lives in `app.json → "version"` and is updated manually.
+
+### Version number reference
+
+| Field | Where it lives | Who manages it | Example |
+|---|---|---|---|
+| Marketing version | `app.json → "version"` | You, manually | `1.0.2` |
+| Android versionCode | EAS remote | EAS (auto-increments) | `2` |
+| iOS buildNumber | EAS remote | EAS (auto-increments) | `2` |
+
+### Checking current version codes
 
 ```bash
-eas build:version:set --platform android   # set versionCode
-eas build:version:set --platform ios       # set buildNumber
+eas build:version:get --platform android
+eas build:version:get --platform ios
 ```
 
-Or update `app.json` → `"version"` (marketing version) manually before building.
+### Before every release — bump version codes
+
+EAS auto-increments on each build when using `appVersionSource: "remote"`. If you hit a **"version code already used"** error, bump manually:
+
+```bash
+cd apps/mobile
+eas build:version:set --platform android   # enter the next integer (e.g. 2, 3, 4…)
+eas build:version:set --platform ios       # same
+```
+
+> **Rule:** versionCode/buildNumber must be strictly increasing. If the last submitted build used `2`, set it to `3` or higher.
+
+### Bumping the marketing version
+
+Edit `app.json → "version"` before a new public release:
+
+```json
+"version": "1.0.3"
+```
+
+### Release log — update this table each time you ship
+
+| Date | Marketing version | Android versionCode | iOS buildNumber | Notes |
+|---|---|---|---|---|
+| 2026-05-28 | 1.0.2 | 1 | — | First Play Store submission |
+| — | — | — | — | — |
 
 ---
 
