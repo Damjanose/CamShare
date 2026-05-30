@@ -5,7 +5,7 @@ import pg from "pg"
 export interface UsersTable {
   id: Generated<string>
   email: string
-  password_hash: string
+  password_hash: string | null
   is_active: Generated<boolean>
   created_at: Generated<Date>
   updated_at: Generated<Date>

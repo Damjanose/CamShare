@@ -82,6 +82,7 @@ export const login = async (input: { email: string; password: string }, context:
     throw new Error("Invalid credentials")
   }
 
+  if (!user.password_hash) throw new Error("Invalid credentials")
   const valid = await bcrypt.compare(input.password, user.password_hash)
   if (!valid) {
     throw new Error("Invalid credentials")
@@ -160,6 +161,7 @@ export const changePassword = async (
     .where("id", "=", userId)
     .executeTakeFirstOrThrow()
 
+  if (!user.password_hash) throw new Error("Invalid current password")
   const valid = await bcrypt.compare(input.currentPassword, user.password_hash)
   if (!valid) throw new Error("Invalid current password")
 
@@ -215,6 +217,7 @@ export const deleteAccount = async (userId: string, password: string) => {
     .where("id", "=", userId)
     .executeTakeFirstOrThrow()
 
+  if (!user.password_hash) throw new Error("Invalid password")
   const valid = await bcrypt.compare(password, user.password_hash)
   if (!valid) throw new Error("Invalid password")
 
@@ -225,4 +228,79 @@ export const deleteAccount = async (userId: string, password: string) => {
     .where("user_id", "=", userId)
     .where("revoked_at", "is", null)
     .execute()
+}
+
+export const googleLogin = async (
+  accessToken: string,
+  context: { userAgent?: string; ipAddress?: string },
+): Promise<AuthResponse> => {
+  const resp = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!resp.ok) throw new Error("Invalid Google token")
+  const profile = (await resp.json()) as { email?: string; name?: string; picture?: string }
+  if (!profile.email) throw new Error("Google account has no email")
+
+  let existingUser = await db
+    .selectFrom("users")
+    .selectAll()
+    .where("email", "=", profile.email)
+    .executeTakeFirst()
+
+  if (!existingUser) {
+    const inserted = await db
+      .insertInto("users")
+      .values({ email: profile.email, password_hash: null })
+      .returning(["id", "email", "is_active"])
+      .executeTakeFirstOrThrow()
+
+    await db
+      .insertInto("user_details")
+      .values({
+        user_id: inserted.id,
+        full_name: profile.name ?? profile.email,
+        avatar_url: profile.picture ?? null,
+      })
+      .execute()
+
+    const readPerms = await db
+      .selectFrom("permissions")
+      .select(["id"])
+      .where("name", "in", ["product.read", "category.read"])
+      .execute()
+
+    if (readPerms.length > 0) {
+      await db
+        .insertInto("user_permissions")
+        .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+        .execute()
+    }
+
+    existingUser = await db
+      .selectFrom("users")
+      .selectAll()
+      .where("id", "=", inserted.id)
+      .executeTakeFirstOrThrow()
+  }
+
+  const sessionId = crypto.randomUUID()
+  const at = signAccessToken({ sub: existingUser.id, sid: sessionId, email: existingUser.email })
+  const rt = signRefreshToken({ sub: existingUser.id, sid: sessionId, email: existingUser.email })
+
+  await db
+    .insertInto("auth_sessions")
+    .values({
+      id: sessionId,
+      user_id: existingUser.id,
+      refresh_token_hash: hashToken(rt),
+      user_agent: context.userAgent ?? null,
+      ip_address: context.ipAddress ?? null,
+      expires_at: refreshExpiryDate(),
+    })
+    .execute()
+
+  return {
+    user: await mapUser(existingUser.id, existingUser.email, existingUser.is_active),
+    tokens: { accessToken: at, refreshToken: rt },
+  }
 }

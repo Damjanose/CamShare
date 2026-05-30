@@ -52,6 +52,7 @@ type AuthState = {
   bootstrap: () => Promise<void>
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
+  googleLogin: (googleAccessToken: string) => Promise<User>
   logout: () => void
   deleteAccount: (password: string) => Promise<void>
   updateUser: (patch: Partial<User>) => void
@@ -99,6 +100,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       password,
       fullName,
     })
+    setTokens(data.tokens.accessToken, data.tokens.refreshToken)
+    const user = toWebUser(data.user)
+    persistUser(user)
+    set({ user, accessToken: data.tokens.accessToken })
+    return user
+  },
+  googleLogin: async (googleAccessToken) => {
+    const data = await apiClient.post<ApiAuthResponse>("/auth/google", { accessToken: googleAccessToken })
     setTokens(data.tokens.accessToken, data.tokens.refreshToken)
     const user = toWebUser(data.user)
     persistUser(user)

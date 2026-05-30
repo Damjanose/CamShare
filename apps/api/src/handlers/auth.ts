@@ -124,6 +124,21 @@ export const me = async (req: Request, res: Response) => {
   return res.json(user)
 }
 
+const googleSchema = z.object({ accessToken: z.string().min(1) })
+
+export const googleAuth = async (req: Request, res: Response) => {
+  try {
+    const { accessToken } = googleSchema.parse(req.body)
+    const data = await authService.googleLogin(accessToken, {
+      userAgent: req.header("user-agent"),
+      ipAddress: req.ip,
+    })
+    return res.json(data)
+  } catch (error) {
+    return handleError(res, error)
+  }
+}
+
 const handleError = (res: Response, error: unknown) => {
   if (error instanceof z.ZodError) {
     return res.status(400).json({ message: "Validation failed", issues: error.issues })
@@ -143,7 +158,9 @@ const handleError = (res: Response, error: unknown) => {
       error.message === "Email already exists" ||
       error.message === "Invalid credentials" ||
       error.message === "Invalid refresh token" ||
-      error.message === "Your account has been permanently deleted."
+      error.message === "Your account has been permanently deleted." ||
+      error.message === "Invalid Google token" ||
+      error.message === "Google account has no email"
     )
   ) {
     return res.status(401).json({ message: error.message })

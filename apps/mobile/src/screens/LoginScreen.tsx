@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -21,8 +23,11 @@ import { Snackbar } from '../components/primitives/Snackbar';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 import { TextStyles } from '../constants/typography';
+import { ENV } from '../config/env';
 import { useAuth } from '../context/AuthContext';
 import { GALLERY_ITEMS } from '../data/gallery';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const loginSchema = Yup.object({
   email: Yup.string()
@@ -34,10 +39,30 @@ const loginSchema = Yup.object({
 type Props = { navigation?: any };
 
 export function LoginScreen({ navigation }: Props) {
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const insets = useSafeAreaInsets();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
+    iosClientId: ENV.googleIosClientId || undefined,
+    androidClientId: ENV.googleAndroidClientId || undefined,
+  });
+
+  const googleHandled = useRef(false);
+  useEffect(() => {
+    if (
+      googleResponse?.type === 'success' &&
+      googleResponse.authentication?.accessToken &&
+      !googleHandled.current
+    ) {
+      googleHandled.current = true;
+      googleLogin(googleResponse.authentication.accessToken).catch((e: any) => {
+        setServerError(e?.response?.data?.message ?? 'Google sign-in failed');
+        googleHandled.current = false;
+      });
+    }
+  }, [googleResponse, googleLogin]);
 
   const formik = useFormik({
     initialValues: { email: '', password: '' },
@@ -153,18 +178,22 @@ export function LoginScreen({ navigation }: Props) {
           <Text style={styles.createAccountLink}>New here? Create an account</Text>
         </TouchableOpacity>
 
-        {/* Optional social login */}
-        {/* <View style={styles.optionalRow}>
+        {/* Social login */}
+        <View style={styles.optionalRow}>
           <View style={styles.dividerLine} />
-          <Text style={styles.optionalLabel}>optional</Text>
+          <Text style={styles.optionalLabel}>or continue with</Text>
           <View style={styles.dividerLine} />
         </View>
 
         <View style={styles.socialRow}>
           <TouchableOpacity
-            onPress={() => setServerError('Google sign-in is coming soon.')}
+            onPress={() => {
+              googleHandled.current = false;
+              googlePromptAsync();
+            }}
             activeOpacity={0.8}
             style={styles.socialButton}
+            disabled={!googleRequest}
           >
             <Ionicons name="logo-google" size={15} color={Colors.onSurface} />
             <Text style={styles.socialLabel}>Google</Text>
@@ -178,7 +207,7 @@ export function LoginScreen({ navigation }: Props) {
             <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
             <Text style={styles.socialLabel}>Apple</Text>
           </TouchableOpacity>
-        </View> */}
+        </View>
 
         <Text style={styles.terms}>
           By continuing, you agree to our{' '}

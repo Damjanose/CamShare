@@ -7,6 +7,7 @@ type AuthContextValue = {
   accessToken: string | null
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
+  googleLogin: (googleAccessToken: string) => Promise<User>
   logout: () => void
 }
 
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const bootstrap = useAuthStore((s) => s.bootstrap)
   const login = useAuthStore((s) => s.login)
   const register = useAuthStore((s) => s.register)
+  const googleLogin = useAuthStore((s) => s.googleLogin)
   const logout = useAuthStore((s) => s.logout)
 
   useEffect(() => {
@@ -26,8 +28,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [bootstrap])
 
   const value = useMemo(
-    () => ({ user, accessToken, login, register, logout }),
-    [user, accessToken, login, register, logout],
+    () => ({ user, accessToken, login, register, googleLogin, logout }),
+    [user, accessToken, login, register, googleLogin, logout],
   )
 
   if (!sessionReady) return null

@@ -5,7 +5,6 @@ import {
   APPLE_CLIENT_ID,
   APPLE_REDIRECT_URI,
   isAppleConfigured,
-  isGoogleConfigured,
 } from "@/auth/socialAuthConfig"
 
 type AppleAuthResponse = {
@@ -14,16 +13,8 @@ type AppleAuthResponse = {
   error?: { error: string }
 }
 
-/**
- * Wires the OAuth libraries up to our mock auth flow.
- * - Google: useGoogleLogin from @react-oauth/google
- * - Apple: returns props for <AppleLogin> from react-apple-login
- *
- * Without env-var-supplied client IDs, the OAuth popups will fail; the hook still
- * finalizes the mock sign-in so the visual flow works end-to-end.
- */
 export const useSocialAuth = (redirectTo = "/dashboard") => {
-  const { login, register } = useAuth()
+  const { login, register, googleLogin } = useAuth()
   const navigate = useNavigate()
 
   const finalizeAsLogin = async (email: string) => {
@@ -39,14 +30,11 @@ export const useSocialAuth = (redirectTo = "/dashboard") => {
   const googleSignIn = useGoogleLogin({
     flow: "implicit",
     onSuccess: async (response: TokenResponse) => {
-      const email = `google-${response.access_token.slice(0, 8)}@aeterna.local`
-      await finalizeAsLogin(email)
+      await googleLogin(response.access_token)
+      navigate(redirectTo, { replace: true })
     },
     onError: (error) => {
       console.warn("Google sign-in failed", error)
-      if (!isGoogleConfigured()) {
-        void finalizeAsLogin("guest@aeterna.local")
-      }
     },
   })
 

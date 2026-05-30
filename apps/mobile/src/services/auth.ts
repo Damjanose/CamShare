@@ -21,4 +21,7 @@ export const authService = {
   // Uses refreshTokens (non-intercepted) to avoid triggering the 401 interceptor
   refresh: (refreshToken: string) =>
     refreshTokens(refreshToken),
+
+  googleLogin: (accessToken: string) =>
+    apiClient.post<AuthResponse>('/auth/google', { accessToken }).then((r) => r.data),
 };
