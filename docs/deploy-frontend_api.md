@@ -139,6 +139,23 @@ sshpass -p 'PASSWORD' ssh -o StrictHostKeyChecking=no root@72.61.183.120 \
 
 ## Deploy both API + frontend together
 
+### Run directly on server (after SSH in)
+
+```bash
+cd /var/www/camshare-uplisoft-com &&
+git pull &&
+docker-compose build api &&
+docker-compose stop api &&
+docker-compose rm -f api &&
+docker-compose up -d --no-deps api &&
+pnpm --filter @camshare/client build &&
+rm -rf public/* &&
+cp -r apps/client/dist/* public/ &&
+echo 'Full deploy done'
+```
+
+### One-liner from local machine
+
 ```bash
 sshpass -p 'PASSWORD' ssh -o StrictHostKeyChecking=no root@72.61.183.120 "
   cd /var/www/camshare-uplisoft-com &&
