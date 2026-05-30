@@ -45,6 +45,7 @@ export function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [appleAvailable, setAppleAvailable] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(false);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
     iosClientId: ENV.googleIosClientId || undefined,
@@ -56,6 +57,7 @@ export function LoginScreen({ navigation }: Props) {
   }, []);
 
   const handleAppleLogin = async () => {
+    setSocialLoading(true);
     try {
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
@@ -63,14 +65,20 @@ export function LoginScreen({ navigation }: Props) {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
+      if (!credential.identityToken) {
+        setServerError('Apple sign-in failed. Please try again.');
+        return;
+      }
       const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
         .filter(Boolean)
         .join(' ') || null;
-      await appleLogin(credential.identityToken!, fullName);
+      await appleLogin(credential.identityToken, fullName);
     } catch (err: any) {
       if (err.code !== 'ERR_REQUEST_CANCELED') {
         setServerError('Apple sign-in failed. Please try again.');
       }
+    } finally {
+      setSocialLoading(false);
     }
   };
 
@@ -78,13 +86,19 @@ export function LoginScreen({ navigation }: Props) {
   useEffect(() => {
     if (
       googleResponse?.type === 'success' &&
-      googleResponse.authentication?.accessToken &&
+      (googleResponse.authentication?.idToken || googleResponse.authentication?.accessToken) &&
       !googleHandled.current
     ) {
       googleHandled.current = true;
-      googleLogin(googleResponse.authentication.accessToken).catch((e: any) => {
+      setSocialLoading(true);
+      googleLogin(
+        googleResponse.authentication.idToken ?? null,
+        googleResponse.authentication.accessToken,
+      ).catch((e: any) => {
         setServerError(e?.response?.data?.message ?? 'Google sign-in failed');
         googleHandled.current = false;
+      }).finally(() => {
+        setSocialLoading(false);
       });
     }
   }, [googleResponse, googleLogin]);
@@ -217,8 +231,8 @@ export function LoginScreen({ navigation }: Props) {
               googlePromptAsync();
             }}
             activeOpacity={0.8}
-            style={styles.socialButton}
-            disabled={!googleRequest}
+            style={[styles.socialButton, socialLoading && { opacity: 0.5 }]}
+            disabled={!googleRequest || socialLoading}
           >
             <Ionicons name="logo-google" size={15} color={Colors.onSurface} />
             <Text style={styles.socialLabel}>Google</Text>
@@ -228,7 +242,8 @@ export function LoginScreen({ navigation }: Props) {
             <TouchableOpacity
               onPress={handleAppleLogin}
               activeOpacity={0.8}
-              style={styles.socialButton}
+              style={[styles.socialButton, socialLoading && { opacity: 0.5 }]}
+              disabled={socialLoading}
             >
               <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
               <Text style={styles.socialLabel}>Apple</Text>

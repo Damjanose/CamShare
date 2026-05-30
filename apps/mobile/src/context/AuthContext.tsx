@@ -13,7 +13,7 @@ type AuthContextValue = {
   accessToken: string | null;
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
-  googleLogin: (googleAccessToken: string) => Promise<void>;
+  googleLogin: (idToken: string | null, accessToken: string) => Promise<void>;
   appleLogin: (identityToken: string, fullName?: string | null) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
   };
 
-  const googleLogin = async (googleAccessToken: string) => {
-    const data = await authService.googleLogin(googleAccessToken);
+  const googleLogin = async (idToken: string | null, accessToken: string) => {
+    const data = await authService.googleLogin(idToken, accessToken);
     await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
   };
 

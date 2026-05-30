@@ -1,5 +1,6 @@
 import crypto from "node:crypto"
 import bcrypt from "bcryptjs"
+import { verify } from "jsonwebtoken"
 import { db } from "./db.js"
 import { hashToken, refreshExpiryDate, signAccessToken, signRefreshToken, verifyRefreshToken } from "./tokens.js"
 import type { AuthResponse, PermissionName } from "@camshare/types"
@@ -209,16 +210,18 @@ export const logout = async (sessionId: string) => {
   await db.updateTable("auth_sessions").set({ revoked_at: new Date() }).where("id", "=", sessionId).execute()
 }
 
-export const deleteAccount = async (userId: string, password: string) => {
+export const deleteAccount = async (userId: string, password?: string) => {
   const user = await db
     .selectFrom("users")
     .select("password_hash")
     .where("id", "=", userId)
     .executeTakeFirstOrThrow()
 
-  if (!user.password_hash) throw new Error("Invalid password")
-  const valid = await bcrypt.compare(password, user.password_hash)
-  if (!valid) throw new Error("Invalid password")
+  if (user.password_hash) {
+    if (!password) throw new Error("Password required")
+    const valid = await bcrypt.compare(password, user.password_hash)
+    if (!valid) throw new Error("Invalid password")
+  }
 
   await db.updateTable("users").set({ deleted_at: new Date() }).where("id", "=", userId).execute()
   await db
@@ -229,15 +232,15 @@ export const deleteAccount = async (userId: string, password: string) => {
     .execute()
 }
 
-type AppleJwk = { kid: string; kty: string; n: string; e: string; alg: string; use: string }
+type OAuthJwk = { kid: string; kty: string; n: string; e: string; alg: string; use: string }
 
-const applePublicKeyCache: { keys: AppleJwk[]; fetchedAt: number } = { keys: [], fetchedAt: 0 }
+const applePublicKeyCache: { keys: OAuthJwk[]; fetchedAt: number } = { keys: [], fetchedAt: 0 }
 
-const getApplePublicKeys = async (forceRefresh = false): Promise<AppleJwk[]> => {
+const getApplePublicKeys = async (forceRefresh = false): Promise<OAuthJwk[]> => {
   if (!forceRefresh && Date.now() - applePublicKeyCache.fetchedAt < 60 * 60 * 1000) return applePublicKeyCache.keys
   const resp = await fetch("https://appleid.apple.com/auth/keys")
   if (!resp.ok) throw new Error("Failed to fetch Apple public keys")
-  const { keys } = (await resp.json()) as { keys: AppleJwk[] }
+  const { keys } = (await resp.json()) as { keys: OAuthJwk[] }
   applePublicKeyCache.keys = keys
   applePublicKeyCache.fetchedAt = Date.now()
   return keys
@@ -258,7 +261,6 @@ const verifyAppleToken = async (identityToken: string): Promise<{ sub: string; e
     const publicKey = crypto.createPublicKey({ key: jwk as unknown as crypto.JsonWebKey, format: "jwk" })
     const pem = publicKey.export({ type: "spki", format: "pem" }) as string
 
-    const { verify } = await import("jsonwebtoken")
     const payload = verify(identityToken, pem, {
       algorithms: ["RS256"],
       issuer: "https://appleid.apple.com",
@@ -290,35 +292,39 @@ export const appleLogin = async (
     .executeTakeFirst()
 
   if (!existingUser) {
-    const inserted = await db
-      .insertInto("users")
-      .values({ email: payload.email, password_hash: null })
-      .returning(["id", "email", "is_active"])
-      .executeTakeFirstOrThrow()
+    existingUser = await db.transaction().execute(async (trx) => {
+      const inserted = await trx
+        .insertInto("users")
+        .values({ email: payload.email!, password_hash: null })
+        .returning(["id", "email", "is_active"])
+        .executeTakeFirstOrThrow()
 
-    await db
-      .insertInto("user_details")
-      .values({ user_id: inserted.id, full_name: fullName ?? payload.email, avatar_url: null })
-      .execute()
+      const isRelayEmail = inserted.email.endsWith("@privaterelay.appleid.com")
 
-    const readPerms = await db
-      .selectFrom("permissions")
-      .select(["id"])
-      .where("name", "in", ["product.read", "category.read"])
-      .execute()
-
-    if (readPerms.length > 0) {
-      await db
-        .insertInto("user_permissions")
-        .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+      await trx
+        .insertInto("user_details")
+        .values({ user_id: inserted.id, full_name: fullName ?? (isRelayEmail ? "Apple User" : inserted.email), avatar_url: null })
         .execute()
-    }
 
-    existingUser = await db
-      .selectFrom("users")
-      .selectAll()
-      .where("id", "=", inserted.id)
-      .executeTakeFirstOrThrow()
+      const readPerms = await trx
+        .selectFrom("permissions")
+        .select(["id"])
+        .where("name", "in", ["product.read", "category.read"])
+        .execute()
+
+      if (readPerms.length > 0) {
+        await trx
+          .insertInto("user_permissions")
+          .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+          .execute()
+      }
+
+      return trx
+        .selectFrom("users")
+        .selectAll()
+        .where("id", "=", inserted.id)
+        .executeTakeFirstOrThrow()
+    })
   }
 
   await checkSoftDelete(existingUser)
@@ -345,15 +351,74 @@ export const appleLogin = async (
   }
 }
 
-export const googleLogin = async (
-  accessToken: string,
-  context: { userAgent?: string; ipAddress?: string },
-): Promise<AuthResponse> => {
+const googlePublicKeyCache: { keys: OAuthJwk[]; fetchedAt: number } = { keys: [], fetchedAt: 0 }
+
+const getGooglePublicKeys = async (forceRefresh = false): Promise<OAuthJwk[]> => {
+  if (!forceRefresh && Date.now() - googlePublicKeyCache.fetchedAt < 60 * 60 * 1000) return googlePublicKeyCache.keys
+  const resp = await fetch("https://www.googleapis.com/oauth2/v3/certs")
+  if (!resp.ok) throw new Error("Failed to fetch Google public keys")
+  const { keys } = (await resp.json()) as { keys: OAuthJwk[] }
+  googlePublicKeyCache.keys = keys
+  googlePublicKeyCache.fetchedAt = Date.now()
+  return keys
+}
+
+const verifyGoogleIdToken = async (idToken: string): Promise<{ email?: string; name?: string; picture?: string }> => {
+  try {
+    const [headerB64] = idToken.split(".")
+    const header = JSON.parse(Buffer.from(headerB64, "base64url").toString()) as { kid: string }
+    let keys = await getGooglePublicKeys()
+    let jwk = keys.find((k) => k.kid === header.kid)
+    if (!jwk) {
+      keys = await getGooglePublicKeys(true)
+      jwk = keys.find((k) => k.kid === header.kid)
+    }
+    if (!jwk) throw new Error("Invalid Google token")
+
+    const publicKey = crypto.createPublicKey({ key: jwk as unknown as crypto.JsonWebKey, format: "jwk" })
+    const pem = publicKey.export({ type: "spki", format: "pem" }) as string
+
+    const googleClientIds = [
+      process.env.GOOGLE_WEB_CLIENT_ID,
+      process.env.GOOGLE_IOS_CLIENT_ID,
+      process.env.GOOGLE_ANDROID_CLIENT_ID,
+    ].filter(Boolean) as string[]
+
+    if (googleClientIds.length === 0) {
+      throw new Error("Google client IDs not configured")
+    }
+
+    const payload = verify(idToken, pem, {
+      algorithms: ["RS256"],
+      issuer: ["https://accounts.google.com", "accounts.google.com"],
+      audience: googleClientIds as [string, ...string[]],
+    }) as { email?: string; name?: string; picture?: string }
+
+    return payload
+  } catch (err) {
+    if (err instanceof Error && err.message === "Invalid Google token") throw err
+    throw new Error("Invalid Google token")
+  }
+}
+
+const resolveGoogleProfile = async (
+  token: { idToken: string } | { accessToken: string },
+): Promise<{ email?: string; name?: string; picture?: string }> => {
+  if ("idToken" in token) return verifyGoogleIdToken(token.idToken)
   const resp = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { Authorization: `Bearer ${token.accessToken}` },
   })
   if (!resp.ok) throw new Error("Invalid Google token")
-  const profile = (await resp.json()) as { email?: string; name?: string; picture?: string }
+  const profile = (await resp.json()) as { email?: string; name?: string; picture?: string; email_verified?: boolean }
+  if (!profile.email_verified) throw new Error("Google account email is not verified")
+  return profile
+}
+
+export const googleLogin = async (
+  token: { idToken: string } | { accessToken: string },
+  context: { userAgent?: string; ipAddress?: string },
+): Promise<AuthResponse> => {
+  const profile = await resolveGoogleProfile(token)
   if (!profile.email) throw new Error("Google account has no email")
 
   let existingUser = await db
@@ -363,39 +428,41 @@ export const googleLogin = async (
     .executeTakeFirst()
 
   if (!existingUser) {
-    const inserted = await db
-      .insertInto("users")
-      .values({ email: profile.email, password_hash: null })
-      .returning(["id", "email", "is_active"])
-      .executeTakeFirstOrThrow()
+    existingUser = await db.transaction().execute(async (trx) => {
+      const inserted = await trx
+        .insertInto("users")
+        .values({ email: profile.email!, password_hash: null })
+        .returning(["id", "email", "is_active"])
+        .executeTakeFirstOrThrow()
 
-    await db
-      .insertInto("user_details")
-      .values({
-        user_id: inserted.id,
-        full_name: profile.name ?? profile.email,
-        avatar_url: profile.picture ?? null,
-      })
-      .execute()
-
-    const readPerms = await db
-      .selectFrom("permissions")
-      .select(["id"])
-      .where("name", "in", ["product.read", "category.read"])
-      .execute()
-
-    if (readPerms.length > 0) {
-      await db
-        .insertInto("user_permissions")
-        .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+      await trx
+        .insertInto("user_details")
+        .values({
+          user_id: inserted.id,
+          full_name: profile.name ?? profile.email!,
+          avatar_url: profile.picture ?? null,
+        })
         .execute()
-    }
 
-    existingUser = await db
-      .selectFrom("users")
-      .selectAll()
-      .where("id", "=", inserted.id)
-      .executeTakeFirstOrThrow()
+      const readPerms = await trx
+        .selectFrom("permissions")
+        .select(["id"])
+        .where("name", "in", ["product.read", "category.read"])
+        .execute()
+
+      if (readPerms.length > 0) {
+        await trx
+          .insertInto("user_permissions")
+          .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+          .execute()
+      }
+
+      return trx
+        .selectFrom("users")
+        .selectAll()
+        .where("id", "=", inserted.id)
+        .executeTakeFirstOrThrow()
+    })
   }
 
   await checkSoftDelete(existingUser)

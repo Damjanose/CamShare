@@ -77,7 +77,7 @@ export const logout = async (req: Request, res: Response) => {
 }
 
 const deleteAccountSchema = z.object({
-  password: z.string().min(1),
+  password: z.string().min(1).optional(),
 })
 
 export const deleteAccount = async (req: Request, res: Response) => {
@@ -124,12 +124,21 @@ export const me = async (req: Request, res: Response) => {
   return res.json(user)
 }
 
-const googleSchema = z.object({ accessToken: z.string().min(1) })
+const googleSchema = z.object({
+  idToken: z.string().min(1).optional(),
+  accessToken: z.string().min(1).optional(),
+})
 
 export const googleAuth = async (req: Request, res: Response) => {
   try {
-    const { accessToken } = googleSchema.parse(req.body)
-    const data = await authService.googleLogin(accessToken, {
+    const input = googleSchema.parse(req.body)
+    const token = input.idToken
+      ? { idToken: input.idToken }
+      : input.accessToken
+        ? { accessToken: input.accessToken }
+        : null
+    if (!token) return res.status(400).json({ message: "idToken or accessToken required" })
+    const data = await authService.googleLogin(token, {
       userAgent: req.header("user-agent"),
       ipAddress: req.ip,
     })
@@ -187,6 +196,10 @@ const handleError = (res: Response, error: unknown) => {
     return res.status(422).json({ message: error.message })
   }
 
+  if (error instanceof Error && error.message === "Password required") {
+    return res.status(400).json({ message: error.message })
+  }
+
   if (
     error instanceof Error &&
     (
@@ -196,6 +209,8 @@ const handleError = (res: Response, error: unknown) => {
       error.message === "Your account has been permanently deleted." ||
       error.message === "Invalid Google token" ||
       error.message === "Google account has no email" ||
+      error.message === "Google account email is not verified" ||
+      error.message === "Google client IDs not configured" ||
       error.message === "Invalid Apple token" ||
       error.message === "Apple account has no email"
     )

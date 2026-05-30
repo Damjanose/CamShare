@@ -36,8 +36,12 @@ export const useSocialAuth = (redirectTo = "/dashboard") => {
         console.warn("Apple sign-in error", data.error)
         return
       }
+      if (!data.authorization?.id_token) {
+        console.warn("Apple sign-in: missing authorization token")
+        return
+      }
       try {
-        await appleLogin(data.authorization!.id_token, data.user)
+        await appleLogin(data.authorization.id_token, data.user)
         navigate(redirectTo, { replace: true })
       } catch (err) {
         console.error("Apple login failed", err)

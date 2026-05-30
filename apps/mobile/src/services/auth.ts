@@ -22,8 +22,10 @@ export const authService = {
   refresh: (refreshToken: string) =>
     refreshTokens(refreshToken),
 
-  googleLogin: (accessToken: string) =>
-    apiClient.post<AuthResponse>('/auth/google', { accessToken }).then((r) => r.data),
+  googleLogin: (idToken: string | null, accessToken: string) =>
+    apiClient
+      .post<AuthResponse>('/auth/google', idToken ? { idToken } : { accessToken })
+      .then((r) => r.data),
 
   appleLogin: (identityToken: string, fullName?: string | null) =>
     apiClient.post<AuthResponse>('/auth/apple', { identityToken, fullName }).then((r) => r.data),
