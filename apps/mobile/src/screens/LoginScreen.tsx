@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { useFormik } from 'formik';
@@ -39,15 +40,39 @@ const loginSchema = Yup.object({
 type Props = { navigation?: any };
 
 export function LoginScreen({ navigation }: Props) {
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, appleLogin } = useAuth();
   const insets = useSafeAreaInsets();
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [appleAvailable, setAppleAvailable] = useState(false);
 
   const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
     iosClientId: ENV.googleIosClientId || undefined,
     androidClientId: ENV.googleAndroidClientId || undefined,
   });
+
+  useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setAppleAvailable).catch(() => {});
+  }, []);
+
+  const handleAppleLogin = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      const fullName = [credential.fullName?.givenName, credential.fullName?.familyName]
+        .filter(Boolean)
+        .join(' ') || null;
+      await appleLogin(credential.identityToken!, fullName);
+    } catch (err: any) {
+      if (err.code !== 'ERR_REQUEST_CANCELED') {
+        setServerError('Apple sign-in failed. Please try again.');
+      }
+    }
+  };
 
   const googleHandled = useRef(false);
   useEffect(() => {
@@ -199,14 +224,16 @@ export function LoginScreen({ navigation }: Props) {
             <Text style={styles.socialLabel}>Google</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => setServerError('Apple sign-in is coming soon.')}
-            activeOpacity={0.8}
-            style={styles.socialButton}
-          >
-            <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
-            <Text style={styles.socialLabel}>Apple</Text>
-          </TouchableOpacity>
+          {appleAvailable && (
+            <TouchableOpacity
+              onPress={handleAppleLogin}
+              activeOpacity={0.8}
+              style={styles.socialButton}
+            >
+              <Ionicons name="logo-apple" size={15} color={Colors.onSurface} />
+              <Text style={styles.socialLabel}>Apple</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <Text style={styles.terms}>

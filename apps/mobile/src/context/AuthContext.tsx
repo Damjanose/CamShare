@@ -14,6 +14,7 @@ type AuthContextValue = {
   login: (input: LoginInput) => Promise<void>;
   register: (input: RegisterInput) => Promise<void>;
   googleLogin: (googleAccessToken: string) => Promise<void>;
+  appleLogin: (identityToken: string, fullName?: string | null) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
 };
@@ -74,6 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
   };
 
+  const appleLogin = async (identityToken: string, fullName?: string | null) => {
+    const data = await authService.appleLogin(identityToken, fullName);
+    await applySession(data.tokens.accessToken, data.tokens.refreshToken, data.user);
+  };
+
   const logout = async () => {
     try { await authService.logout(); } catch { /* ignore — clear locally regardless */ }
     await clearSession();
@@ -85,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, login, register, googleLogin, logout, deleteAccount }}>
+    <AuthContext.Provider value={{ user, accessToken, login, register, googleLogin, appleLogin, logout, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

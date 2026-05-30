@@ -1,11 +1,7 @@
 import { useGoogleLogin, type TokenResponse } from "@react-oauth/google"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/auth/AuthContext"
-import {
-  APPLE_CLIENT_ID,
-  APPLE_REDIRECT_URI,
-  isAppleConfigured,
-} from "@/auth/socialAuthConfig"
+import { APPLE_CLIENT_ID, APPLE_REDIRECT_URI } from "@/auth/socialAuthConfig"
 
 type AppleAuthResponse = {
   authorization?: { code: string; id_token: string; state?: string }
@@ -14,18 +10,8 @@ type AppleAuthResponse = {
 }
 
 export const useSocialAuth = (redirectTo = "/dashboard") => {
-  const { login, register, googleLogin } = useAuth()
+  const { googleLogin, appleLogin } = useAuth()
   const navigate = useNavigate()
-
-  const finalizeAsLogin = async (email: string) => {
-    await login(email, "social")
-    navigate(redirectTo, { replace: true })
-  }
-
-  const finalizeAsRegister = async (fullName: string, email: string) => {
-    await register({ fullName, email, password: "social" })
-    navigate(redirectTo, { replace: true })
-  }
 
   const googleSignIn = useGoogleLogin({
     flow: "implicit",
@@ -48,19 +34,13 @@ export const useSocialAuth = (redirectTo = "/dashboard") => {
     callback: async (data: AppleAuthResponse) => {
       if (data.error) {
         console.warn("Apple sign-in error", data.error)
-        if (!isAppleConfigured()) {
-          await finalizeAsLogin("guest@aeterna.local")
-        }
         return
       }
-      const email = data.user?.email ?? "apple-user@aeterna.local"
-      const name = [data.user?.name?.firstName, data.user?.name?.lastName]
-        .filter(Boolean)
-        .join(" ")
-      if (name) {
-        await finalizeAsRegister(name, email)
-      } else {
-        await finalizeAsLogin(email)
+      try {
+        await appleLogin(data.authorization!.id_token, data.user)
+        navigate(redirectTo, { replace: true })
+      } catch (err) {
+        console.error("Apple login failed", err)
       }
     },
   }

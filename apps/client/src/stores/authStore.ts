@@ -45,6 +45,8 @@ const persistUser = (user: User | null) => {
   }
 }
 
+type AppleUserData = { name?: { firstName?: string; lastName?: string }; email?: string }
+
 type AuthState = {
   user: User | null
   accessToken: string | null
@@ -53,6 +55,7 @@ type AuthState = {
   login: (email: string, password: string) => Promise<User>
   register: (input: { fullName: string; email: string; password: string }) => Promise<User>
   googleLogin: (googleAccessToken: string) => Promise<User>
+  appleLogin: (idToken: string, userData?: AppleUserData) => Promise<User>
   logout: () => void
   deleteAccount: (password: string) => Promise<void>
   updateUser: (patch: Partial<User>) => void
@@ -108,6 +111,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   googleLogin: async (googleAccessToken) => {
     const data = await apiClient.post<ApiAuthResponse>("/auth/google", { accessToken: googleAccessToken })
+    setTokens(data.tokens.accessToken, data.tokens.refreshToken)
+    const user = toWebUser(data.user)
+    persistUser(user)
+    set({ user, accessToken: data.tokens.accessToken })
+    return user
+  },
+  appleLogin: async (idToken, userData) => {
+    const data = await apiClient.post<ApiAuthResponse>("/auth/apple", { idToken, user: userData })
     setTokens(data.tokens.accessToken, data.tokens.refreshToken)
     const user = toWebUser(data.user)
     persistUser(user)

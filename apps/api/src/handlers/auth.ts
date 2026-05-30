@@ -139,6 +139,41 @@ export const googleAuth = async (req: Request, res: Response) => {
   }
 }
 
+const appleSchema = z.object({
+  idToken: z.string().min(1).optional(),
+  identityToken: z.string().min(1).optional(),
+  user: z
+    .object({
+      name: z.object({ firstName: z.string().optional(), lastName: z.string().optional() }).optional(),
+      email: z.string().optional(),
+    })
+    .optional()
+    .nullable(),
+  fullName: z.string().optional().nullable(),
+})
+
+export const appleAuth = async (req: Request, res: Response) => {
+  try {
+    const input = appleSchema.parse(req.body)
+    const token = input.idToken ?? input.identityToken
+    if (!token) return res.status(400).json({ message: "idToken or identityToken required" })
+
+    const fullName =
+      input.fullName ??
+      (input.user?.name
+        ? [input.user.name.firstName, input.user.name.lastName].filter(Boolean).join(" ") || null
+        : null)
+
+    const data = await authService.appleLogin(token, {
+      userAgent: req.header("user-agent"),
+      ipAddress: req.ip,
+    }, fullName)
+    return res.json(data)
+  } catch (error) {
+    return handleError(res, error)
+  }
+}
+
 const handleError = (res: Response, error: unknown) => {
   if (error instanceof z.ZodError) {
     return res.status(400).json({ message: "Validation failed", issues: error.issues })
@@ -160,7 +195,9 @@ const handleError = (res: Response, error: unknown) => {
       error.message === "Invalid refresh token" ||
       error.message === "Your account has been permanently deleted." ||
       error.message === "Invalid Google token" ||
-      error.message === "Google account has no email"
+      error.message === "Google account has no email" ||
+      error.message === "Invalid Apple token" ||
+      error.message === "Apple account has no email"
     )
   ) {
     return res.status(401).json({ message: error.message })

@@ -4,6 +4,22 @@ import { db } from "./db.js"
 import { hashToken, refreshExpiryDate, signAccessToken, signRefreshToken, verifyRefreshToken } from "./tokens.js"
 import type { AuthResponse, PermissionName } from "@camshare/types"
 
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
+
+const checkSoftDelete = async (user: { id: string; deleted_at: Date | null }) => {
+  if (!user.deleted_at) return
+  const cutoff = new Date(Date.now() - THIRTY_DAYS_MS)
+  if (user.deleted_at > cutoff) {
+    await db.updateTable("users").set({ deleted_at: null }).where("id", "=", user.id).execute()
+  } else {
+    await db.transaction().execute(async (trx) => {
+      await trx.deleteFrom("orders").where("user_id", "=", user.id).execute()
+      await trx.deleteFrom("users").where("id", "=", user.id).execute()
+    })
+    throw new Error("Your account has been permanently deleted.")
+  }
+}
+
 const mapUser = async (userId: string, email: string, isActive: boolean) => {
   const details = await db
     .selectFrom("user_details")
@@ -88,24 +104,7 @@ export const login = async (input: { email: string; password: string }, context:
     throw new Error("Invalid credentials")
   }
 
-  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000
-  const cutoff = new Date(Date.now() - THIRTY_DAYS_MS)
-
-  if (user.deleted_at !== null) {
-    if (user.deleted_at > cutoff) {
-      // Still within 30-day recovery window — reactivate silently and continue
-      await db.updateTable("users").set({ deleted_at: null }).where("id", "=", user.id).execute()
-    } else {
-      // Past 30 days — hard delete atomically, then reject login
-      // orders must be deleted first: orders.user_id has ON DELETE RESTRICT
-      // all other related tables (user_details, auth_sessions, events, etc.) cascade from users
-      await db.transaction().execute(async (trx) => {
-        await trx.deleteFrom("orders").where("user_id", "=", user.id).execute()
-        await trx.deleteFrom("users").where("id", "=", user.id).execute()
-      })
-      throw new Error("Your account has been permanently deleted.")
-    }
-  }
+  await checkSoftDelete(user)
 
   const sessionId = crypto.randomUUID()
   const accessToken = signAccessToken({ sub: user.id, sid: sessionId, email: user.email })
@@ -230,6 +229,122 @@ export const deleteAccount = async (userId: string, password: string) => {
     .execute()
 }
 
+type AppleJwk = { kid: string; kty: string; n: string; e: string; alg: string; use: string }
+
+const applePublicKeyCache: { keys: AppleJwk[]; fetchedAt: number } = { keys: [], fetchedAt: 0 }
+
+const getApplePublicKeys = async (forceRefresh = false): Promise<AppleJwk[]> => {
+  if (!forceRefresh && Date.now() - applePublicKeyCache.fetchedAt < 60 * 60 * 1000) return applePublicKeyCache.keys
+  const resp = await fetch("https://appleid.apple.com/auth/keys")
+  if (!resp.ok) throw new Error("Failed to fetch Apple public keys")
+  const { keys } = (await resp.json()) as { keys: AppleJwk[] }
+  applePublicKeyCache.keys = keys
+  applePublicKeyCache.fetchedAt = Date.now()
+  return keys
+}
+
+const verifyAppleToken = async (identityToken: string): Promise<{ sub: string; email?: string }> => {
+  try {
+    const [headerB64] = identityToken.split(".")
+    const header = JSON.parse(Buffer.from(headerB64, "base64url").toString()) as { kid: string }
+    let keys = await getApplePublicKeys()
+    let jwk = keys.find((k) => k.kid === header.kid)
+    if (!jwk) {
+      keys = await getApplePublicKeys(true)
+      jwk = keys.find((k) => k.kid === header.kid)
+    }
+    if (!jwk) throw new Error("Invalid Apple token")
+
+    const publicKey = crypto.createPublicKey({ key: jwk as unknown as crypto.JsonWebKey, format: "jwk" })
+    const pem = publicKey.export({ type: "spki", format: "pem" }) as string
+
+    const { verify } = await import("jsonwebtoken")
+    const payload = verify(identityToken, pem, {
+      algorithms: ["RS256"],
+      issuer: "https://appleid.apple.com",
+      audience: [
+        process.env.APPLE_BUNDLE_ID ?? "com.damjano.camshare",
+        process.env.APPLE_SERVICE_ID ?? "com.damjano.camshare.web",
+      ],
+    }) as { sub: string; email?: string }
+
+    return payload
+  } catch (err) {
+    if (err instanceof Error && err.message === "Invalid Apple token") throw err
+    throw new Error("Invalid Apple token")
+  }
+}
+
+export const appleLogin = async (
+  identityToken: string,
+  context: { userAgent?: string; ipAddress?: string },
+  fullName?: string | null,
+): Promise<AuthResponse> => {
+  const payload = await verifyAppleToken(identityToken)
+  if (!payload.email) throw new Error("Apple account has no email")
+
+  let existingUser = await db
+    .selectFrom("users")
+    .selectAll()
+    .where("email", "=", payload.email)
+    .executeTakeFirst()
+
+  if (!existingUser) {
+    const inserted = await db
+      .insertInto("users")
+      .values({ email: payload.email, password_hash: null })
+      .returning(["id", "email", "is_active"])
+      .executeTakeFirstOrThrow()
+
+    await db
+      .insertInto("user_details")
+      .values({ user_id: inserted.id, full_name: fullName ?? payload.email, avatar_url: null })
+      .execute()
+
+    const readPerms = await db
+      .selectFrom("permissions")
+      .select(["id"])
+      .where("name", "in", ["product.read", "category.read"])
+      .execute()
+
+    if (readPerms.length > 0) {
+      await db
+        .insertInto("user_permissions")
+        .values(readPerms.map((p) => ({ user_id: inserted.id, permission_id: p.id })))
+        .execute()
+    }
+
+    existingUser = await db
+      .selectFrom("users")
+      .selectAll()
+      .where("id", "=", inserted.id)
+      .executeTakeFirstOrThrow()
+  }
+
+  await checkSoftDelete(existingUser)
+
+  const sessionId = crypto.randomUUID()
+  const at = signAccessToken({ sub: existingUser.id, sid: sessionId, email: existingUser.email })
+  const rt = signRefreshToken({ sub: existingUser.id, sid: sessionId, email: existingUser.email })
+
+  await db
+    .insertInto("auth_sessions")
+    .values({
+      id: sessionId,
+      user_id: existingUser.id,
+      refresh_token_hash: hashToken(rt),
+      user_agent: context.userAgent ?? null,
+      ip_address: context.ipAddress ?? null,
+      expires_at: refreshExpiryDate(),
+    })
+    .execute()
+
+  return {
+    user: await mapUser(existingUser.id, existingUser.email, existingUser.is_active),
+    tokens: { accessToken: at, refreshToken: rt },
+  }
+}
+
 export const googleLogin = async (
   accessToken: string,
   context: { userAgent?: string; ipAddress?: string },
@@ -282,6 +397,8 @@ export const googleLogin = async (
       .where("id", "=", inserted.id)
       .executeTakeFirstOrThrow()
   }
+
+  await checkSoftDelete(existingUser)
 
   const sessionId = crypto.randomUUID()
   const at = signAccessToken({ sub: existingUser.id, sid: sessionId, email: existingUser.email })
