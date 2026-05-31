@@ -4,6 +4,7 @@ Open this first when debugging. Each row links to a ~30-line summary of what was
 
 | Date | App | Feature | Doc |
 |------|-----|---------|-----|
+| 2026-05-31 | backend | Fix mixed content: photo URLs HTTP→HTTPS + local-IP normalization | [backend/2026-05-31-mixed-content-photo-urls.md](backend/2026-05-31-mixed-content-photo-urls.md) |
 | 2026-05-24 | backend | Admin users endpoint (`GET /admin/users`) | [backend/2026-05-24-admin-users.md](backend/2026-05-24-admin-users.md) |
 | 2026-05-24 | frontend | Admin users list page + `isAdmin` permission | [frontend/2026-05-24-admin-users.md](frontend/2026-05-24-admin-users.md) |
 | 2026-05-22 | backend | Event photo upload limits (count + file size) | [backend/2026-05-22-photo-upload-limits.md](backend/2026-05-22-photo-upload-limits.md) |
