@@ -224,7 +224,7 @@ export function LoginScreen({ navigation }: Props) {
           <View style={styles.dividerLine} />
         </View>
 
-        <View style={styles.socialRow}>
+        {/* <View style={styles.socialRow}>
           <TouchableOpacity
             onPress={() => {
               googleHandled.current = false;
@@ -249,7 +249,7 @@ export function LoginScreen({ navigation }: Props) {
               <Text style={styles.socialLabel}>Apple</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </View> */}
 
         <Text style={styles.terms}>
           By continuing, you agree to our{' '}
