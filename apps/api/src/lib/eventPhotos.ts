@@ -8,6 +8,19 @@ import { emitToEvent } from "../realtime.js"
 
 const iso = (d: Date) => d.toISOString()
 
+// Rewrite whatever host was stored at upload time to the current API base URL.
+// Handles local-IP uploads (e.g. 172.x.x.x from mobile) and http→https mismatches.
+const normalizePhotoUrl = (storedUrl: string): string => {
+  const baseUrl = process.env.API_BASE_URL
+  if (!baseUrl) return storedUrl
+  try {
+    const filename = path.basename(new URL(storedUrl).pathname)
+    return `${baseUrl}/uploads/${filename}`
+  } catch {
+    return storedUrl
+  }
+}
+
 const mapPhoto = (row: {
   id: string
   channel_id: string
@@ -20,7 +33,7 @@ const mapPhoto = (row: {
   id: row.id,
   channelId: row.channel_id,
   uploaderId: row.uploader_id,
-  url: row.url,
+  url: normalizePhotoUrl(row.url),
   caption: row.caption,
   isFinal: row.is_final,
   createdAt: iso(row.created_at),

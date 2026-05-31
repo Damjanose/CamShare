@@ -69,6 +69,6 @@ export const eventUploadMiddleware: RequestHandler = async (req, res, next) => {
 export const handleUpload = (req: Request, res: Response) => {
   if (!req.auth) return res.status(401).json({ message: "Unauthorized" })
   if (!req.file) return res.status(400).json({ message: "No file uploaded" })
-  const baseUrl = `${req.protocol}://${req.get("host")}`
+  const baseUrl = process.env.API_BASE_URL ?? `${req.protocol}://${req.get("host")}`
   return res.json({ url: `${baseUrl}/uploads/${req.file.filename}` })
 }
