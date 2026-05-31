@@ -1,6 +1,6 @@
 import crypto from "node:crypto"
 import bcrypt from "bcryptjs"
-import { verify } from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 import { db } from "./db.js"
 import { hashToken, refreshExpiryDate, signAccessToken, signRefreshToken, verifyRefreshToken } from "./tokens.js"
 import type { AuthResponse, PermissionName } from "@camshare/types"
@@ -261,7 +261,7 @@ const verifyAppleToken = async (identityToken: string): Promise<{ sub: string; e
     const publicKey = crypto.createPublicKey({ key: jwk as unknown as crypto.JsonWebKey, format: "jwk" })
     const pem = publicKey.export({ type: "spki", format: "pem" }) as string
 
-    const payload = verify(identityToken, pem, {
+    const payload = jwt.verify(identityToken, pem, {
       algorithms: ["RS256"],
       issuer: "https://appleid.apple.com",
       audience: [
@@ -388,7 +388,7 @@ const verifyGoogleIdToken = async (idToken: string): Promise<{ email?: string; n
       throw new Error("Google client IDs not configured")
     }
 
-    const payload = verify(idToken, pem, {
+    const payload = jwt.verify(idToken, pem, {
       algorithms: ["RS256"],
       issuer: ["https://accounts.google.com", "accounts.google.com"],
       audience: googleClientIds as [string, ...string[]],
