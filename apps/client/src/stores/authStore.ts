@@ -1,11 +1,10 @@
 import { create } from "zustand"
 import type { User } from "@/types/domain"
 import type { PermissionName } from "@camshare/types"
-import { apiClient, setTokens, clearTokens } from "@/api/client"
+import { apiClient, setTokens, clearTokens, API_URL } from "@/api/client"
 
 const STORAGE_KEY = "aeterna_session_user"
 const REFRESH_KEY = "camshare_refresh_token"
-const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:3001"
 
 type ApiAuthResponse = {
   user: {

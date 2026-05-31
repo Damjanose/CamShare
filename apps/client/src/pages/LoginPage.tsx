@@ -91,7 +91,7 @@ export const LoginPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        {/* <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" type="button" onClick={() => googleSignIn()}>
             <FcGoogle aria-hidden className="text-xl" /> Google
           </Button>
@@ -108,7 +108,7 @@ export const LoginPage = () => {
               </Button>
             )}
           />
-        </div>
+        </div> */}
 
         <p className="text-center text-body-md text-on-surface-variant mt-2">
           New to CamShare?{" "}
