@@ -139,7 +139,7 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
       maxPhotosPerUser !== null ? Math.max(0, maxPhotosPerUser - myUploadCount) : undefined;
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
+      mediaTypes: ['images'],
       quality: 0.8,
       allowsEditing: false,
       allowsMultipleSelection: true,
