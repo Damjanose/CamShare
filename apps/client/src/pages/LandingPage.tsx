@@ -119,6 +119,9 @@ export const LandingPage = () => {
             <img
               src="https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=1100&fit=crop"
               alt="Event gallery preview"
+              fetchPriority="high"
+              width={600}
+              height={1100}
               className="w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
@@ -315,7 +318,7 @@ export const LandingPage = () => {
                       className="rounded-2xl overflow-hidden bg-gray-200"
                       style={{ height: i % 2 === 0 ? 180 : 220 }}
                     >
-                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
@@ -349,6 +352,9 @@ export const LandingPage = () => {
               <img
                 src={useCase.image}
                 alt={useCase.label}
+                loading="lazy"
+                width={900}
+                height={1200}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">

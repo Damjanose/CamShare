@@ -6,7 +6,21 @@
     <meta name="theme-color" content="#FAF9F6" />
     <title>CamShare · Capture every memory</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+
+    <!-- Preconnect to Google Fonts origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- DNS prefetch for Unsplash images -->
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+
+    <!-- Preload the LCP hero image -->
+    <link
+      rel="preload"
+      as="image"
+      href="https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=1100&fit=crop"
+      fetchpriority="high"
+    />
   </head>
   <body>
     <div id="root"></div>
