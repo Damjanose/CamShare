@@ -148,20 +148,32 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
 
     if (result.canceled || result.assets.length === 0) return;
 
+    // Photos only — defensively drop anything that isn't an image (videos, live photos, etc.)
+    let assets = result.assets.filter(
+      (a) => a.type === undefined || a.type === 'image',
+    );
+
+    // Skip oversized files instead of aborting the whole batch
+    let skippedCount = 0;
     if (maxFileSizeMb !== null) {
-      const oversized = result.assets.find(
-        (a) => a.fileSize !== undefined && a.fileSize > maxFileSizeMb * 1024 * 1024,
+      const maxBytes = maxFileSizeMb * 1024 * 1024;
+      const withinLimit = assets.filter(
+        (a) => a.fileSize === undefined || a.fileSize <= maxBytes,
       );
-      if (oversized) {
-        Alert.alert('File too large', `One or more photos exceed the ${maxFileSizeMb} MB limit.`);
-        return;
-      }
+      skippedCount = assets.length - withinLimit.length;
+      assets = withinLimit;
+    }
+
+    if (assets.length === 0) {
+      Alert.alert('Nothing to upload', `All selected photos exceed the ${maxFileSizeMb} MB limit.`);
+      return;
     }
 
     setIsUploading(true);
     let failCount = 0;
     try {
-      for (const asset of result.assets) {
+      // Upload each photo independently so one failure doesn't abort the rest
+      for (const asset of assets) {
         try {
           await uploadPhoto(asset.uri, asset.mimeType ?? undefined, eventId, channelId);
         } catch {
@@ -169,11 +181,18 @@ export function GalleryScreen({ navigation, route, activeTab, onTabPress }: Prop
         }
       }
       queryClient.invalidateQueries({ queryKey: photosQueryKey });
+
+      const problems: string[] = [];
       if (failCount > 0) {
-        Alert.alert(
-          'Some uploads failed',
-          `${failCount} photo${failCount > 1 ? 's' : ''} could not be uploaded.`,
+        problems.push(`${failCount} photo${failCount > 1 ? 's' : ''} could not be uploaded.`);
+      }
+      if (skippedCount > 0) {
+        problems.push(
+          `${skippedCount} photo${skippedCount > 1 ? 's' : ''} skipped (over the ${maxFileSizeMb} MB limit).`,
         );
+      }
+      if (problems.length > 0) {
+        Alert.alert('Some photos were not uploaded', problems.join('\n'));
       }
     } finally {
       setIsUploading(false);
