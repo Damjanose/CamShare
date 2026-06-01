@@ -1,14 +1,10 @@
 import { useState, type FormEvent } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import { FcGoogle } from "react-icons/fc"
-import { FaApple } from "react-icons/fa"
-import AppleLogin from "react-apple-login"
 import { AuthShell } from "@/components/layout/AuthShell"
 import { Button } from "@/components/primitives/Button"
 import { FloatInput } from "@/components/primitives/FloatInput"
 import { PasswordInput } from "@/components/primitives/PasswordInput"
 import { useAuth } from "@/auth/AuthContext"
-import { useSocialAuth } from "@/auth/useSocialAuth"
 
 export const LoginPage = () => {
   const { login } = useAuth()
@@ -16,7 +12,7 @@ export const LoginPage = () => {
   const location = useLocation()
   const redirectTo =
     (location.state as { from?: { pathname: string } } | null)?.from?.pathname ?? "/dashboard"
-  const { googleSignIn, appleLoginProps } = useSocialAuth(redirectTo)
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [submitting, setSubmitting] = useState(false)

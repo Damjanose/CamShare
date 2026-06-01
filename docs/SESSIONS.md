@@ -4,6 +4,7 @@ Open this first when debugging. Each row links to a ~30-line summary of what was
 
 | Date | App | Feature | Doc |
 |------|-----|---------|-----|
+| 2026-06-02 | frontend | PageSpeed round 2 (font subset, lazy images, remove Apple login dep, nginx cache) | [frontend/2026-06-02-pagespeed-performance-round2.md](frontend/2026-06-02-pagespeed-performance-round2.md) |
 | 2026-06-01 | frontend | PageSpeed performance fixes (images, code splitting, preconnect, lazy load) | [frontend/2026-06-01-pagespeed-performance.md](frontend/2026-06-01-pagespeed-performance.md) |
 | 2026-05-31 | backend | Fix mixed content: photo URLs HTTP→HTTPS + local-IP normalization | [backend/2026-05-31-mixed-content-photo-urls.md](backend/2026-05-31-mixed-content-photo-urls.md) |
 | 2026-05-24 | backend | Admin users endpoint (`GET /admin/users`) | [backend/2026-05-24-admin-users.md](backend/2026-05-24-admin-users.md) |

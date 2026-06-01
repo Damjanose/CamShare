@@ -204,7 +204,7 @@ const PhoneMockup = ({
 
           {/* Event card */}
           <div className="relative rounded-2xl overflow-hidden mb-4" style={{ height: 140 }}>
-            <img src={event.coverImageUrl ?? ""} alt={event.title} className="w-full h-full object-cover" />
+            <img src={event.coverImageUrl ?? ""} alt={event.title} loading="lazy" className="w-full h-full object-cover" />
             <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(19,19,19,0.85) 0%, transparent 55%)" }} />
             {/* Glass badge */}
             <div
@@ -229,7 +229,7 @@ const PhoneMockup = ({
             <div className="grid grid-cols-2 gap-1.5">
               {previewPhotos.slice(0, 4).map((url, i) => (
                 <div key={i} className="rounded-xl overflow-hidden" style={{ height: 72 }}>
-                  <img src={url} alt="" className="w-full h-full object-cover" style={{ opacity: 0.85 }} />
+                  <img src={url} alt="" loading="lazy" className="w-full h-full object-cover" style={{ opacity: 0.85 }} />
                 </div>
               ))}
             </div>

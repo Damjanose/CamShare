@@ -126,7 +126,7 @@ export const ProfilePage = () => {
           <div className="relative group">
             <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20">
               {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.fullName} className="w-full h-full object-cover" />
+                <img src={user.avatarUrl} alt={user.fullName} loading="lazy" width={80} height={80} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-surface-container flex items-center justify-center">
                   <Icon name="person" className="text-3xl text-on-surface-variant" />
