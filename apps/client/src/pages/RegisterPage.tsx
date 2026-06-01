@@ -1,14 +1,16 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { FcGoogle } from "react-icons/fc"
+import { GoogleOAuthProvider } from "@react-oauth/google"
 import { AuthShell } from "@/components/layout/AuthShell"
 import { Button } from "@/components/primitives/Button"
 import { FloatInput } from "@/components/primitives/FloatInput"
 import { PasswordInput } from "@/components/primitives/PasswordInput"
 import { useAuth } from "@/auth/AuthContext"
 import { useSocialAuth } from "@/auth/useSocialAuth"
+import { GOOGLE_CLIENT_ID } from "@/auth/socialAuthConfig"
 
-export const RegisterPage = () => {
+const RegisterForm = () => {
   const { register } = useAuth()
   const navigate = useNavigate()
   const { googleSignIn } = useSocialAuth("/dashboard")
@@ -109,3 +111,9 @@ export const RegisterPage = () => {
     </AuthShell>
   )
 }
+
+export const RegisterPage = () => (
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <RegisterForm />
+  </GoogleOAuthProvider>
+)

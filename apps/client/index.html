@@ -14,6 +14,34 @@
     <!-- DNS prefetch for Unsplash images -->
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
+    <!-- Non-render-blocking font loading: load as print then swap to all -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+      />
+    </noscript>
+
+    <!-- Material Symbols: fixed opsz=24, wght=400, FILL=0|1 — smallest usable subset -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,400,0..1&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL@24,400,0..1&display=swap"
+      />
+    </noscript>
+
     <!-- Preload the LCP hero image -->
     <link
       rel="preload"
