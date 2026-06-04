@@ -367,6 +367,84 @@ export const LandingPage = () => {
         </div>
       </section>
 
+      {/* DOWNLOAD APP */}
+      <section className="px-margin-mobile md:px-margin-desktop py-24 bg-surface-container-low/50">
+        <div className="flex flex-col lg:flex-row items-center gap-16">
+          <div className="flex-1 text-center lg:text-left">
+            <span className="block text-[10px] tracking-[4px] uppercase text-champagne-gold font-label-md mb-4">
+              ● Mobile App
+            </span>
+            <h2 className="font-display-lg text-display-lg mb-6 leading-tight">
+              Your memories,{" "}
+              <span className="text-champagne-gold italic">in your pocket.</span>
+            </h2>
+            <p className="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-md mx-auto lg:mx-0">
+              Download CamShare to manage your events, browse live galleries, and capture every
+              moment — wherever you are.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <a
+                href="https://apps.apple.com/il/app/camshare-event-photos/id6772641876"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download on the App Store"
+                className="inline-flex items-center gap-3 bg-black text-white px-6 py-4 rounded-2xl hover:bg-gray-800 transition-colors duration-200 cursor-pointer border border-white/10 min-w-[180px]"
+              >
+                <svg className="w-7 h-7 flex-shrink-0" viewBox="0 0 814 1000" fill="currentColor">
+                  <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-155.5-113.5c-43.4-66.1-78.4-169.4-78.4-267 0-198.8 130.3-303.9 258.2-303.9 68.5 0 125.5 44.8 168.6 44.8 41.3 0 106.1-47.4 181.8-47.4zm-106.6-217.1c31.5-36.7 54.4-87.9 54.4-139 0-7.1-.6-14.3-1.9-20.1-51.6 1.9-112.9 34.5-149.1 75.7-29.6 32.8-57.6 84-57.6 136 0 7.7 1.3 15.5 1.9 18 3.2.6 8.4 1.3 13.6 1.3 46.5 0 102.8-30.8 138.7-71.9z" />
+                </svg>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] font-label-md uppercase tracking-widest opacity-70">Download on the</span>
+                  <span className="text-base font-bold">App Store</span>
+                </div>
+              </a>
+              <a
+                href="https://play.google.com/store/apps/details?id=com.damjano.camshare"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get it on Google Play"
+                className="inline-flex items-center gap-3 bg-black text-white px-6 py-4 rounded-2xl hover:bg-gray-800 transition-colors duration-200 cursor-pointer border border-white/10 min-w-[180px]"
+              >
+                <svg className="w-7 h-7 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3.18 23.76c.37.2.8.2 1.2-.04l11.37-6.57L12.6 14l-9.42 9.76zM.5 1.27C.2 1.6 0 2.1 0 2.74v18.52c0 .64.2 1.14.51 1.47L.62 22.8l10.38-10.72V12L.62 1.27H.5zM19.37 9.26l-3.26-1.88-3.32 3.43 3.32 3.43 3.27-1.89c.93-.54.93-1.55-.01-2.09zM4.38.28L15.75 6.85l-3.14 3.25L3.18.28c.4-.24.83-.24 1.2 0z" />
+                </svg>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[10px] font-label-md uppercase tracking-widest opacity-70">Get it on</span>
+                  <span className="text-base font-bold">Google Play</span>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div className="flex-1 flex justify-center relative">
+            <div className="relative w-56 h-[450px] bg-black rounded-[2.5rem] border-8 border-gray-900 shadow-2xl overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=800&fit=crop"
+                alt="CamShare mobile app"
+                loading="lazy"
+                width={400}
+                height={800}
+                className="w-full h-full object-cover opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-5 text-center">
+                <p className="text-xs font-bold font-label-md uppercase tracking-widest text-champagne-gold mb-1">CamShare</p>
+                <p className="text-[10px] text-white/60">Event photo sharing</p>
+              </div>
+            </div>
+            <GlassPanel className="absolute -bottom-4 -left-4 px-4 py-3 rounded-2xl shadow-xl z-20">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-champagne-gold/20 flex items-center justify-center">
+                  <Icon name="download" className="text-champagne-gold text-sm" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold">Free Download</p>
+                  <p className="text-[10px] text-on-surface-variant">iOS &amp; Android</p>
+                </div>
+              </div>
+            </GlassPanel>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="px-margin-mobile md:px-margin-desktop py-24">
         <div className="bg-primary-container/20 rounded-[3rem] p-12 md:p-16 text-center relative overflow-hidden">
